@@ -1,7 +1,7 @@
 # Личный проект «YetiCave»
 
 * Студент: [Сергей Жиров](https://up.htmlacademy.ru/php/9/user/667339).
-* Наставник: `Неизвестно`.
+* Наставник: `Вячеслав Никитин (https://htmlacademy.ru/profile/id218143)`.
 
 ---
 
