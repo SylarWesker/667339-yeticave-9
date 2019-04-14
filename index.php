@@ -49,6 +49,22 @@
             "URL картинки" => "img/lot-6.jpg"
         ],
     ];
+
+    // Функция форматирования суммы заказа.
+    function format_price($number)
+    {
+        $number = ceil($number);
+
+        if ($number >= 1000)
+        {
+            $number = number_format($number, 0, '.', ' ');
+        }
+
+        $ruble_symbol = '₽';
+
+        $result = $number . ' ' . $ruble_symbol;
+        return $result;
+    }
 ?>
 
 <!DOCTYPE html>
