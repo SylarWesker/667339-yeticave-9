@@ -52,18 +52,15 @@ $lots = [
 ];
 
 // Функция форматирования суммы заказа.
-function format_price($number)
+function format_price($number, $currency_symbol = '₽')
 {
     $number = ceil($number);
 
-    if ($number >= 1000)
-    {
+    if ($number >= 1000) {
         $number = number_format($number, 0, '.', ' ');
     }
 
-    $ruble_symbol = '₽';
-
-    $result = $number . ' ' . $ruble_symbol;
+    $result = $number . ' ' . $currency_symbol;
     return $result;
 }
 
