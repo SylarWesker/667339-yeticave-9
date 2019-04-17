@@ -73,15 +73,15 @@ function format_price($number, $currency_symbol = '₽')
 // По идее нужно вынести header и footer в отдельные шаблоны.
 
 // Убираем тэги из данных, которые якобы вводит пользователь.
-strip_tags_for_array($stuff_categories);
-strip_tags_for_array($lots);
+$stuff_categories_filtered = strip_tags_for_array($stuff_categories, true);
+$lots_filtered = strip_tags_for_array($lots, true);
 
-$content = include_template('index.php', ['stuff_categories' => $stuff_categories, 
-                                          'lots' => $lots]);
+$content = include_template('index.php', ['stuff_categories' => $stuff_categories_filtered, 
+                                          'lots' => $lots_filtered]);
 
 $layout = include_template('layout.php', ['title' => $title, 
                                           'content' => $content, 
-                                          'stuff_categories' => $stuff_categories, 
+                                          'stuff_categories' => $stuff_categories_filtered, 
                                           'is_auth' => $is_auth, 
                                           'user_name' => $user_name]);
 
