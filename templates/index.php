@@ -30,8 +30,15 @@
                                 <span class="lot__amount">Стартовая цена</span>
                                 <span class="lot__cost"><?= format_price($lot['price']) ?></span>
                             </div>
-                            <div class="lot__timer timer">
-                                12:23
+
+                            <!-- если времени осталось ровно один час или меньше -->
+                            <?php if ( ($lot_life_end_time->h == 1 && $lot_life_end_time->i == 0) || $lot_life_end_time->h == 0 ): ?>
+                                <div class="lot__timer timer timer--finishing">
+                            <?php else: ?>
+                                <div class="lot__timer timer">
+                            <?php endif; ?>
+
+                               <?= $lot_life_end_time->format("%H:%I") ?>
                             </div>
                         </div>
                     </div>
