@@ -1,8 +1,11 @@
 <?php
 
 require_once('helpers.php');
+require_once('utils/utils.php');
 
 $is_auth = rand(0, 1);
+
+$title = 'Главная';
 
 $user_name = 'Sylar'; // укажите здесь ваше имя
 
@@ -69,11 +72,18 @@ function format_price($number, $currency_symbol = '₽')
 // ToDo
 // По идее нужно вынести header и footer в отдельные шаблоны.
 
-$title = 'Главная';
+// Убираем тэги из данных, которые якобы вводит пользователь.
+strip_tags_for_array($stuff_categories);
+strip_tags_for_array($lots);
 
-$content = include_template('index.php', ['stuff_categories' => $stuff_categories, 'lots' => $lots]);
+$content = include_template('index.php', ['stuff_categories' => $stuff_categories, 
+                                          'lots' => $lots]);
 
-$layout = include_template('layout.php', ['title' => $title, 'content' => $content, 'stuff_categories' => $stuff_categories, 'is_auth' => $is_auth]);
+$layout = include_template('layout.php', ['title' => $title, 
+                                          'content' => $content, 
+                                          'stuff_categories' => $stuff_categories, 
+                                          'is_auth' => $is_auth, 
+                                          'user_name' => $user_name]);
 
 print($layout);
 
