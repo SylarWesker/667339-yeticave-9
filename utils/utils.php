@@ -6,7 +6,7 @@ function strip_tags_for_array($arr_data, $recursive = false)
 {
     $arr_copy = $arr_data;
 
-    foreach($arr_data as $arr_item)
+    foreach($arr_copy as &$arr_item)
     {
         if (is_array($arr_item)) {
             if ($recursive) {
