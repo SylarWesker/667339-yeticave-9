@@ -19,3 +19,9 @@ function strip_tags_for_array($arr_data, $recursive = false)
 
     return $arr_copy;
 }
+
+// Возвращает истину, если в интервале один час или меньше.
+function is_equal_or_less_hour($time_interval)
+{
+    return ($time_interval->h === 1 && $time_interval->i === 0) || $time_interval->h === 0;
+}

@@ -81,9 +81,16 @@ $date_now = new DateTime();
 $today_midnight = date_create('tomorrow');
 $time_to_midnight = $today_midnight->diff($date_now); // Время до полуночи (считаем что это время окончания "жизни" лота).
 
+// ToDo!
+// Сделать расчет (осталось меньше часа до полуночи) и формирование строки в нужном формате в этом файле.
+// передавать в шаблон уже готовые данные
+// Проблема в том, что в будущем будет не одна дата, а данные для каждого лота. 
+// нужно будет или отдельные функции или объекты с методами.
+// Upd: Пока сделал метод.
+
 $content = include_template('index.php', ['stuff_categories' => $stuff_categories_filtered, 
                                           'lots' => $lots_filtered,
-                                          'lot_life_end_time' => $time_to_midnight]);
+                                          'lot_lifetime_end' => $time_to_midnight]);
 
 $layout = include_template('layout.php', ['title' => $title, 
                                           'content' => $content, 

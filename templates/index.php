@@ -1,3 +1,7 @@
+<?php
+    require_once('utils/utils.php');
+?>
+
 <main class="container">
     <section class="promo">
         <h2 class="promo__title">Нужен стафф для катки?</h2>
@@ -32,13 +36,13 @@
                             </div>
 
                             <!-- если времени осталось ровно один час или меньше -->
-                            <?php if ( ($lot_life_end_time->h == 1 && $lot_life_end_time->i == 0) || $lot_life_end_time->h == 0 ): ?>
+                            <?php if (is_equal_or_less_hour($lot_lifetime_end) ): ?>
                                 <div class="lot__timer timer timer--finishing">
                             <?php else: ?>
                                 <div class="lot__timer timer">
                             <?php endif; ?>
 
-                               <?= $lot_life_end_time->format("%H:%I") ?>
+                               <?= $lot_lifetime_end->format("%H:%I") ?>
                             </div>
                         </div>
                     </div>
