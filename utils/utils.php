@@ -4,18 +4,16 @@
 // Возвращает измененную копию.
 function strip_tags_for_array($arr_data, $recursive = false)
 {
-    $arr_copy = $arr_data;
-
-    foreach(array_keys($arr_copy) as $key)
+    foreach($arr_data as $key => $value)
     {
-        if (is_array($arr_copy[$key])) {
+        if (is_array($value)) {
             if ($recursive) {
-                $arr_copy[$key] = strip_tags_for_array($arr_copy[$key], $recursive);
+                $arr_copy[$key] = strip_tags_for_array($value, $recursive);
             }
-        } elseif (is_string($arr_copy[$key])) {
-            $arr_copy[$key] = strip_tags($arr_copy[$key]);
+        } elseif (is_string($value)) {
+            $arr_copy[$key] = strip_tags($value);
         }
     }
 
-    return $arr_copy;
+    return $arr_data;
 }
