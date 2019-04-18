@@ -6,14 +6,14 @@ function strip_tags_for_array($arr_data, $recursive = false)
 {
     $arr_copy = $arr_data;
 
-    foreach($arr_copy as &$arr_item)
+    foreach(array_keys($arr_copy) as $key)
     {
-        if (is_array($arr_item)) {
+        if (is_array($arr_copy[$key])) {
             if ($recursive) {
-                $arr_item = strip_tags_for_array($arr_item, $recursive);
+                $arr_copy[$key] = strip_tags_for_array($arr_copy[$key], $recursive);
             }
-        } elseif (is_string($arr_item)) {
-            $arr_item = strip_tags($arr_item);
+        } elseif (is_string($arr_copy[$key])) {
+            $arr_copy[$key] = strip_tags($arr_copy[$key]);
         }
     }
 
