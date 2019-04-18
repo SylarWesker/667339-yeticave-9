@@ -8,10 +8,10 @@ function strip_tags_for_array($arr_data, $recursive = false)
     {
         if (is_array($value)) {
             if ($recursive) {
-                $arr_copy[$key] = strip_tags_for_array($value, $recursive);
+                $arr_data[$key] = strip_tags_for_array($value, $recursive);
             }
         } elseif (is_string($value)) {
-            $arr_copy[$key] = strip_tags($value);
+            $arr_data[$key] = strip_tags($value);
         }
     }
 
