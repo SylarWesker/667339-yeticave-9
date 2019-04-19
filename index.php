@@ -65,7 +65,7 @@ $lots_filtered = strip_tags_for_array($lots, true);
 
 // Формирование времени окончания дейтсвия лота
 $date_now = new DateTime();
-$today_midnight = date_create('tomorrow');
+$today_midnight = new DateTime('tomorrow');
 
 // Время до полуночи (считаем что это время окончания "жизни" лота).
 $time_to_midnight = $today_midnight->diff($date_now); 
