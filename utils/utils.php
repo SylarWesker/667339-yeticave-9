@@ -17,3 +17,22 @@ function strip_tags_for_array($arr_data, $recursive = false)
 
     return $arr_data;
 }
+
+// Возвращает истину, если в интервале один час или меньше.
+function is_equal_or_less_hour($time_interval)
+{
+    return ($time_interval->h === 1 && $time_interval->i === 0) || $time_interval->h === 0;
+}
+
+// Функция форматирования суммы заказа.
+function format_price($number, $currency_symbol = '₽')
+{
+    $number = ceil($number);
+
+    if ($number >= 1000) {
+        $number = number_format($number, 0, '.', ' ');
+    }
+
+    $result = $number . ' ' . $currency_symbol;
+    return $result;
+}

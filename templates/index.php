@@ -1,3 +1,7 @@
+<?php
+    require_once('utils/utils.php');
+?>
+
 <main class="container">
     <section class="promo">
         <h2 class="promo__title">Нужен стафф для катки?</h2>
@@ -30,8 +34,15 @@
                                 <span class="lot__amount">Стартовая цена</span>
                                 <span class="lot__cost"><?= format_price($lot['price']) ?></span>
                             </div>
-                            <div class="lot__timer timer">
-                                12:23
+
+                            <!-- если времени осталось ровно один час или меньше -->
+                            <?php if (is_equal_or_less_hour($lot_lifetime_end) ): ?>
+                                <div class="lot__timer timer timer--finishing">
+                            <?php else: ?>
+                                <div class="lot__timer timer">
+                            <?php endif; ?>
+
+                               <?= $lot_lifetime_end->format("%H:%I") ?>
                             </div>
                         </div>
                     </div>

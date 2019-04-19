@@ -15,7 +15,7 @@ $stuff_categories = ["Доски и лыжи", "Крепления", "Ботин
 $lots = [
     [
         "name" => "2014 Rossignol District Snowboard",
-        "category" => "Доски и лыжи",
+        "category" => "<h1>Доски и лыжи</h1>",
         "price" => 10999,
         "image_url" => "img/lot-1.jpg"
     ],
@@ -56,19 +56,6 @@ $lots = [
     ],
 ];
 
-// Функция форматирования суммы заказа.
-function format_price($number, $currency_symbol = '₽')
-{
-    $number = ceil($number);
-
-    if ($number >= 1000) {
-        $number = number_format($number, 0, '.', ' ');
-    }
-
-    $result = $number . ' ' . $currency_symbol;
-    return $result;
-}
-
 // ToDo
 // По идее нужно вынести header и footer в отдельные шаблоны.
 
@@ -76,8 +63,16 @@ function format_price($number, $currency_symbol = '₽')
 $stuff_categories_filtered = strip_tags_for_array($stuff_categories, true);
 $lots_filtered = strip_tags_for_array($lots, true);
 
+// Формирование времени окончания дейтсвия лота
+$date_now = new DateTime();
+$today_midnight = new DateTime('tomorrow');
+
+// Время до полуночи (считаем что это время окончания "жизни" лота).
+$time_to_midnight = $today_midnight->diff($date_now); 
+
 $content = include_template('index.php', ['stuff_categories' => $stuff_categories_filtered, 
-                                          'lots' => $lots_filtered]);
+                                          'lots' => $lots_filtered,
+                                          'lot_lifetime_end' => $time_to_midnight]);
 
 $layout = include_template('layout.php', ['title' => $title, 
                                           'content' => $content, 
