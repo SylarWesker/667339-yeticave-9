@@ -3,6 +3,8 @@
 require_once('helpers.php');
 require_once('utils/utils.php');
 
+require_once('utils/DateIntervalExtended.php');
+
 $is_auth = rand(0, 1);
 
 $title = 'Главная';
@@ -64,15 +66,32 @@ $stuff_categories_filtered = strip_tags_for_array($stuff_categories, true);
 $lots_filtered = strip_tags_for_array($lots, true);
 
 // Формирование времени окончания дейтсвия лота
-$date_now = new DateTime();
+$date_now = new DateTime(); // 'now + 10 hour'
 $today_midnight = new DateTime('tomorrow');
 
 // Время до полуночи (считаем что это время окончания "жизни" лота).
 $time_to_midnight = $today_midnight->diff($date_now); 
 
+$time_to_midnight_ext = new DateIntervalExtended($time_to_midnight);
+
+// echo "<pre>";
+// var_dump($date_now);
+// echo "</pre>";
+
+// echo "<br>";
+
+// $test_ext_class = new DateIntervalExtended($time_to_midnight);
+// echo $test_ext_class->is_equal_or_less_hour() === true ? '<= 1' : '> 1';
+
+// echo "<br>";
+
+// $test_wrapper = new DateIntervalExtended($time_to_midnight);
+// echo $test_wrapper->is_equal_or_less_hour() === true ? '<= 1' : '> 1';
+// echo "<br>";
+
 $content = include_template('index.php', ['stuff_categories' => $stuff_categories_filtered, 
                                           'lots' => $lots_filtered,
-                                          'lot_lifetime_end' => $time_to_midnight]);
+                                          'lot_lifetime_end' => $time_to_midnight_ext]);
 
 $layout = include_template('layout.php', ['title' => $title, 
                                           'content' => $content, 

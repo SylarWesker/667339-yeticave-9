@@ -1,5 +1,6 @@
 <?php
     require_once('utils/utils.php');
+    require_once('utils/DateIntervalExtended.php');
 ?>
 
 <main class="container">
@@ -36,7 +37,7 @@
                             </div>
 
                             <!-- если времени осталось ровно один час или меньше -->
-                            <?php if (is_equal_or_less_hour($lot_lifetime_end) ): ?>
+                            <?php if ($lot_lifetime_end->is_equal_or_less_hour()): ?>
                                 <div class="lot__timer timer timer--finishing">
                             <?php else: ?>
                                 <div class="lot__timer timer">
