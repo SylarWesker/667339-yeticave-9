@@ -27,7 +27,7 @@ CREATE TABLE users (
 CREATE TABLE lots (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    description VARCHAR(255),
+    description TEXT,
     date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     image_url VARCHAR(255),
     start_price DECIMAL(8, 2),
