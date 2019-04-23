@@ -2,19 +2,23 @@
 USE yeticave;
 
 -- Добавление категорий.
-INSERT INTO stuff_categories (name, symbol_code) VALUES
-('Доски и лыжи', 'boards'), ('Крепления', 'attachment'),
-('Ботинки', 'boots'), ('Одежда', 'clothing'), 
-('Инструменты', 'tools'), ('Разное', 'other');
+INSERT INTO stuff_category (name, symbol_code) 
+VALUES
+('Доски и лыжи', 'boards'), 
+('Крепления', 'attachment'),
+('Ботинки', 'boots'), 
+('Одежда', 'clothing'), 
+('Инструменты', 'tools'), 
+('Разное', 'other');
 
 -- Добавление пользователей.
-INSERT INTO users (name, password, email, contacts)
+INSERT INTO user (name, password, email, contacts)
 VALUES
 ('admin', 'hashed_password', 'hackerman@gmail.com', 'Top secret info'),
 ('simple_user', 'hashed_password', 'vasya2005@mail.ru', 'New-York city честно');
 
 -- Добавление объявлений.
-INSERT INTO lots (id_author, id_category, name, start_price, image_url, step_bet, date_end)
+INSERT INTO lot (author_id, category_id, name, start_price, image_url, step_bet, end_date)
 VALUES
 (1, 1, '2014 Rossignol District Snowboard', 10999, 'img/lot-1.jpg', 500, NOW() + INTERVAL 7 day),
 (1, 1, 'DC Ply Mens 2016/2017 Snowboard', 159999, 'img/lot-2.jpg', 1000, NOW() + INTERVAL 7 day),
@@ -24,7 +28,7 @@ VALUES
 (2, 6, 'Маска Oakley Canopy', 5400, 'img/lot-6.jpg', 100, NOW() + INTERVAL 7 day);
 
 -- Добавление ставок.
-INSERT INTO bets (lot_id, user_id, price)
+INSERT INTO bet (lot_id, user_id, price)
 VALUES 
 (1, 1, 15000),
 (2, 2, 165000);
@@ -33,38 +37,54 @@ VALUES
 -- Запросы (потом вынести в отдельный файл).
 
 -- Получить все категории.
-SELECT * FROM stuff_categories; 
+SELECT * FROM stuff_category; 
 -- если только названия
-SELECT name FROM stuff_categories;
+SELECT name FROM stuff_category;
 
 
 -- Получить самые новые, открытые лоты. 
 -- Каждый лот должен включать название, стартовую цену, ссылку на изображение, цену, название категории;
 
--- цену... какую цену?
-SELECT l.name, l.start_price, l.image_url, l.date_creation, l.date_end, cat.name as 'category', l.description FROM lots as l
-LEFT JOIN stuff_categories as cat on l.id_category = cat.id
-WHERE date_end IS NOT NULL AND date_end > NOW()
-ORDER BY date_creation DESC;
+-- цену... какую цену? Максимальную ставку по этому лоту
+SELECT  l.name,
+        l.start_price, 
+        l.image_url, 
+        l.creation_date,
+        l.end_date,
+        cat.name as 'category', 
+        l.description 
+FROM lots as l
+LEFT JOIN stuff_category as cat on l.id_category = cat.id
+WHERE l.end_date IS NOT NULL AND l.end_date > NOW()
+ORDER BY l.creation_date DESC;
 
 -- Показать лот по его ID
--- какие поля показать?
-SELECT l.name, l.start_price, l.date_creation, l.date_end, l.step_bet, us.name as 'author', cat.name as 'category' FROM lots as l
-LEFT JOIN stuff_categories as cat on l.id_category = cat.id
-LEFT JOIN users as us on l.id_author = us.id
+SELECT  l.name, 
+        l.start_price,
+        l.creation_date, 
+        l.end_date, 
+        l.step_bet, 
+        us.name as 'author', 
+        cat.name as 'category' 
+FROM lots as l
+LEFT JOIN stuff_category as cat on l.id_category = cat.id
+LEFT JOIN user as us on l.id_author = us.id
 WHERE l.id = 1; -- тут указать id лота
 
 
 -- Обновить название лота по его id
-UPDATE lots SET name = 'new lot name'
+UPDATE lot SET name = 'new lot name'
 WHERE id = 1; -- тут указать id нужного лота
 
 
 -- Получить список самых свежих ставок для лота по его идентификатору.
--- самых свежих... это значит первые 3, 5, 10 ?
-SELECT b.create_date, b.price, us.name as 'bet creator', l.name as 'lot name' FROM bets
-LEFT JOIN users as us on b.user_id = us.id
-LEFT JOIN lots as l in b.lot_id = l.id
-WHERE lot_id = 1 -- тут указать id лота
-ORDER BY create_date DESC 
+SELECT  b.create_date, 
+        b.price, 
+        us.name as 'bet creator', 
+        l.name as 'lot name' 
+FROM bet as b
+LEFT JOIN user as us on b.user_id = us.id
+LEFT JOIN lot as l in b.lot_id = l.id
+WHERE b.lot_id = 1 -- тут указать id лота
+ORDER BY b.create_date DESC 
 LIMIT 3;
