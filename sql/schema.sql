@@ -18,7 +18,7 @@ CREATE TABLE users (
     email VARCHAR(255) UNIQUE NOT NULL,
     name VARCHAR(100) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
-    registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    registration_date DATETIME DEFAULT CURRENT_TIMESTAMP,
     avatar_url VARCHAR(255),
     contacts VARCHAR(255) -- контакты
 );
@@ -28,10 +28,10 @@ CREATE TABLE lots (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     description TEXT,
-    date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    date_creation DATETIME DEFAULT CURRENT_TIMESTAMP,
     image_url VARCHAR(255),
     start_price DOUBLE NOT NULL,
-    date_end TIMESTAMP, -- дата завершения "действия лота"
+    date_end DATETIME, -- дата завершения "действия лота"
     step_bet DOUBLE DEFAULT '0.0000',  -- шаг ставки
    
     id_author INT NOT NULL, -- id пользователя, создавшего лот
@@ -50,7 +50,7 @@ CREATE TABLE lots (
 -- Таблица ставок.
 CREATE TABLE bets ( 
     id INT AUTO_INCREMENT PRIMARY KEY, 
-    create_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+    create_date DATETIME DEFAULT CURRENT_TIMESTAMP, 
     price DOUBLE NOT NULL DEFAULT '0.0000', -- цена, по которой пользователь готов приобрести лот. 
 
     user_id INT NOT NULL, 
