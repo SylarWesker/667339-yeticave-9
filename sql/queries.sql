@@ -44,19 +44,26 @@ SELECT name FROM stuff_category;
 
 -- Получить самые новые, открытые лоты. 
 -- Каждый лот должен включать название, стартовую цену, ссылку на изображение, цену, название категории;
-
--- цену... какую цену? Максимальную ставку по этому лоту
 SELECT  l.name,
         l.start_price, 
         l.image_url, 
         l.creation_date,
         l.end_date,
         cat.name as 'category', 
-        l.description 
-FROM lots as l
-LEFT JOIN stuff_category as cat on l.id_category = cat.id
+        l.description,
+        max(b.price) as 'max_price'
+FROM lot as l
+JOIN stuff_category as cat on l.category_id = cat.id
+LEFT JOIN bet as b on l.id = b.lot_id
 WHERE l.end_date IS NOT NULL AND l.end_date > NOW()
-ORDER BY l.creation_date DESC;
+GROUP BY l.name,
+        l.start_price, 
+        l.image_url, 
+        l.creation_date,
+        l.end_date,
+        cat.name, 
+        l.description
+ORDER BY l.creation_date DESC
 
 -- Показать лот по его ID
 SELECT  l.name, 
@@ -66,9 +73,9 @@ SELECT  l.name,
         l.step_bet, 
         us.name as 'author', 
         cat.name as 'category' 
-FROM lots as l
-LEFT JOIN stuff_category as cat on l.id_category = cat.id
-LEFT JOIN user as us on l.id_author = us.id
+FROM lot as l
+LEFT JOIN stuff_category as cat on l.category_id = cat.id
+LEFT JOIN user as us on l.author_id = us.id
 WHERE l.id = 1; -- тут указать id лота
 
 
@@ -84,7 +91,7 @@ SELECT  b.create_date,
         l.name as 'lot name' 
 FROM bet as b
 LEFT JOIN user as us on b.user_id = us.id
-LEFT JOIN lot as l in b.lot_id = l.id
+LEFT JOIN lot as l on b.lot_id = l.id
 WHERE b.lot_id = 1 -- тут указать id лота
 ORDER BY b.create_date DESC 
 LIMIT 3;
