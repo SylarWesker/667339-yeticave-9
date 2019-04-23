@@ -28,23 +28,23 @@ CREATE TABLE lots (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     description TEXT,
-    date_creation DATETIME DEFAULT CURRENT_TIMESTAMP,
+    creation_date DATETIME DEFAULT CURRENT_TIMESTAMP,
     image_url VARCHAR(255),
     start_price DOUBLE NOT NULL,
-    date_end DATETIME, -- дата завершения "действия лота"
+    end_date DATETIME, -- дата завершения "действия лота"
     step_bet DOUBLE DEFAULT '0.0000',  -- шаг ставки
    
-    id_author INT NOT NULL, -- id пользователя, создавшего лот
+    author_id INT NOT NULL, -- id пользователя, создавшего лот
     CONSTRAINT lots_usersAuthor_fk
-    FOREIGN KEY (id_author) REFERENCES users(id),
+    FOREIGN KEY (author_id) REFERENCES users(id),
 
-    id_winner INT, -- id победителя
+    winner_id INT, -- id победителя
     CONSTRAINT lots_usersWinner_fk
-    FOREIGN KEY (id_winner) REFERENCES users(id),
+    FOREIGN KEY (winner_id) REFERENCES users(id),
 
-    id_category INT NOT NULL, -- id категории объявления/спорт инвентаря
+    category_id INT NOT NULL, -- id категории объявления/спорт инвентаря
     CONSTRAINT lots_categories_fk
-    FOREIGN KEY (id_category) REFERENCES stuff_categories(id)
+    FOREIGN KEY (category_id) REFERENCES stuff_categories(id)
 );
 
 -- Таблица ставок.
