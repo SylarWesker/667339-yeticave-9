@@ -6,14 +6,14 @@ CREATE DATABASE yeticave
 USE yeticave;
 
 -- Таблица категорий.
-CREATE TABLE stuff_categories(
+CREATE TABLE stuff_category (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50), -- название
     symbol_code VARCHAR(50) -- Символьный код нужен, чтобы назначить правильный класс в меню категорий.
 );
 
 -- Таблица пользователей.
-CREATE TABLE users (
+CREATE TABLE user (
 	id INT AUTO_INCREMENT PRIMARY KEY,
     email VARCHAR(255) UNIQUE NOT NULL,
     name VARCHAR(100) UNIQUE NOT NULL,
@@ -24,7 +24,7 @@ CREATE TABLE users (
 );
 
 -- Таблица лотов.
-CREATE TABLE lots (
+CREATE TABLE lot (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     description TEXT,
@@ -35,28 +35,28 @@ CREATE TABLE lots (
     step_bet DOUBLE DEFAULT '0.0000',  -- шаг ставки
    
     author_id INT NOT NULL, -- id пользователя, создавшего лот
-    CONSTRAINT lots_usersAuthor_fk
-    FOREIGN KEY (author_id) REFERENCES users(id),
+    CONSTRAINT lot_userAuthor_fk
+    FOREIGN KEY (author_id) REFERENCES user(id),
 
     winner_id INT, -- id победителя
-    CONSTRAINT lots_usersWinner_fk
-    FOREIGN KEY (winner_id) REFERENCES users(id),
+    CONSTRAINT lot_userWinner_fk
+    FOREIGN KEY (winner_id) REFERENCES user(id),
 
     category_id INT NOT NULL, -- id категории объявления/спорт инвентаря
-    CONSTRAINT lots_categories_fk
-    FOREIGN KEY (category_id) REFERENCES stuff_categories(id)
+    CONSTRAINT lot_category_fk
+    FOREIGN KEY (category_id) REFERENCES stuff_category(id)
 );
 
 -- Таблица ставок.
-CREATE TABLE bets ( 
+CREATE TABLE bet ( 
     id INT AUTO_INCREMENT PRIMARY KEY, 
     create_date DATETIME DEFAULT CURRENT_TIMESTAMP, 
     price DOUBLE NOT NULL DEFAULT '0.0000', -- цена, по которой пользователь готов приобрести лот. 
 
     user_id INT NOT NULL, 
-    CONSTRAINT bets_users_fk 
-    FOREIGN KEY (user_id) REFERENCES users(id), 
+    CONSTRAINT bet_user_fk 
+    FOREIGN KEY (user_id) REFERENCES user(id), 
     
     lot_id INT, 
-    CONSTRAINT bets_lots_fk FOREIGN KEY (lot_id) REFERENCES lots(id) 
+    CONSTRAINT bet_lot_fk FOREIGN KEY (lot_id) REFERENCES lot(id) 
 );
