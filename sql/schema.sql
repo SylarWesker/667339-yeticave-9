@@ -30,9 +30,9 @@ CREATE TABLE lots (
     description TEXT,
     date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     image_url VARCHAR(255),
-    start_price DECIMAL(8, 2),
+    start_price DOUBLE NOT NULL,
     date_end TIMESTAMP, -- дата завершения "действия лота"
-    step_bet DECIMAL(8, 2),  -- шаг ставки
+    step_bet DOUBLE DEFAULT '0.0000',  -- шаг ставки
    
     id_author INT NOT NULL, -- id пользователя, создавшего лот
     CONSTRAINT lots_usersAuthor_fk
@@ -51,7 +51,7 @@ CREATE TABLE lots (
 CREATE TABLE bets ( 
     id INT AUTO_INCREMENT PRIMARY KEY, 
     create_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
-    price DECIMAL(8, 2), -- цена, по которой пользователь готов приобрести лот. 
+    price DOUBLE NOT NULL DEFAULT '0.0000', -- цена, по которой пользователь готов приобрести лот. 
 
     user_id INT NOT NULL, 
     CONSTRAINT bets_users_fk 
