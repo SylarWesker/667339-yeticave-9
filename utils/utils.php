@@ -19,9 +19,17 @@ function strip_tags_for_array($arr_data, $recursive = false)
 }
 
 // Возвращает истину, если в интервале один час или меньше.
-function is_equal_or_less_hour($time_interval)
+function is_equal_or_less_hour($date_interval) 
 {
-    return ($time_interval->h === 1 && $time_interval->i === 0) || $time_interval->h === 0;
+    // тут по идее нужно чтобы все было нулем (но миллисекунды не буду уже учитывать)
+    $only_hours_has = $date_interval->y === 0 && 
+                      $date_interval->m === 0 && 
+                      $date_interval->d === 0;
+
+    $one_hour = $date_interval->h === 1 && $date_interval->i === 0 && $date_interval->s === 0;
+    $hour_or_less = $one_hour || $date_interval->h === 0;
+
+    return $only_hours_has && $hour_or_less;
 }
 
 // Функция форматирования суммы заказа.
