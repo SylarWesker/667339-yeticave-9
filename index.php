@@ -67,6 +67,10 @@ $lots_filtered = strip_tags_for_array($lots, true);
 $date_now = new DateTime();
 $today_midnight = new DateTime('tomorrow');
 
+// ToDo!
+// Не учитываю того факта что время лота может уже истечь, но разница между датами все равно будет меньше или равна часу.
+// проверять по идее нужно св-во invert.
+
 // Время до полуночи (считаем что это время окончания "жизни" лота).
 $time_to_midnight = $today_midnight->diff($date_now); 
 

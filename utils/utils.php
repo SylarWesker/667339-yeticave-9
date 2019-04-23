@@ -26,10 +26,13 @@ function is_equal_or_less_hour($date_interval)
                       $date_interval->m === 0 && 
                       $date_interval->d === 0;
 
-    $one_hour = $date_interval->h === 1 && $date_interval->i === 0 && $date_interval->s === 0;
-    $hour_or_less = $one_hour || $date_interval->h === 0;
+    $seconds_in_one_hour = 3600;
+    
+    $total_seconds = $date_interval->h * $seconds_in_one_hour + 
+                     $date_interval->i * 60 + 
+                     $date_interval->s;
 
-    return $only_hours_has && $hour_or_less;
+    return $only_hours_has && ($total_seconds <= $seconds_in_one_hour);
 }
 
 // Функция форматирования суммы заказа.
