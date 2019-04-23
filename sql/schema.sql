@@ -1,19 +1,19 @@
 -- Создание БД.
-CREATE DATABASE yeticave
+CREATE DATABASE IF NOT EXISTS yeticave
 	DEFAULT CHARACTER SET utf8
     DEFAULT COLLATE utf8_general_ci;
 
 USE yeticave;
 
 -- Таблица категорий.
-CREATE TABLE stuff_category (
+CREATE TABLE IF NOT EXISTS stuff_category (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50), -- название
     symbol_code VARCHAR(50) -- Символьный код нужен, чтобы назначить правильный класс в меню категорий.
 );
 
 -- Таблица пользователей.
-CREATE TABLE user (
+CREATE TABLE IF NOT EXISTS user (
 	id INT AUTO_INCREMENT PRIMARY KEY,
     email VARCHAR(255) UNIQUE NOT NULL,
     name VARCHAR(100) UNIQUE NOT NULL,
@@ -24,7 +24,7 @@ CREATE TABLE user (
 );
 
 -- Таблица лотов.
-CREATE TABLE lot (
+CREATE TABLE IF NOT EXISTS lot (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     description TEXT,
@@ -48,7 +48,7 @@ CREATE TABLE lot (
 );
 
 -- Таблица ставок.
-CREATE TABLE bet ( 
+CREATE TABLE IF NOT EXISTS bet ( 
     id INT AUTO_INCREMENT PRIMARY KEY, 
     create_date DATETIME DEFAULT CURRENT_TIMESTAMP, 
     price DOUBLE NOT NULL DEFAULT '0.0000', -- цена, по которой пользователь готов приобрести лот. 
