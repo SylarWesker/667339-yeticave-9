@@ -9,54 +9,8 @@ $title = 'Главная';
 
 $user_name = 'Sylar'; // укажите здесь ваше имя
 
-// $stuff_categories = ["Доски и лыжи", "Крепления", "Ботинки", "Одежда", "Инструменты", "Разное"];
 $stuff_categories = [];
-
-// По идее категории надо бы заменить на значения из массива $stuff_categories ("Доски и лыжи" на  $stuff_categories[0])
 $lots = [];
-// $lots = [
-//     [
-//         "name" => "2014 Rossignol District Snowboard",
-//         "category" => "<h1>Доски и лыжи</h1>",
-//         "price" => 10999,
-//         "image_url" => "img/lot-1.jpg"
-//     ],
-
-//     [
-//         "name" => "DC Ply Mens 2016/2017 Snowboard",
-//         "category" => "Доски и лыжи",
-//         "price" => 159999,
-//         "image_url" => "img/lot-2.jpg"
-//     ],
-
-//     [
-//         "name" => "Крепления Union Contact Pro 2015 года размер L/XL",
-//         "category" => "Крепления",
-//         "price" => 8000,
-//         "image_url" => "img/lot-3.jpg"
-//     ],
-
-//     [
-//         "name" => "Ботинки для сноуборда DC Mutiny Charocal",
-//         "category" => "Ботинки",
-//         "price" => 10999,
-//         "image_url" => "img/lot-4.jpg"
-//     ],
-
-//     [
-//         "name" => "Куртка для сноуборда DC Mutiny Charocal",
-//         "category" => "Одежда",
-//         "price" => 7500,
-//         "image_url" => "img/lot-5.jpg"
-//     ],
-
-//     [
-//         "name" => "Маска Oakley Canopy",
-//         "category" => "Разное",
-//         "price" => 5400,
-//         "image_url" => "img/lot-6.jpg"
-//     ],
-// ];
 
 $host = "localhost";
 $user = "yeticave_web";
@@ -89,11 +43,7 @@ if (!$con) {
         $error = mysqli_error($con);
         print('Ошибка MySql при получении лотов: ' . $error);
     } else {
-        $lots = mysqli_fetch_all($result, MYSQLI_ASSOC); // MYSQLI_NUM
-
-        // echo "<pre>";
-        // var_dump($stuff_categories);
-        // echo "</pre>";
+        $lots = mysqli_fetch_all($result, MYSQLI_ASSOC);
     }
 
     // список категорий.
@@ -104,26 +54,12 @@ if (!$con) {
         $error = mysqli_error($con);
         print('Ошибка MySql при получении списка категорий: ' . $error);
     } else {
-        $stuff_categories = mysqli_fetch_all($result, MYSQLI_ASSOC); // MYSQLI_NUM
-
-        // echo "<pre>";
-        // var_dump($stuff_categories);
-        // echo "</pre>";
+        $stuff_categories = mysqli_fetch_all($result, MYSQLI_ASSOC);
     }
 }
 
-
-
-
-
 // ToDo
 // По идее нужно вынести header и footer в отдельные шаблоны.
-
-// Убираем тэги из данных, которые якобы вводит пользователь.
-
-// Upd. Теперь получаем данные из БД. Там они уже должны быть "очищенны" от тэгов и прочего.
-// $stuff_categories_filtered = strip_tags_for_array($stuff_categories, true);
-// $lots_filtered = strip_tags_for_array($lots, true);
 
 // Формирование времени окончания действия лота.
 $date_now = new DateTime();
