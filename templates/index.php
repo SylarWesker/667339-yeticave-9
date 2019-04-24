@@ -32,7 +32,7 @@
                         <div class="lot__state">
                             <div class="lot__rate">
                                 <span class="lot__amount">Стартовая цена</span>
-                                <span class="lot__cost"><?= format_price($lot['price']) ?></span>
+                                <span class="lot__cost"><?= format_price($lot['start_price']) ?></span>
                             </div>
 
                             <!-- если времени осталось ровно один час или меньше -->
