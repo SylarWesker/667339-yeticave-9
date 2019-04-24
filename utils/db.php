@@ -53,7 +53,7 @@ function get_lots($con)
     $result = null;
     $error = null;
 
-    if (!$result) {
+    if (!$query_result) {
         $error = mysqli_error($con);
     } else {
         $result = mysqli_fetch_all($query_result, MYSQLI_ASSOC);
