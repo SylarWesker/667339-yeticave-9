@@ -2,6 +2,9 @@
 
 require_once('helpers.php');
 require_once('utils/utils.php');
+require_once('utils/db.php');
+
+use yeticave\db\functions as db_func;
 
 $is_auth = rand(0, 1);
 
@@ -12,12 +15,7 @@ $user_name = 'Sylar'; // укажите здесь ваше имя
 $stuff_categories = [];
 $lots = [];
 
-$host = "localhost";
-$user = "yeticave_web";
-$password = "123"; 
-$db_name = "yeticave";
-
-$con = mysqli_connect($host, $user, $password, $db_name);
+$con = db_func\get_connection();
 
 if (!$con) {
     print('Ошибка подключения: ' . mysqli_connect_error());
@@ -26,35 +24,22 @@ if (!$con) {
 
     mysqli_set_charset($con, "utf8");
 
-    // список лотов.
-    $sql = 'SELECT  l.name,
-                    l.start_price, 
-                    l.image_url, 
-                    l.creation_date,
-                    l.end_date,
-                    cat.name category, 
-                    l.description
-                FROM lot as l
-                JOIN stuff_category as cat on l.category_id = cat.id
-                ORDER BY l.creation_date DESC';
-    $result = mysqli_query($con, $sql);
+    // стремно, но что поделать.
 
-    if (!$result) {
-        $error = mysqli_error($con);
-        print('Ошибка MySql при получении лотов: ' . $error);
-    } else {
-        $lots = mysqli_fetch_all($result, MYSQLI_ASSOC);
+    // список лотов.
+    $func_result = db_func\get_lots($con);
+    $lots = $func_result['result'] === null ? [] : $func_result['result'];
+
+    if ($func_result['error'] !== null) {
+        print('Ошибка MySql при получении лотов: ' . $func_result['error']);  
     }
 
     // список категорий.
-    $sql = 'SELECT * FROM stuff_category';
-    $result = mysqli_query($con, $sql);
+    $func_result = db_func\get_stuff_categories($con);
+    $stuff_categories = $func_result['result'] === null ? [] : $func_result['result'];
 
-    if (!$result) {
-        $error = mysqli_error($con);
-        print('Ошибка MySql при получении списка категорий: ' . $error);
-    } else {
-        $stuff_categories = mysqli_fetch_all($result, MYSQLI_ASSOC);
+    if ($func_result['error'] !== null) {
+        print('Ошибка MySql при получении списка категорий: ' . $func_result['error']);  
     }
 }
 
