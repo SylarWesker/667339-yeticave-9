@@ -18,17 +18,16 @@ $lots = [];
 $con = db_func\get_connection();
 
 if (!$con) {
-    print('Ошибка подключения: ' . mysqli_connect_error());
+    // print('Ошибка подключения: ' . mysqli_connect_error());
+    print('Ошибка подключения!');
 } else {
     // print('Соединение уставлено!');
 
-    mysqli_set_charset($con, "utf8");
-
-    // стремно, но что поделать.
+    db_func\set_charset($con);
 
     // список лотов.
     $func_result = db_func\get_lots($con);
-    $lots = $func_result['result'] === null ? [] : $func_result['result'];
+    $lots = $func_result['result'] === null ? [] : $func_result['result']; // стремно, но что поделать.
 
     if ($func_result['error'] !== null) {
         print('Ошибка MySql при получении лотов: ' . $func_result['error']);  
@@ -36,12 +35,14 @@ if (!$con) {
 
     // список категорий.
     $func_result = db_func\get_stuff_categories($con);
-    $stuff_categories = $func_result['result'] === null ? [] : $func_result['result'];
+    $stuff_categories = $func_result['result'] === null ? [] : $func_result['result']; // стремно, но что поделать.
 
     if ($func_result['error'] !== null) {
         print('Ошибка MySql при получении списка категорий: ' . $func_result['error']);  
     }
 }
+
+$con = null;
 
 // ToDo
 // По идее нужно вынести header и footer в отдельные шаблоны.
