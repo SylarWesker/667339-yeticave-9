@@ -52,9 +52,9 @@ function get_lots($con)
                     l.end_date,
                     cat.name category, 
                     l.description
-                FROM lot as l
-                JOIN stuff_category as cat on l.category_id = cat.id
-                ORDER BY l.creation_date DESC';
+            FROM lot as l
+            JOIN stuff_category as cat on l.category_id = cat.id
+            ORDER BY l.creation_date DESC';
 
     $query_result = $con->query($sql);
 

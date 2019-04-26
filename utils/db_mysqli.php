@@ -24,18 +24,9 @@ function set_charset($con)
 function get_stuff_categories($con)
 {
     $sql = 'SELECT * FROM stuff_category';
-    $query_result = mysqli_query($con, $sql);
+    $result_data = db_fetch_data($con, $sql);
 
-    $result = null;
-    $error = null;
-
-    if (!$query_result) {
-        $error = get_lats_db_error($con);
-    } else {
-        $result = mysqli_fetch_all($query_result, MYSQLI_ASSOC);
-    }
-
-    return ['result' => $result, 'error' => $error];
+    return $result_data;
 }
 
 // Возвращает список лотов. 
@@ -48,22 +39,13 @@ function get_lots($con)
                     l.end_date,
                     cat.name category, 
                     l.description
-                FROM lot as l
-                JOIN stuff_category as cat on l.category_id = cat.id
-                ORDER BY l.creation_date DESC';
+            FROM lot as l
+            JOIN stuff_category as cat on l.category_id = cat.id
+            ORDER BY l.creation_date DESC';
 
-    $query_result = mysqli_query($con, $sql);
+    $result_data = db_fetch_data($con, $sql);
 
-    $result = null;
-    $error = null;
-
-    if (!$query_result) {
-        $error = get_lats_db_error($con);
-    } else {
-        $result = mysqli_fetch_all($query_result, MYSQLI_ASSOC);
-    }
-
-    return ['result' => $result, 'error' => $error];
+    return $result_data;
 }
 
 // Получить последнюю ошибку при работе с БД.
@@ -75,7 +57,8 @@ function get_lats_db_error($con)
 // Вспомогательная функция получения записей.
 function db_fetch_data($link, $sql, $data = [])
 {
-    $result = [];
+    $result = null;
+    $error = null;
 
     $stmt = db_get_prepare_stmt($link, $sql, $data);
     mysqli_stmt_execute($stmt);
@@ -83,7 +66,10 @@ function db_fetch_data($link, $sql, $data = [])
 
     if ($res) {
         $result = mysqli_fetch_all($res, MYSQLI_ASSOC);
+    } else {
+        // Слабое место. до этого выполнялось несколько функций и при их выполнении тоже могли быть ошибки, а мы записываем только последнюю.
+        $error = get_lats_db_error($link);
     }
 
-    return $result;
+    return ['result' => $result, 'error' => $error];
 }
