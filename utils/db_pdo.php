@@ -13,6 +13,9 @@ function get_connection()
     $connection_string = sprintf("mysql:host=%s;dbname=%s", db_conf\HOST, db_conf\DB_NAME);
     $con = new PDO($connection_string, db_conf\USER, db_conf\PASSWORD);
 
+    // $connection_string = sprintf("mysql:host=%s;dbname=%s", db_conf\db_params['host'], db_conf\db_params['db_name']);
+    // $con = new PDO($connection_string, db_conf\db_params['user'], db_conf\db_params['password']);
+
     return $con;
 }
 

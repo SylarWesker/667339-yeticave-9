@@ -9,7 +9,17 @@ use yeticave\db\config as db_conf;
 // Возвращает подключение к БД.
 function get_connection()
 {
-    $con = mysqli_connect(db_conf\HOST, db_conf\USER, db_conf\PASSWORD, db_conf\DB_NAME);
+    $con = mysqli_connect(db_conf\HOST, 
+                          db_conf\USER, 
+                          db_conf\PASSWORD, 
+                          db_conf\DB_NAME
+                        );
+
+    // $con = mysqli_connect(db_conf\$db_params['host'], 
+    //                     db_conf\$db_params['user'], 
+    //                     db_conf\$db_params['password'], 
+    //                     db_conf\$db_params['db_name']
+    //                   );
 
     return $con;
 }
