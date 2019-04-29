@@ -3,7 +3,7 @@
 require_once('helpers.php');
 require_once('utils/utils.php');
 
-const DB_CON_TYPE = 'mysqli'; // pdo
+const DB_CON_TYPE = 'pdo'; // pdo or mysqli
 
 if (DB_CON_TYPE === 'pdo') {
     require_once('utils/db_pdo.php');

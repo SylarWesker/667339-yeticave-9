@@ -2,19 +2,15 @@
 
 namespace yeticave\db\functions;
 
-require_once(dirname(__FILE__) . '/../db_config.php');
-
-use yeticave\db\config as db_conf;
-use PDO;
+ use PDO;
 
 // Возвращает подключение к БД.
 function get_connection() 
 {
-    $connection_string = sprintf("mysql:host=%s;dbname=%s", db_conf\HOST, db_conf\DB_NAME);
-    $con = new PDO($connection_string, db_conf\USER, db_conf\PASSWORD);
+    $db_params = require_once(dirname(__FILE__) . '/../db_config.php');
 
-    // $connection_string = sprintf("mysql:host=%s;dbname=%s", db_conf\db_params['host'], db_conf\db_params['db_name']);
-    // $con = new PDO($connection_string, db_conf\db_params['user'], db_conf\db_params['password']);
+    $connection_string = sprintf("mysql:host=%s;dbname=%s", $db_params['host'], $db_params['db_name']);
+    $con = new PDO($connection_string, $db_params['user'], $db_params['password']);
 
     return $con;
 }
