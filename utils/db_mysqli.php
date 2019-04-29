@@ -17,12 +17,12 @@ function get_connection()
     //                     );
 
     // Стало
-    $db_params['db'] = require_once(dirname(__FILE__) . '/../db_config.php');
+    $db_params = require_once(dirname(__FILE__) . '/../db_config.php');
 
-    $con = mysqli_connect($db_params['db']['host'], 
-                         $db_params['db']['user'], 
-                         $db_params['db']['password'], 
-                         $db_params['db']['db_name']);
+    $con = mysqli_connect($db_params['host'], 
+                          $db_params['user'], 
+                          $db_params['password'], 
+                          $db_params['db_name']);
 
     return $con;
 }
