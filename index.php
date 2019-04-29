@@ -2,16 +2,7 @@
 
 require_once('helpers.php');
 require_once('utils/utils.php');
-
-const DB_CON_TYPE = 'mysqli'; // pdo
-
-if (DB_CON_TYPE === 'pdo') {
-    require_once('utils/db_pdo.php');
-    //use yeticave\db\pdo_functions as db_func;
-} else if (DB_CON_TYPE === 'mysqli') {
-    require_once('utils/db_mysqli.php');
-    //use yeticave\db\mysqli_functions as db_func;
-}
+require_once('utils/db_helper.php');
 
 use yeticave\db\functions as db_func;
 
@@ -23,7 +14,7 @@ $user_name = 'Sylar'; // укажите здесь ваше имя
 $stuff_categories = [];
 $lots = [];
 
-$con = db_func\get_connection();
+// $con = db_func\get_connection();
 
 if (!$con) {
     // print('Ошибка подключения: ' . mysqli_connect_error());
@@ -31,19 +22,19 @@ if (!$con) {
 } else {
     // print('Соединение уставлено!');
 
-    db_func\set_charset($con);
+    // db_func\set_charset($con);
 
-    // список лотов.
+    // Получение списка лотов.
     $func_result = db_func\get_lots($con);
-    $lots = $func_result['result'] === null ? [] : $func_result['result']; // стремно, но что поделать.
+    $lots = $func_result['result'] === null ? [] : $func_result['result']; 
 
     if ($func_result['error'] !== null) {
         print('Ошибка MySql при получении лотов: ' . $func_result['error']);  
     }
 
-    // список категорий.
+    // Получение списка категорий.
     $func_result = db_func\get_stuff_categories($con);
-    $stuff_categories = $func_result['result'] === null ? [] : $func_result['result']; // стремно, но что поделать.
+    $stuff_categories = $func_result['result'] === null ? [] : $func_result['result']; 
 
     if ($func_result['error'] !== null) {
         print('Ошибка MySql при получении списка категорий: ' . $func_result['error']);  
