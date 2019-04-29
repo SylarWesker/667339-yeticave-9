@@ -2,24 +2,27 @@
 
 namespace yeticave\db\functions;
 
-require_once(dirname(__FILE__) . '/../db_config.php');
-
-use yeticave\db\config as db_conf;
+// Было
+// require_once(dirname(__FILE__) . '/../db_config.php');
+// use yeticave\db\config as db_conf;
 
 // Возвращает подключение к БД.
 function get_connection()
 {
-    $con = mysqli_connect(db_conf\HOST, 
-                          db_conf\USER, 
-                          db_conf\PASSWORD, 
-                          db_conf\DB_NAME
-                        );
+    // Было
+    // $con = mysqli_connect(db_conf\HOST, 
+    //                       db_conf\USER, 
+    //                       db_conf\PASSWORD, 
+    //                       db_conf\DB_NAME
+    //                     );
 
-    // $con = mysqli_connect(db_conf\$db_params['host'], 
-    //                     db_conf\$db_params['user'], 
-    //                     db_conf\$db_params['password'], 
-    //                     db_conf\$db_params['db_name']
-    //                   );
+    // Стало
+    $db_params['db'] = require_once(dirname(__FILE__) . '/../db_config.php');
+
+    $con = mysqli_connect($db_params['db']['host'], 
+                         $db_params['db']['user'], 
+                         $db_params['db']['password'], 
+                         $db_params['db']['db_name']);
 
     return $con;
 }

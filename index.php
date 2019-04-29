@@ -27,28 +27,29 @@ $lots = [];
 $con = db_func\get_connection();
 
 if (!$con) {
-    // print('Ошибка подключения: ' . mysqli_connect_error());
-    print('Ошибка подключения!');
-} else {
-    // print('Соединение уставлено!');
+    print('Ошибка подключения к БД!');
 
-    db_func\set_charset($con);
+    die('Ошибка подключения к БД!');
+} 
 
-    // список лотов.
-    $func_result = db_func\get_lots($con);
-    $lots = $func_result['result'] === null ? [] : $func_result['result']; // стремно, но что поделать.
+// print('Соединение уставлено!');
 
-    if ($func_result['error'] !== null) {
-        print('Ошибка MySql при получении лотов: ' . $func_result['error']);  
-    }
+db_func\set_charset($con);
 
-    // список категорий.
-    $func_result = db_func\get_stuff_categories($con);
-    $stuff_categories = $func_result['result'] === null ? [] : $func_result['result']; // стремно, но что поделать.
+// список лотов.
+$func_result = db_func\get_lots($con);
+$lots = $func_result['result'] === null ? [] : $func_result['result']; // стремно, но что поделать.
 
-    if ($func_result['error'] !== null) {
-        print('Ошибка MySql при получении списка категорий: ' . $func_result['error']);  
-    }
+if ($func_result['error'] !== null) {
+    print('Ошибка MySql при получении лотов: ' . $func_result['error']);  
+}
+
+// список категорий.
+$func_result = db_func\get_stuff_categories($con);
+$stuff_categories = $func_result['result'] === null ? [] : $func_result['result']; // стремно, но что поделать.
+
+if ($func_result['error'] !== null) {
+    print('Ошибка MySql при получении списка категорий: ' . $func_result['error']);  
 }
 
 $con = null;
@@ -80,5 +81,3 @@ $layout = include_template('layout.php', ['title' => $title,
 print($layout);
 
 ?>
-
-
