@@ -18,7 +18,6 @@ use yeticave\db\functions as db_func;
 $is_auth = rand(0, 1);
 
 $title = 'Главная';
-
 $user_name = 'Sylar'; // укажите здесь ваше имя
 
 $stuff_categories = [];
@@ -80,5 +79,3 @@ $layout = include_template('layout.php', ['title' => $title,
 print($layout);
 
 ?>
-
-

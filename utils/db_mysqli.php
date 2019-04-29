@@ -42,7 +42,8 @@ function get_stuff_categories($con)
 // Возвращает список лотов. 
 function get_lots($con)
 {
-    $sql = 'SELECT  l.name,
+    $sql = 'SELECT  l.id,
+                    l.name,
                     l.start_price, 
                     l.image_url, 
                     l.creation_date,
