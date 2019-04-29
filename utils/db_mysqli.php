@@ -5,7 +5,7 @@ namespace yeticave\db\functions;
 // Возвращает подключение к БД.
 function get_connection()
 {
-    s = require_once(dirname(__FILE__) . '/../db_config.php');
+    $db_params = require_once(dirname(__FILE__) . '/../db_config.php');
 
     $con = mysqli_connect($db_params['host'], 
                           $db_params['user'], 
