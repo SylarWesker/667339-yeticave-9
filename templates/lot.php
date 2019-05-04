@@ -1,8 +1,22 @@
 <?php
   require_once('utils/utils.php');
+
+  $date_now = new DateTime();
+  $today_midnight = new DateTime('tomorrow'); // тут по идее нужно брать $lot['end_date']
+
+  // ToDo!
+  // Не учитываю того факта что время лота может уже истечь, но разница между датами все равно будет меньше или равна часу.
+  // проверять по идее нужно св-во invert.
+
+  // Время до полуночи (считаем что это время окончания "жизни" лота).
+  $lot_lifetime_end = $today_midnight->diff($date_now); 
 ?>
 
 <main>
+    <!-- список категорий уже есть в БД. но нет ссылок на страницы... 
+    - Хранить ссылки в БД? 
+    - Создать массив на странице?
+    надо подумать... -->
     <nav class="nav">
       <ul class="nav__list container">
         <li class="nav__item">
@@ -30,20 +44,34 @@
       <div class="lot-item__content">
         <div class="lot-item__left">
           <div class="lot-item__image">
-            <img src="../img/lot-image.jpg" width="730" height="548" alt="Сноуборд">
+            <img src="<?= $lot['image_url'] ?>" width="730" height="548" alt=""> <!-- как тут alt выставить? и ширину с высотой? -->
           </div>
           <p class="lot-item__category">Категория: <span><?= $lot['category'] ?></span></p>
           <p class="lot-item__description"><?= $lot['description'] ?></p>
         </div>
         <div class="lot-item__right">
           <div class="lot-item__state">
-            <div class="lot-item__timer timer">
-              10:54
+            <!-- Тут должно быть время до окончания действия лота? т.е  $lot['end_date'] минус текущее время ?
+            если да, то в каком формате? сейчас указаны часы и минуты. а если до окончания времени больше 24 часов? 
+            пока использовал вариант как на главной странице. Считаю временем окончания жизни лота полночь. -->
+            
+            <?php if (is_equal_or_less_hour($lot_lifetime_end) ): ?>
+                <div class="lot__timer timer timer--finishing">
+            <?php else: ?>
+                <div class="lot__timer timer">
+            <?php endif; ?>
+
+              <?= $lot_lifetime_end->format("%H:%I") ?>
             </div>
+
+            <!-- Было -->
+            <!-- <div class="lot-item__timer timer">
+              10:54
+            </div> -->
             <div class="lot-item__cost-state">
               <div class="lot-item__rate">
                 <span class="lot-item__amount">Текущая цена</span>
-                <span class="lot-item__cost">10 999</span>
+                <span class="lot-item__cost"><?= format_price($lot['current_price']) ?></span>
               </div>
               <div class="lot-item__min-cost">
                 Мин. ставка <span><?= format_price($lot['start_price']) ?></span>
@@ -52,8 +80,8 @@
             <form class="lot-item__form" action="https://echo.htmlacademy.ru" method="post" autocomplete="off">
               <p class="lot-item__form-item form__item form__item--invalid">
                 <label for="cost">Ваша ставка</label>
-                <input id="cost" type="text" name="cost" placeholder="12 000">
-                <span class="form__error">Введите наименование лота</span>
+                <input id="cost" type="text" name="cost" placeholder="<?= format_price($lot['current_price'] + $lot['step_bet']) ?>">
+                <span class="form__error">Введите наименование лота</span> <!-- вот эта строка тут зачем? -->
               </p>
               <button type="submit" class="button">Сделать ставку</button>
             </form>
