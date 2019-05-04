@@ -2,7 +2,16 @@
 
 require_once('helpers.php');
 require_once('utils/utils.php');
-require_once('utils/db_helper.php');
+
+const DB_CON_TYPE = 'mysqli'; // pdo or mysqli
+
+if (DB_CON_TYPE === 'pdo') {
+    require_once('utils/db_pdo.php');
+    //use yeticave\db\pdo_functions as db_func;
+} else if (DB_CON_TYPE === 'mysqli') {
+    require_once('utils/db_mysqli.php');
+    //use yeticave\db\mysqli_functions as db_func;
+}
 
 use yeticave\db\functions as db_func;
 
@@ -14,31 +23,32 @@ $user_name = 'Sylar'; // укажите здесь ваше имя
 $stuff_categories = [];
 $lots = [];
 
-// $con = db_func\get_connection();
+$con = db_func\get_connection();
 
 if (!$con) {
-    // print('Ошибка подключения: ' . mysqli_connect_error());
-    print('Ошибка подключения!');
-} else {
-    // print('Соединение уставлено!');
+    print('Ошибка подключения к БД!');
 
-    // db_func\set_charset($con);
+    die('Ошибка подключения к БД!');
+} 
 
-    // Получение списка лотов.
-    $func_result = db_func\get_lots($con);
-    $lots = $func_result['result'] === null ? [] : $func_result['result']; 
+// print('Соединение уставлено!');
 
-    if ($func_result['error'] !== null) {
-        print('Ошибка MySql при получении лотов: ' . $func_result['error']);  
-    }
+db_func\set_charset($con);
 
-    // Получение списка категорий.
-    $func_result = db_func\get_stuff_categories($con);
-    $stuff_categories = $func_result['result'] === null ? [] : $func_result['result']; 
+// список лотов.
+$func_result = db_func\get_lots($con);
+$lots = $func_result['result'] === null ? [] : $func_result['result']; // стремно, но что поделать.
 
-    if ($func_result['error'] !== null) {
-        print('Ошибка MySql при получении списка категорий: ' . $func_result['error']);  
-    }
+if ($func_result['error'] !== null) {
+    print('Ошибка MySql при получении лотов: ' . $func_result['error']);  
+}
+
+// список категорий.
+$func_result = db_func\get_stuff_categories($con);
+$stuff_categories = $func_result['result'] === null ? [] : $func_result['result']; // стремно, но что поделать.
+
+if ($func_result['error'] !== null) {
+    print('Ошибка MySql при получении списка категорий: ' . $func_result['error']);  
 }
 
 $con = null;
