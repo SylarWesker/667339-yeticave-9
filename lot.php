@@ -4,7 +4,6 @@ require_once('helpers.php');
 require_once('utils/db_helper.php');
 
 use yeticave\db\functions as db_func;
-// $con = db_func\get_connection();
 
 // echo 'lot page';
 // echo "<br>";
@@ -59,8 +58,6 @@ if (count($errors) != 0) {
 }
 
 $con = null;
-
-// echo 'lot page id = ' . $id;
 
 $content = include_template('lot.php', ['stuff_categories' => $stuff_categories,
                                         'lot' => $lot
