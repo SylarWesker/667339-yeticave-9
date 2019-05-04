@@ -33,17 +33,19 @@ if (isset($_GET['id'])) {
 
         // Берем лот по id.
         $func_result = db_func\get_lots($con, [ $id ]);
-        $lot = $func_result['result'] === null ? [] : $func_result['result'][0]; 
+        if (!($func_result['result'] === null || count($func_result['result']) === 0)) {
+            $lot = $func_result['result'][0];
+        }
 
         if ($func_result['error'] !== null) {
-            $errors[] = $lot['error'];
+            $errors[] = $func_result['error'];
         } else {
             if ($lot === null) {
                 $errors[] = 'Не найден лот с id = ' . $id;
             } 
         }
     } else {
-        $errors[] = 'Параметр id не верного формата. Должно быть целое число.';
+        $errors[] = 'Параметр id неверного формата. Должно быть целое число.';
     }
 } else {
     $errors[] = 'Не передан параметр id!';
@@ -51,16 +53,24 @@ if (isset($_GET['id'])) {
 
 $con = null;
 
+$content = null;
+$title_page = 'Страница показа лота.';
+
 if (count($errors) != 0) {
     // показываем 404 и ошибки
-    header('Location: pages/404.html');
+    // header('Location: pages/404.html');
+
+    // или все же лучше делать редирект на 404, но передавать туда список ошибок?
+    $title_page = 'Страница не найдена.';
+    $content = include_template('404.php', ['error_list' =>  $errors]);
+} else {
+    $title_page = $lot['name'];
+    $content = include_template('lot.php', ['stuff_categories' => $stuff_categories,
+                                            'lot' => $lot
+                                            ]);
 }
 
-$content = include_template('lot.php', ['stuff_categories' => $stuff_categories,
-                                        'lot' => $lot
-                                        ]);
-
-$layout = include_template('layout.php', [ 'title' => $lot['name'],
+$layout = include_template('layout.php', [ 'title' => $title_page,
                                           'content' => $content, 
                                           'stuff_categories' => $stuff_categories, 
                                           'is_auth' => $is_auth, 
