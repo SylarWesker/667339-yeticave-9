@@ -71,6 +71,23 @@ function get_lots($con, $id_list = [])
     return $result_data;
 }
 
+// Проверяет есть ли в БД категория с заданным названием.
+function has_category($con, $category_name)
+{
+    $sql = 'SELECT COUNT(*) as count_categories FROM stuff_category WHERE name = ?';
+    $result_data = db_fetch_data($con, $sql, [ $category_name ]);
+
+    $result = false;
+
+    if ($result_data['error'] !== NULL) {
+        $result = false;
+    } else {
+        $result = $result_data['result'][0]['count_categories'] > 0 ? true : false;
+    }
+
+    return $result;
+}
+
 // Получить последнюю ошибку при работе с БД.
 function get_lats_db_error($con)
 {

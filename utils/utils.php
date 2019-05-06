@@ -18,6 +18,7 @@ function strip_tags_for_array($arr_data, $recursive = false)
     return $arr_data;
 }
 
+// ToDo Не учитываю invert!!!
 // Возвращает истину, если в интервале один час или меньше.
 function is_equal_or_less_hour($date_interval) 
 {
@@ -62,4 +63,31 @@ function format_price($number, $currency_symbol = '₽')
 
     $result = $number . ' ' . $currency_symbol;
     return $result;
+}
+
+function secure_data_for_sql_query($param)
+{
+    // Еще можно такой вариант попробовать.
+    // $functions = ['trim', 'strip_tags', 'addslashes'];
+    // foreach($functions as $func) {
+    //     $lot_name = call_user_func($func, $param);
+    // }
+
+    $param = trim($param);
+    $param = strip_tags($param);
+
+    // т.к использую подготовленные запросы, то экранировать не обязательно
+    // но предположим, что я передаю это коду записи в БД, которому не доверяю (не знаю использует он подготовленные запросы или нет).
+    // короче перестраховываюсь
+    $param = addslashes($param); 
+
+    return $param;
+}
+
+// Если разница между датами больше хотя бы на 1 день, то возвращает true.
+function at_least_one_day_bigger($date_interval) {
+    if ($date_interval->invert === 1)
+        return false;
+    
+    return $date_interval->y >= 1 || $date_interval->m >= 1 || $date_interval->d >= 1;
 }

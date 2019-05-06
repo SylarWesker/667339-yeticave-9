@@ -40,6 +40,8 @@ VALUES
 SELECT * FROM stuff_category; 
 -- если только названия
 SELECT name FROM stuff_category;
+-- Узнаем есть ли категория с указаным названием.
+SELECT COUNT(*) as count_categories FROM stuff_category WHERE name = 'Разное'
 
 
 -- Получить самые новые, открытые лоты. 

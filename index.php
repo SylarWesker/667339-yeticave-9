@@ -53,6 +53,9 @@ $today_midnight = new DateTime('tomorrow');
 // Время до полуночи (считаем что это время окончания "жизни" лота).
 $time_to_midnight = $today_midnight->diff($date_now); 
 
+// как выяснилось так верно. diff - вернет разницу между параметром и объектом. (ОЧЕНЬ ЛОГИЧНО! НЕТ!)
+// $time_to_midnight = $date_now->diff($today_midnight); 
+
 $content = include_template('index.php', ['stuff_categories' => $stuff_categories, 
                                           'lots' => $lots,
                                           'lot_lifetime_end' => $time_to_midnight]);
@@ -64,5 +67,3 @@ $layout = include_template('layout.php', ['title' => $title,
                                           'user_name' => $user_name]);
 
 print($layout);
-
-?>
