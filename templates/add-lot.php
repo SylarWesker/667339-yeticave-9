@@ -9,6 +9,9 @@
   // - ???
   $form_invalid_class = 'form--invalid';
   $form_item_invalid_class = 'form__item--invalid';
+
+  // ToDo
+  // восстанавливать заполненные пользователем данные.
 ?>
 
 <main>

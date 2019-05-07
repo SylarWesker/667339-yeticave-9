@@ -91,3 +91,19 @@ function at_least_one_day_bigger($date_interval) {
     
     return $date_interval->y >= 1 || $date_interval->m >= 1 || $date_interval->d >= 1;
 }
+
+// Меняет порядок элементов в массиве $array согласно порядку ключей в $ordered_keys.
+function array_order_by_key($array, $ordered_keys) {
+    $result = [];
+
+    for ($i = 0; $i < count($array); $i++) 
+    {
+        $key = $ordered_keys[$i];
+
+        if (array_key_exists($key, $array)) {
+            $result[] = $array[$key];
+        }
+    }
+
+    return $result;
+}

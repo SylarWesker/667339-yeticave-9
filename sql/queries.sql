@@ -110,3 +110,21 @@ LEFT JOIN lot as l on b.lot_id = l.id
 WHERE b.lot_id = 1 -- тут указать id лота
 ORDER BY b.create_date DESC 
 LIMIT 3;
+
+-- Пример запроса добавления лота.
+INSERT INTO `lot`(  `name`, 
+                    `description`, 
+                    `image_url`, 
+                    `start_price`, 
+                    `end_date`, 
+                    `step_bet`, 
+                    `author_id`, 
+                    `category_id`) 
+VALUES ('new lot example', 
+        'lot desc',
+        NULL,
+        1000,
+        NOW() + INTERVAL 30 DAY,
+        50,
+        1,
+        1)
