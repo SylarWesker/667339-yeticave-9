@@ -15,6 +15,7 @@ $title = 'Добавление лота';
 // Валидация данных формы.
 $errors = [];
 
+// ToDo поработать над текстом ошибок.
 if (isset($_POST['submit'])) {
     // Наименование (обязательное)
     $lot_name = NULL;
@@ -26,7 +27,7 @@ if (isset($_POST['submit'])) {
 
         // не пустое должно быть.
         if (strlen($lot_name) === 0) {
-            $errors['lot-name'] = 'Пустое название лота!';
+            $errors['lot-name'] = 'Введите название лота';
         }
     } else {
         // такая ошибка может произойти только если на форме нет поля с именем 'lot-name' ?
@@ -76,10 +77,10 @@ if (isset($_POST['submit'])) {
             $start_price = intval($start_price);
 
             if ($start_price <= 0) {
-                $errors['lot-rate'] = 'Начальная цена должна быть больше нуля!';
+                $errors['lot-rate'] = 'Начальная цена должна быть больше нуля';
             }
         } else {
-            $errors['lot-rate'] = 'Начальная цена должна быть числом!';
+            $errors['lot-rate'] = 'Начальная цена должна быть числом';
         }
     } else {
         $errors['lot-rate'] = 'Не задана начальная цена лота!';
@@ -101,10 +102,10 @@ if (isset($_POST['submit'])) {
             $bet_step = intval($bet_step);
 
             if ($bet_step <= 0) {
-                $errors['lot-step'] = 'Начальная цена должна быть больше нуля!';
+                $errors['lot-step'] = 'Шаг ставки должен быть больше нуля!';
             }
         } else {
-            $errors['lot-step'] = 'Начальная цена должна быть числом!';
+            $errors['lot-step'] = 'Шаг ставки должен быть числом!';
         }
     } else { 
         $errors['lot-step'] = 'Не задан шаг ставки!';
@@ -119,7 +120,7 @@ if (isset($_POST['submit'])) {
         $lot_end_date = secure_data_for_sql_query($lot_end_date);
 
         if (!is_date_valid($lot_end_date)) {
-            $errors['lot-date'] = 'Неверный формат даты! Формат должен быть ГГГГ-ММ-ДД.';
+            $errors['lot-date'] = 'Дата должна быть в формате ГГГГ-ММ-ДД.';
         }
 
         // Проверка того что дата больше текущей хотя бы на один день.
@@ -141,9 +142,10 @@ if (isset($_POST['submit'])) {
     // Если все ок, то добавляем в БД.
     if (count($errors) === 0) {
         echo 'Ошибок нет. Буду записывать в БД.';
-    } else {
-        echo 'Есть ошибки. Не запишу в БД и покажу на фронте.';
-    }
+    } 
+    // else {
+    //     echo 'Есть ошибки. Не запишу в БД и покажу на фронте.';
+    // }
 }
 
 $stuff_categories = [];
