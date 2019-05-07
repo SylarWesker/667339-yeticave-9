@@ -13,6 +13,7 @@ $is_auth = rand(0, 1);
 $title = 'Добавление лота';
 
 // Валидация данных формы.
+$accepted_mime_types = ['image/png', 'image/jpeg'];
 $errors = [];
 
 // ToDo поработать над текстом ошибок.
@@ -136,12 +137,36 @@ if (isset($_POST['submit'])) {
         $errors['lot-date'] = 'Не задана дата окончания торгов!';
     }
 
-    // Загруженный файл / путь к файлу ??? (необязательный пока)
+    // Изображение лота (необязательный пока)
+    $lot_img_path = NULL;
 
+    if (isset($_FILES['lot-img']) && $_FILES['lot-img']['error'] === UPLOAD_ERR_OK) {
+        $tmp_file_path = $_FILES['lot-img']['tmp_name'];
+        $file_name = $_FILES['lot-img']['name'];
+
+        $mime_type = mime_content_type($tmp_file_path);
+
+        if (!in_array($mime_type, $accepted_mime_types)) {
+            $errors['lot-img'] = 'Недопустимый тип файла';
+        }
+
+        // если все ок, то перещаем в папку uploads
+        if (!isset($errors['lot-img'])) {
+            $extension = pathinfo($file_name , PATHINFO_EXTENSION);
+
+            $file_path = __DIR__ . '/uploads/';
+            $lot_img_path = $file_path . uniqid() . '.' . $extension;
+
+            move_uploaded_file($tmp_file_path, $lot_img_path);
+        }
+    }
 
     // Если все ок, то добавляем в БД.
     if (count($errors) === 0) {
         echo 'Ошибок нет. Буду записывать в БД.';
+
+        
+        // header('Location: ');
     } 
     // else {
     //     echo 'Есть ошибки. Не запишу в БД и покажу на фронте.';
