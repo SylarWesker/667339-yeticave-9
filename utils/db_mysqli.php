@@ -120,9 +120,8 @@ function add_lot($con, $params)
     return $added_lot_id;
 }
 
-// ToDo Исправить название функции get_lats_db_error на get_last_db_error (LAST !!!)
 // Получить последнюю ошибку при работе с БД.
-function get_lats_db_error($con)
+function get_last_db_error($con)
 {
     return mysqli_error($con);
 }
@@ -141,7 +140,7 @@ function db_fetch_data($link, $sql, $data = [])
         $result = mysqli_fetch_all($res, MYSQLI_ASSOC);
     } else {
         // Слабое место. до этого выполнялось несколько функций и при их выполнении тоже могли быть ошибки, а мы записываем только последнюю.
-        $error = get_lats_db_error($link);
+        $error = get_last_db_error($link);
     }
 
     return ['result' => $result, 'error' => $error];
