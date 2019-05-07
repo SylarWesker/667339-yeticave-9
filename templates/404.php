@@ -1,3 +1,7 @@
+<?php
+    http_response_code(404);
+?>
+
 <main>
     <nav class="nav">
         <ul class="nav__list container">
