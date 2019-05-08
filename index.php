@@ -2,29 +2,16 @@
 
 require_once('helpers.php');
 require_once('utils/utils.php');
-
-const DB_CON_TYPE = 'mysqli'; // pdo or mysqli
-
-if (DB_CON_TYPE === 'pdo') {
-    require_once('utils/db_pdo.php');
-    //use yeticave\db\pdo_functions as db_func;
-} else if (DB_CON_TYPE === 'mysqli') {
-    require_once('utils/db_mysqli.php');
-    //use yeticave\db\mysqli_functions as db_func;
-}
+require_once('utils/db_helper.php');
 
 use yeticave\db\functions as db_func;
 
 $is_auth = rand(0, 1);
-
 $title = 'Главная';
-
 $user_name = 'Sylar'; // укажите здесь ваше имя
 
 $stuff_categories = [];
 $lots = [];
-
-$con = db_func\get_connection();
 
 if (!$con) {
     print('Ошибка подключения к БД!');
@@ -33,8 +20,6 @@ if (!$con) {
 } 
 
 // print('Соединение уставлено!');
-
-db_func\set_charset($con);
 
 // список лотов.
 $func_result = db_func\get_lots($con);

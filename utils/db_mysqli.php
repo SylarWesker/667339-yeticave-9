@@ -2,6 +2,11 @@
 
 namespace yeticave\db\functions;
 
+// ToDo
+// Вынести бы все sql запросы в одно место...
+// 1) Хранимые процедуры
+// 2) отдельный файл.
+
 // Возвращает подключение к БД.
 function get_connection()
 {
@@ -31,20 +36,37 @@ function get_stuff_categories($con)
 }
 
 // Возвращает список лотов. 
-function get_lots($con)
+// $id_list - список лотов. Если ни одного не передано, то возвращаем все лоты.
+function get_lots($con, $id_list = [])
 {
-    $sql = 'SELECT  l.name,
-                    l.start_price, 
-                    l.image_url, 
-                    l.creation_date,
-                    l.end_date,
+    $sql_where_id_part = ' ';
+    if (isset($id_list)) {
+        if (count($id_list) != 0) {
+            // список id пока не проверяю. предполагаю, что он коректный и проверен извне (на sql инъекции)
+            // $id_str = implode(', ', $id_list);
+
+            // что-то как-то сложно и странно. Можно ли проще?
+            $query_placeholders = array_fill(0,  count($id_list), '?');
+            $id_placeholders = implode(', ', $query_placeholders);
+            $sql_where_id_part = ' AND l.id IN (' . $id_placeholders . ') ';
+        }
+    }
+
+    $sql = 'SELECT  l.*,
                     cat.name category, 
-                    l.description
+                    IFNULL(max(b.price), l.start_price) current_price
             FROM lot as l
-            JOIN stuff_category as cat on l.category_id = cat.id
+            LEFT JOIN stuff_category as cat on l.category_id = cat.id
+            LEFT JOIN bet as b on l.id = b.lot_id
+            WHERE l.end_date IS NOT NULL 
+            AND l.end_date > NOW() 
+            AND l.winner_id IS NULL'
+            . $sql_where_id_part .
+            'GROUP BY l.id,
+                      cat.name
             ORDER BY l.creation_date DESC';
 
-    $result_data = db_fetch_data($con, $sql);
+    $result_data = db_fetch_data($con, $sql, $id_list);
 
     return $result_data;
 }

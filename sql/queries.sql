@@ -44,25 +44,38 @@ SELECT name FROM stuff_category;
 
 -- Получить самые новые, открытые лоты. 
 -- Каждый лот должен включать название, стартовую цену, ссылку на изображение, цену, название категории;
-SELECT  l.name,
-        l.start_price, 
-        l.image_url, 
-        l.creation_date,
-        l.end_date,
-        cat.name as 'category', 
-        l.description,
-        max(b.price) as 'max_price'
+-- SELECT  l.name,
+--         l.start_price, 
+--         l.image_url, 
+--         l.creation_date,
+--         l.end_date,
+--         cat.name as 'category', 
+--         l.description,
+--         max(b.price) as 'max_price'
+-- FROM lot as l
+-- JOIN stuff_category as cat on l.category_id = cat.id
+-- LEFT JOIN bet as b on l.id = b.lot_id
+-- WHERE l.end_date IS NOT NULL AND l.end_date > NOW()
+-- GROUP BY l.name,
+--         l.start_price, 
+--         l.image_url, 
+--         l.creation_date,
+--         l.end_date,
+--         cat.name, 
+--         l.description
+-- ORDER BY l.creation_date DESC
+
+SELECT  l.*,
+        cat.name category, 
+        IFNULL(max(b.price), l.start_price) current_price
 FROM lot as l
-JOIN stuff_category as cat on l.category_id = cat.id
+LEFT JOIN stuff_category as cat on l.category_id = cat.id
 LEFT JOIN bet as b on l.id = b.lot_id
-WHERE l.end_date IS NOT NULL AND l.end_date > NOW()
-GROUP BY l.name,
-        l.start_price, 
-        l.image_url, 
-        l.creation_date,
-        l.end_date,
-        cat.name, 
-        l.description
+WHERE l.end_date IS NOT NULL 
+      AND l.end_date > NOW() 
+      AND l.winner_id IS NULL
+GROUP BY l.id,
+         cat.name
 ORDER BY l.creation_date DESC
 
 -- Показать лот по его ID
