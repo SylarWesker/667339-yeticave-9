@@ -2,7 +2,7 @@
 
 namespace yeticave\db\config;
 
-// Пример файла конфигурации БД.
+// Пример файла конфигурации БД.   
  return [
     'host' => 'localhost',
     'user' => 'user_name',
