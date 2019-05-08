@@ -18,11 +18,13 @@ function strip_tags_for_array($arr_data, $recursive = false)
     return $arr_data;
 }
 
-// ToDo Не учитываю invert!!!
 // Возвращает истину, если в интервале один час или меньше.
 function is_equal_or_less_hour($date_interval) 
 {
-    return is_less_hour($date_interval) || is_equal_hour($date_interval);
+    if ($date_interval->invert === 1)
+        return false;
+    
+    return  is_less_hour($date_interval) || is_equal_hour($date_interval);
 }
 
 function is_only_time_part_has($date_interval)
@@ -106,4 +108,33 @@ function array_order_by_key($array, $ordered_keys) {
     }
 
     return $result;
+}
+
+// ToDo
+// Как это можно реализовать по другому?
+// Далеко не элегантное решение.
+// ключи в $form_data и $errors должны совпадать.
+// постоянно нужно передавать $form_data, $errors... По идее нужно класс сделать.
+function show_form_data($key, $form_data, $errors) 
+{
+  $result = '';
+
+  if(!isset($errors[$key]) && isset($form_data[$key])) {
+    $result = $form_data[$key];
+  }
+    
+  return $result;
+}
+
+// ToDo
+// Та же история. 
+function show_error($key, $errors) 
+{
+  $result = '';
+
+  if(isset($errors[$key])) {
+    $result = $errors[$key];
+  }
+
+  return $result;
 }
