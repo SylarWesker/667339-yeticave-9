@@ -15,6 +15,7 @@ $title = 'Добавление лота';
 // Валидация данных формы.
 $accepted_mime_types = ['image/png', 'image/jpeg'];
 $errors = [];
+$form_data = [];
 
 // ToDo поработать над текстом ошибок.
 if (isset($_POST['submit'])) {
@@ -25,6 +26,7 @@ if (isset($_POST['submit'])) {
         $lot_name = $_POST['lot-name'];
 
         $lot_name = secure_data_for_sql_query($lot_name);
+        $form_data['lot-name'] = $lot_name;
 
         // не пустое должно быть.
         if (strlen($lot_name) === 0) {
@@ -37,6 +39,7 @@ if (isset($_POST['submit'])) {
     }
 
     // Категория...
+    // ToDo
     // Как проверить допустимая ли категория? Каждый раз выполнять запрос к БД? Это накладно?
     // Или не проверять в php, а проверку заложить на уровне sql (БД). Но как тогда понять почему именно не выполнился запрос? корректное сообщение об ошибке.
     $lot_category = NULL;
@@ -46,6 +49,7 @@ if (isset($_POST['submit'])) {
         $lot_category = $_POST['category'];
 
         $lot_category = secure_data_for_sql_query($lot_category);
+        $form_data['category'] = $lot_category;
 
         // Проверяем есть ли такая категория в БД.
         $lot_category_id = db_func\get_category_id($con, $lot_category);
@@ -64,6 +68,7 @@ if (isset($_POST['submit'])) {
         $lot_description = $_POST['message'];
 
         $lot_description = secure_data_for_sql_query($lot_description);
+        $form_data['message'] = $lot_description;
     }
 
     // Начальная цена (обязательное)
@@ -73,6 +78,7 @@ if (isset($_POST['submit'])) {
         $start_price = $_POST['lot-rate'];
 
         $start_price = secure_data_for_sql_query($start_price);
+        $form_data['lot-rate'] = $start_price;
 
         // Будем считать, что может быть только целое число.
         if (is_numeric($start_price)) {
@@ -95,6 +101,7 @@ if (isset($_POST['submit'])) {
         $step_bet = $_POST['lot-step'];
 
         $step_bet = secure_data_for_sql_query($step_bet);
+        $form_data['lot-step'] = $step_bet;
 
         // этот код уже второй раз использую!
         // ToDo Вынести в функцию!!!
@@ -120,6 +127,7 @@ if (isset($_POST['submit'])) {
         $lot_end_date = $_POST['lot-date'];
 
         $lot_end_date = secure_data_for_sql_query($lot_end_date);
+        $form_data['lot-date'] = $lot_end_date;
 
         if (!is_date_valid($lot_end_date)) {
             $errors['lot-date'] = 'Дата должна быть в формате ГГГГ-ММ-ДД.';
@@ -139,7 +147,6 @@ if (isset($_POST['submit'])) {
     }
 
     // Изображение лота (необязательный пока)
-    // $lot_img_path = NULL;
     $relative_img_path = NULL;
 
     if (isset($_FILES['lot-img']) && $_FILES['lot-img']['error'] === UPLOAD_ERR_OK) {
@@ -180,7 +187,8 @@ if (isset($_POST['submit'])) {
                     'step_bet' => $step_bet, 
                     'end_date' => $lot_end_date->format('Y/m/d H:i:s'), 
                     'image_url' => $relative_img_path
-                  ];
+                    ];
+
         $added_lot_id = db_func\add_lot($con, $params);
 
         if ($added_lot_id !== NULL) {
@@ -191,7 +199,16 @@ if (isset($_POST['submit'])) {
             // ToDo
             // Как обрабатывать эту ошибку?
         }
-    } 
+    } else {
+        // Записываем данные формы (данные которые прошли проверку).
+        foreach($errors as $key => $value) {
+            // если есть ошибка по этому ключу, то
+            if (array_key_exists($key, $form_data)) {
+                // удаляем из массива с данными формы. 
+                unset($form_data[$key]);
+            }
+        }
+    }
 }
 
 $stuff_categories = [];
@@ -207,7 +224,8 @@ if ($func_result['error'] !== null) {
 }
 
 $content = include_template('add-lot.php', [ 'stuff_categories' => $stuff_categories,
-                                             'errors' => $errors
+                                             'errors' => $errors,
+                                             'form_data' => $form_data
                                            ]);
 
 $layout = include_template('layout.php', [  'title' => $title,

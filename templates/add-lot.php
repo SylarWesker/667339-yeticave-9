@@ -1,17 +1,30 @@
 <?php
-  $has_errors = count($errors) > 0;
+$has_errors = count($errors) > 0;
 
-  // ToDo
-  // Подумать над добавлением классов ошибки и выводом сообщения об ошибке.
-  // бесит повторение if (isset(массив['ключ'])) echo класс;
-  /* хочу <?= echo функция(параметр) ?> */
-  // - вынести в функцию? много параметров отдавать тогда - массив ошибок, ключ, класс ошибки css
-  // - ???
-  $form_invalid_class = 'form--invalid';
-  $form_item_invalid_class = 'form__item--invalid';
+// ToDo
+// Подумать над добавлением классов ошибки и выводом сообщения об ошибке.
+// бесит повторение if (isset(массив['ключ'])) echo класс;
+/* хочу <?= echo функция(параметр) ?> */
+// - вынести в функцию? много параметров отдавать тогда - массив ошибок, ключ, класс ошибки css
+// - ???
+$form_invalid_class = 'form--invalid';
+$form_item_invalid_class = 'form__item--invalid';
 
-  // ToDo
-  // восстанавливать заполненные пользователем данные.
+// ToDo
+// Как это можно реализовать по другому?
+// Далеко не элегантное решение.
+// ключи в $form_data и $errors должны совпадать.
+// постоянно нужно передавать $form_data, $errors... По идее нужно класс сделать.
+function show_form_data($key, $form_data, $errors) 
+{
+  $result = '';
+
+  if(!isset($errors[$key]) && isset($form_data[$key])) {
+    $result = $form_data[$key];
+  }
+    
+  return $result;
+}
 ?>
 
 <main>
@@ -37,19 +50,20 @@
       </li>
     </ul>
   </nav>
+
   <form class="form form--add-lot container <?php if($has_errors) echo $form_invalid_class; ?>" action="add.php" method="post" enctype="multipart/form-data"> <!-- form--invalid -->
     <h2>Добавление лота</h2>
     <div class="form__container-two">
       <div class="form__item <?php if(isset($errors['lot-name'])) echo $form_item_invalid_class; ?>"> <!-- form__item--invalid -->
         <label for="lot-name">Наименование <sup>*</sup></label>
-        <input id="lot-name" type="text" name="lot-name" placeholder="Введите наименование лота">
+        <input id="lot-name" type="text" name="lot-name" placeholder="Введите наименование лота" value="<?= show_form_data('lot-name', $form_data, $errors); ?>">
         <span class="form__error"><?php if(isset($errors['lot-name'])) echo $errors['lot-name']; ?></span>
       </div>
       <div class="form__item <?php if(isset($errors['category'])) echo $form_item_invalid_class; ?>">
         <label for="category">Категория <sup>*</sup></label>
         <select id="category" name="category">
           <?php foreach($stuff_categories as $category): ?>
-            <option><?= $category['name']; ?></option>
+            <option <?php if ($category['name'] === show_form_data('category', $form_data, $errors)) echo 'selected';?>><?= $category['name']; ?></option>
           <?php endforeach; ?>
         </select>
         <span class="form__error"><?php if(isset($errors['category'])) echo $errors['category']; ?></span>
@@ -57,7 +71,7 @@
     </div>
     <div class="form__item form__item--wide <?php if(isset($errors['message'])) echo $form_item_invalid_class; ?>">
       <label for="message">Описание <sup>*</sup></label>
-      <textarea id="message" name="message" placeholder="Напишите описание лота"></textarea>
+      <textarea id="message" name="message" placeholder="Напишите описание лота"><?= show_form_data('message', $form_data, $errors); ?></textarea>
       <span class="form__error"><?php if(isset($errors['message'])) echo $errors['message']; ?></span>
     </div>
     <div class="form__item form__item--file <?php if(isset($errors['lot-img'])) echo $form_item_invalid_class; ?>">
@@ -73,17 +87,17 @@
     <div class="form__container-three">
       <div class="form__item form__item--small <?php if(isset($errors['lot-rate'])) echo $form_item_invalid_class; ?>">
         <label for="lot-rate">Начальная цена <sup>*</sup></label>
-        <input id="lot-rate" type="text" name="lot-rate" placeholder="0">
+        <input id="lot-rate" type="text" name="lot-rate" placeholder="0" value="<?= show_form_data('lot-rate', $form_data, $errors); ?>">
         <span class="form__error"><?php if(isset($errors['lot-rate'])) echo $errors['lot-rate']; ?></span>
       </div>
       <div class="form__item form__item--small <?php if(isset($errors['lot-step'])) echo $form_item_invalid_class; ?>">
         <label for="lot-step">Шаг ставки <sup>*</sup></label>
-        <input id="lot-step" type="text" name="lot-step" placeholder="0">
+        <input id="lot-step" type="text" name="lot-step" placeholder="0" value="<?= show_form_data('lot-step', $form_data, $errors); ?>">
         <span class="form__error"><?php if(isset($errors['lot-step'])) echo $errors['lot-step']; ?></span>
       </div>
       <div class="form__item <?php if(isset($errors['lot-date'])) echo $form_item_invalid_class; ?>">
         <label for="lot-date">Дата окончания торгов <sup>*</sup></label>
-        <input class="form__input-date" id="lot-date" type="text" name="lot-date" placeholder="Введите дату в формате ГГГГ-ММ-ДД">
+        <input class="form__input-date" id="lot-date" type="text" name="lot-date" placeholder="Введите дату в формате ГГГГ-ММ-ДД" value="<?= show_form_data('lot-date', $form_data, $errors); ?>">
         <span class="form__error"><?php if(isset($errors['lot-date'])) echo $errors['lot-date']; ?></span>
       </div>
     </div>

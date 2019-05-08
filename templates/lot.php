@@ -10,7 +10,7 @@
   
   if ($lot['current_price'] !== $lot['start_price']) {
     $lot_min_price += $lot['step_bet'];
-  } 
+  }
 ?>
 
 <main>
