@@ -11,3 +11,4 @@ uploads/*
 !uploads/.gitkeep
 .vscode
 db_config.php
+.gitignore
