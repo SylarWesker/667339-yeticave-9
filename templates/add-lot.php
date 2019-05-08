@@ -1,37 +1,12 @@
 <?php
+
+require_once('utils/utils.php');
+
 $has_errors = count($errors) > 0;
 
 $form_invalid_class = 'form--invalid';
 $form_item_invalid_class = 'form__item--invalid';
 
-// ToDo
-// Как это можно реализовать по другому?
-// Далеко не элегантное решение.
-// ключи в $form_data и $errors должны совпадать.
-// постоянно нужно передавать $form_data, $errors... По идее нужно класс сделать.
-function show_form_data($key, $form_data, $errors) 
-{
-  $result = '';
-
-  if(!isset($errors[$key]) && isset($form_data[$key])) {
-    $result = $form_data[$key];
-  }
-    
-  return $result;
-}
-
-// ToDo
-// Та же история. 
-function show_error($key, $errors) 
-{
-  $result = '';
-
-  if(isset($errors[$key])) {
-    $result = $errors[$key];
-  }
-
-  return $result;
-}
 ?>
 
 <main>
