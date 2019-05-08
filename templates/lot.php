@@ -3,14 +3,7 @@
 
   $date_now = new DateTime();
   $today_midnight = new DateTime('tomorrow'); // тут по идее нужно брать $lot['end_date']
-
-  // ToDo!
-  // Не учитываю того факта что время лота может уже истечь, но разница между датами все равно будет меньше или равна часу.
-  // проверять по идее нужно св-во invert.
-
-  // Время до полуночи (считаем что это время окончания "жизни" лота).
-  $lot_lifetime_end = $today_midnight->diff($date_now); 
-
+  $lot_lifetime_end = $date_now->diff($today_midnight); 
 
   // Расчет минимальной ставки.
   $lot_min_price = $lot['current_price'];
@@ -72,10 +65,6 @@
               <?= $lot_lifetime_end->format("%H:%I") ?>
             </div>
 
-            <!-- Было -->
-            <!-- <div class="lot-item__timer timer">
-              10:54
-            </div> -->
             <div class="lot-item__cost-state">
               <div class="lot-item__rate">
                 <span class="lot-item__amount">Текущая цена</span>
