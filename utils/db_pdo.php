@@ -31,7 +31,7 @@ function get_stuff_categories($con)
     $error = null;
 
     if (!$query_result) {
-        $error = get_lats_db_error($con);
+        $error = get_last_db_error($con);
     } else {
         $result = $query_result->fetchAll();
     }
@@ -61,7 +61,7 @@ function get_lots($con)
     $error = null;
 
     if (!$query_result) {
-        $error = get_lats_db_error($con);
+        $error = get_last_db_error($con);
     } else {
         $result = $query_result->fetchAll();
     }
@@ -72,7 +72,7 @@ function get_lots($con)
 }
 
 // Получить последнюю ошибку при работе с БД.
-function get_lats_db_error($con)
+function get_last_db_error($con)
 {
     return $con->errorInfo()[2];
 }

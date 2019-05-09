@@ -46,6 +46,7 @@ function get_lots($con, $id_list = [])
             // $id_str = implode(', ', $id_list);
 
             // что-то как-то сложно и странно. Можно ли проще?
+            // Этот кусок кода выполняется снова. функция?
             $query_placeholders = array_fill(0,  count($id_list), '?');
             $id_placeholders = implode(', ', $query_placeholders);
             $sql_where_id_part = ' AND l.id IN (' . $id_placeholders . ') ';
@@ -71,8 +72,56 @@ function get_lots($con, $id_list = [])
     return $result_data;
 }
 
+// Возвращает id категории по ее названию.
+function get_category_id($con, $category_name)
+{
+    $sql = 'SELECT id FROM stuff_category WHERE name = ?';
+    $result_data = db_fetch_data($con, $sql, [ $category_name ]);
+
+    $result = false;
+
+    if ($result_data['error'] !== NULL) {
+        $result = false;
+    } else {
+        $result = count($result_data['result']) > 0 ? $result_data['result'][0]['id'] : NULL;
+    }
+
+    return $result;
+}
+
+// Добавляет лот.
+// Возвращает id лота в случае успеха, NULL - если нет.
+function add_lot($con, $params) 
+{
+    $query_placeholders = array_fill(0,  count($params), '?');
+    $query_placeholders_str = implode(', ', $query_placeholders);
+
+    $sql = 'INSERT INTO lot (author_id, 
+                            name, 
+                            category_id, 
+                            description, 
+                            start_price, 
+                            step_bet, 
+                            end_date, 
+                            image_url) 
+            VALUES (' . $query_placeholders_str . ')';
+
+    // Порядок параметров важен!
+    // - можно попробовать привязать параметры
+    // - задать в массиве порядок по ключам.
+    $keys_order = ['author_id', 'name', 'category_id', 'description', 'start_price', 'step_bet', 'end_date', 'image_url'];
+    $ordered_params = array_order_by_key($params,  $keys_order);
+
+    $result_data = db_fetch_data($con, $sql, $ordered_params);
+
+    $insert_id = mysqli_insert_id($con);
+    $added_lot_id = $insert_id  === 0 ? NULL : $insert_id;
+
+    return $added_lot_id;
+}
+
 // Получить последнюю ошибку при работе с БД.
-function get_lats_db_error($con)
+function get_last_db_error($con)
 {
     return mysqli_error($con);
 }
@@ -91,7 +140,7 @@ function db_fetch_data($link, $sql, $data = [])
         $result = mysqli_fetch_all($res, MYSQLI_ASSOC);
     } else {
         // Слабое место. до этого выполнялось несколько функций и при их выполнении тоже могли быть ошибки, а мы записываем только последнюю.
-        $error = get_lats_db_error($link);
+        $error = get_last_db_error($link);
     }
 
     return ['result' => $result, 'error' => $error];

@@ -40,31 +40,11 @@ VALUES
 SELECT * FROM stuff_category; 
 -- если только названия
 SELECT name FROM stuff_category;
+-- Узнаем есть ли категория с указаным названием.
+SELECT COUNT(*) as count_categories FROM stuff_category WHERE name = 'Разное'
 
 
--- Получить самые новые, открытые лоты. 
--- Каждый лот должен включать название, стартовую цену, ссылку на изображение, цену, название категории;
--- SELECT  l.name,
---         l.start_price, 
---         l.image_url, 
---         l.creation_date,
---         l.end_date,
---         cat.name as 'category', 
---         l.description,
---         max(b.price) as 'max_price'
--- FROM lot as l
--- JOIN stuff_category as cat on l.category_id = cat.id
--- LEFT JOIN bet as b on l.id = b.lot_id
--- WHERE l.end_date IS NOT NULL AND l.end_date > NOW()
--- GROUP BY l.name,
---         l.start_price, 
---         l.image_url, 
---         l.creation_date,
---         l.end_date,
---         cat.name, 
---         l.description
--- ORDER BY l.creation_date DESC
-
+-- Получить самые новые, открытые лоты.
 SELECT  l.*,
         cat.name category, 
         IFNULL(max(b.price), l.start_price) current_price
@@ -108,3 +88,22 @@ LEFT JOIN lot as l on b.lot_id = l.id
 WHERE b.lot_id = 1 -- тут указать id лота
 ORDER BY b.create_date DESC 
 LIMIT 3;
+
+-- Пример запроса добавления лота.
+INSERT INTO `lot`(  `name`, 
+                    `description`, 
+                    `image_url`, 
+                    `start_price`, 
+                    `end_date`, 
+                    `step_bet`, 
+                    `author_id`, 
+                    `category_id`) 
+VALUES ('new lot example', 
+        'lot desc',
+        NULL,
+        1000,
+        NOW() + INTERVAL 30 DAY,
+        50,
+        1,
+        1)
+        
