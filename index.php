@@ -6,7 +6,7 @@ require_once('utils/db_helper.php');
 
 use yeticave\db\functions as db_func;
 
-$is_auth = rand(0, 1);
+$is_auth = 0; // rand(0, 1);
 $title = 'Главная';
 $user_name = 'Sylar'; // укажите здесь ваше имя
 

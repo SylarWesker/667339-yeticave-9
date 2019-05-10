@@ -27,7 +27,7 @@
     </ul>
   </nav>
   
-  <form class="form container" action="https://echo.htmlacademy.ru" method="post" autocomplete="off"> <!-- form--invalid -->
+  <form class="form container" action="sign-up.php" method="post" autocomplete="off"> <!-- form--invalid -->
     <h2>Регистрация нового аккаунта</h2>
     <div class="form__item"> <!-- form__item--invalid -->
       <label for="email">E-mail <sup>*</sup></label>

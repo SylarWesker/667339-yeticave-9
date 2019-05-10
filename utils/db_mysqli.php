@@ -89,6 +89,23 @@ function get_category_id($con, $category_name)
     return $result;
 }
 
+function has_email($con, $email)
+{
+    $sql = 'SELECT COUNT(*) as email_count FROM `user` WHERE email = ?';
+    $result_data = db_fetch_data($con, $sql, [ $email ]);
+
+    $result = false;
+
+    if ($result_data['error'] !== NULL) {
+        $result = false;
+    } else {
+        $result = count($result_data['email_count']) > 0 ? true : false;
+    }
+
+    return $result;
+}
+
+
 // Добавляет лот.
 // Возвращает id лота в случае успеха, NULL - если нет.
 function add_lot($con, $params) 
