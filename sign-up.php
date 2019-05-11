@@ -44,6 +44,9 @@ if (isset($_POST['submit'])) {
         if (!$email) {
             $errors['email'] = 'Не указан email или неверный формат.';
         } else {
+            // ToDo
+            // Это валидация или уже бизнес логика?
+
             // Теперь проверяем что такого email нет в БД.
             $already_has_email = db_func\has_email($con, $email);
 

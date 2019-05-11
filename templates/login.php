@@ -1,5 +1,9 @@
 <?php
 
+require_once('utils/utils.php');
+
+$has_errors = count($errors) > 0;
+
 ?>
 
 <main>
@@ -25,7 +29,7 @@
       </li>
     </ul>
   </nav>
-  <form class="form container" action="https://echo.htmlacademy.ru" method="post"> <!-- form--invalid -->
+  <form class="form container" action="login.php" method="post"> <!-- form--invalid -->
     <h2>Вход</h2>
     <div class="form__item"> <!-- form__item--invalid -->
       <label for="email">E-mail <sup>*</sup></label>
@@ -37,6 +41,6 @@
       <input id="password" type="password" name="password" placeholder="Введите пароль">
       <span class="form__error">Введите пароль</span>
     </div>
-    <button type="submit" class="button">Войти</button>
+    <button type="submit" name="submit" class="button">Войти</button>
   </form>
 </main>
