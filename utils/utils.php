@@ -72,16 +72,18 @@ function secure_data_for_sql_query($param)
     // Еще можно такой вариант попробовать.
     // $functions = ['trim', 'strip_tags', 'addslashes'];
     // foreach($functions as $func) {
-    //     $lot_name = call_user_func($func, $param);
+    //     $param = call_user_func($func, $param);
     // }
 
-    $param = trim($param);
-    $param = strip_tags($param);
+    if (is_string($param)) {
+        $param = trim($param);
+        $param = strip_tags($param);
 
-    // т.к использую подготовленные запросы, то экранировать не обязательно
-    // но предположим, что я передаю это коду записи в БД, которому не доверяю (не знаю использует он подготовленные запросы или нет).
-    // короче перестраховываюсь
-    $param = addslashes($param); 
+        // т.к использую подготовленные запросы, то экранировать не обязательно
+        // но предположим, что я передаю это коду записи в БД, которому не доверяю (не знаю использует он подготовленные запросы или нет).
+        // короче перестраховываюсь
+        $param = addslashes($param); 
+    }
 
     return $param;
 }

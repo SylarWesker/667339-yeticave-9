@@ -42,9 +42,6 @@ function get_lots($con, $id_list = [])
     $sql_where_id_part = ' ';
     if (isset($id_list)) {
         if (count($id_list) != 0) {
-            // список id пока не проверяю. предполагаю, что он коректный и проверен извне (на sql инъекции)
-            // $id_str = implode(', ', $id_list);
-
             // что-то как-то сложно и странно. Можно ли проще?
             // Этот кусок кода выполняется снова. функция?
             $query_placeholders = array_fill(0,  count($id_list), '?');
@@ -91,20 +88,59 @@ function get_category_id($con, $category_name)
 
 function has_email($con, $email)
 {
-    $sql = 'SELECT COUNT(*) as email_count FROM `user` WHERE email = ?';
+    $sql = 'SELECT COUNT(*) as email_count FROM `user` WHERE `email` = ?';
     $result_data = db_fetch_data($con, $sql, [ $email ]);
+
+    $result = false;
+
+    //var_dump( $result_data);
+
+    if ($result_data['error'] !== NULL) {
+        $result = false;
+    } else {
+        $result = $result_data['result'][0]['email_count'] > 0 ? true : false;
+    }
+
+    return $result;
+}
+
+function has_user($con, $user_name)
+{
+    $sql = 'SELECT COUNT(*) as user_count FROM `user` WHERE `name` = ?';
+    $result_data = db_fetch_data($con, $sql, [ $user_name ]);
 
     $result = false;
 
     if ($result_data['error'] !== NULL) {
         $result = false;
     } else {
-        $result = count($result_data['email_count']) > 0 ? true : false;
+        $result = $result_data['result'][0]['user_count'] > 0 ? true : false;
     }
 
     return $result;
 }
 
+// Добавляет пользователя в БД.
+function add_user($con, $email, $user_name, $password, $contacts) 
+{
+    $params = [ $email, $user_name, $password, $contacts];
+
+    $query_placeholders = array_fill(0, count($params), '?');
+    $query_placeholders_str = implode(', ', $query_placeholders);
+
+    $sql = 'INSERT INTO `user` (email, 
+                                name, 
+                                password, 
+                                contacts) 
+            VALUES (' . $query_placeholders_str . ')';
+
+    $result_data = db_fetch_data($con, $sql, $params);
+
+    $insert_id = mysqli_insert_id($con);
+    $added_user_id = $insert_id  === 0 ? NULL : $insert_id;
+
+    return $added_user_id;
+}
 
 // Добавляет лот.
 // Возвращает id лота в случае успеха, NULL - если нет.
