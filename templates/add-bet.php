@@ -11,5 +11,5 @@ require_once('utils/utils.php');
         <input id="cost" type="text" name="cost" placeholder="<?= format_price($lot_min_price) ?>">
         <span class="form__error">Введите наименование лота</span>
     </p>
-    <button type="submit" class="button">Сделать ставку</button>
+    <button type="submit" name="submit" class="button">Сделать ставку</button>
 </form>
