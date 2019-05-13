@@ -50,7 +50,7 @@ if (isset($_POST['submit'])) {
 
     // теперь проверяем зарегистрирован ли пользователь.
     if (count($errors) === 0) {
-       $user_data = db_conf\get_name_password_by_email($con, $email);
+       $user_data = db_func\get_name_password_by_email($con, $email);
 
        if ($user_data['error'] === NULL) {
             $password_from_db = $user_data['result'][0]['password'];
