@@ -69,6 +69,33 @@ function get_lots($con, $id_list = [])
     return $result_data;
 }
 
+// Возвращает минимально возможную ставку для лота по его id.
+function get_lot_min_bet($con, $lot_id) 
+{
+    $sql = 'SELECT l.id, b.lot_id, IF(ISNULL(b.price), l.start_price, MAX(b.price) + l.step_bet) as min_bet 
+            FROM `bet` as b
+            RIGHT JOIN `lot` as l
+            ON l.id = b.lot_id
+            GROUP BY l.id
+            HAVING l.id = ?';
+
+    // echo $sql;
+    // echo "<br>";
+    // echo $lot_id;
+
+    $result_data = db_fetch_data($con, $sql, [ $lot_id ]);
+
+    $result = NULL;
+
+    if ($result_data['error'] !== NULL) {
+        $result = NULL;
+    } else {
+        $result = count($result_data['result']) > 0 ? $result_data['result'][0]['min_bet'] : NULL;
+    }
+
+    return $result;
+}
+
 // Возвращает id категории по ее названию.
 function get_category_id($con, $category_name)
 {
@@ -92,8 +119,6 @@ function has_email($con, $email)
     $result_data = db_fetch_data($con, $sql, [ $email ]);
 
     $result = false;
-
-    //var_dump( $result_data);
 
     if ($result_data['error'] !== NULL) {
         $result = false;
@@ -181,10 +206,84 @@ function add_lot($con, $params)
     return $added_lot_id;
 }
 
+function add_bet($con, $user_id, $lot_id, $bet_cost) 
+{
+    $params = [ $user_id, $lot_id, $bet_cost];
+
+    $query_placeholders = array_fill(0, count($params), '?');
+    $query_placeholders_str = implode(', ', $query_placeholders);
+
+    $sql = 'INSERT INTO bet (user_id, 
+                            lot_id, 
+                            price) 
+            VALUES (' . $query_placeholders_str . ')';
+
+    $result_data = db_fetch_data($con, $sql, $params);
+
+    $insert_id = mysqli_insert_id($con);
+    $added_bet_id = $insert_id  === 0 ? NULL : $insert_id;
+
+    return $added_bet_id;
+}
+
 // Получить последнюю ошибку при работе с БД.
 function get_last_db_error($con)
 {
     return mysqli_error($con);
+}
+
+/**
+ * Создает подготовленное выражение на основе готового SQL запроса и переданных данных
+ *
+ * @param $link mysqli Ресурс соединения
+ * @param $sql string SQL запрос с плейсхолдерами вместо значений
+ * @param array $data Данные для вставки на место плейсхолдеров
+ *
+ * @return mysqli_stmt Подготовленное выражение
+ */
+function db_get_prepare_stmt($link, $sql, $data = []) {
+    $stmt = mysqli_prepare($link, $sql);
+
+    if ($stmt === false) {
+        $errorMsg = 'Не удалось инициализировать подготовленное выражение: ' . mysqli_error($link);
+        die($errorMsg);
+    }
+
+    if ($data) {
+        $types = '';
+        $stmt_data = [];
+
+        foreach ($data as $value) {
+            $type = 's';
+
+            if (is_int($value)) {
+                $type = 'i';
+            }
+            else if (is_string($value)) {
+                $type = 's';
+            }
+            else if (is_double($value)) {
+                $type = 'd';
+            }
+
+            if ($type) {
+                $types .= $type;
+                $stmt_data[] = $value;
+            }
+        }
+
+        $values = array_merge([$stmt, $types], $stmt_data);
+
+        $func = 'mysqli_stmt_bind_param';
+        $func(...$values);
+
+        if (mysqli_errno($link) > 0) {
+            $errorMsg = 'Не удалось связать подготовленное выражение с параметрами: ' . mysqli_error($link);
+            die($errorMsg);
+        }
+    }
+
+    return $stmt;
 }
 
 // Вспомогательная функция получения записей.
