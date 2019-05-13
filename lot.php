@@ -62,15 +62,16 @@ if (count($errors) != 0) {
 } else {
     $title_page = $lot['name'];
     $content = include_template('lot.php', ['stuff_categories' => $stuff_categories,
-                                            'lot' => $lot
+                                            'lot' => $lot,
+                                            'is_auth' => $is_auth
                                             ]);
 }
 
 $layout = include_template('layout.php', [ 'title' => $title_page,
-                                          'content' => $content, 
-                                          'stuff_categories' => $stuff_categories, 
-                                          'is_auth' => $is_auth, 
-                                          'user_name' => $user_name
-                                          ]);
+                                           'content' => $content, 
+                                           'stuff_categories' => $stuff_categories, 
+                                           'is_auth' => $is_auth, 
+                                           'user_name' => $user_name
+                                         ]);
 
 print($layout);

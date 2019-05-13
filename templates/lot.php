@@ -1,16 +1,16 @@
 <?php
-  require_once('utils/utils.php');
+require_once('utils/utils.php');
 
-  $date_now = new DateTime();
-  $today_midnight = new DateTime('tomorrow'); // тут по идее нужно брать $lot['end_date']
-  $lot_lifetime_end = $date_now->diff($today_midnight); 
+$date_now = new DateTime();
+$today_midnight = new DateTime('tomorrow'); // тут по идее нужно брать $lot['end_date']
+$lot_lifetime_end = $date_now->diff($today_midnight); 
 
-  // Расчет минимальной ставки.
-  $lot_min_price = $lot['current_price'];
-  
-  if ($lot['current_price'] !== $lot['start_price']) {
-    $lot_min_price += $lot['step_bet'];
-  }
+// Расчет минимальной ставки.
+$lot_min_price = $lot['current_price'];
+
+if ($lot['current_price'] !== $lot['start_price']) {
+  $lot_min_price += $lot['step_bet'];
+}
 ?>
 
 <main>
@@ -51,7 +51,7 @@
           <p class="lot-item__description"><?= $lot['description'] ?></p>
         </div>
         <div class="lot-item__right">
-          <div class="lot-item__state">
+          <div class="lot-item__state" <?php if(!$is_auth) echo 'hidden'; ?> >
             <!-- Тут должно быть время до окончания действия лота? т.е  $lot['end_date'] минус текущее время ?
             если да, то в каком формате? сейчас указаны часы и минуты. а если до окончания времени больше 24 часов? 
             пока использовал вариант как на главной странице. Считаю временем окончания жизни лота полночь. -->
