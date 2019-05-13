@@ -114,7 +114,7 @@ if (isset($_POST['submit'])) {
 
         // Редирект на страницу авторизации.
         if ($added_user_id !== NULL) {
-            $login_page = 'pages/login.html'; // 'login.php'
+            $login_page = 'login.php'; // 'login.php'
 
             header('Location: ' . $login_page);
         } else {

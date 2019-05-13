@@ -55,12 +55,13 @@ if (isset($_POST['submit'])) {
        if ($user_data['error'] === NULL) {
             $password_from_db = $user_data['result'][0]['password'];
 
-            $password_correct = password_verify ( $password, $password_from_db);
+            $password_correct = password_verify($password, $password_from_db);
 
             if ($password_correct) {
                 $user_name =  $user_data['result'][0]['name'];
                 $is_auth = 1;
 
+                // echo 'Авторизовался';
                 header('Location: index.php');
             } else {
                 $errors['password'] = 'Неверный пароль.';
