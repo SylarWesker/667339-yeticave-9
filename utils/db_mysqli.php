@@ -120,9 +120,9 @@ function has_user($con, $user_name)
     return $result;
 }
 
-function get_name_password_by_email($con, $email) 
+function get_userdata_by_email($con, $email) 
 {
-    $sql = 'SELECT `name`, `password` FROM `user` WHERE `email` = ?';
+    $sql = 'SELECT * FROM `user` WHERE `email` = ?';
     $result_data = db_fetch_data($con, $sql, [ $email ]);
 
     return $result_data;

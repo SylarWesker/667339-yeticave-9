@@ -52,7 +52,7 @@ if (isset($_POST['submit'])) {
 
     // теперь проверяем зарегистрирован ли пользователь.
     if (count($errors) === 0) {
-       $user_data = db_func\get_name_password_by_email($con, $email);
+       $user_data = db_func\get_userdata_by_email($con, $email);
 
        if ($user_data['error'] === NULL) {
             $password_from_db = $user_data['result'][0]['password'];
@@ -61,9 +61,11 @@ if (isset($_POST['submit'])) {
 
             if ($password_correct) {
                 $user_name = $user_data['result'][0]['name'];
+                $user_id = $user_data['result'][0]['id'];
                 $is_auth = 1;
 
                 $_SESSION['user_name'] = $user_name;
+                $_SESSION['user_id'] = $user_id;
                 $_SESSION['is_auth'] = $is_auth;
 
                 // echo 'Авторизовался';
