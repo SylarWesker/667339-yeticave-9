@@ -1,5 +1,7 @@
 <?php
 
+session_start();
+
 require_once('helpers.php');
 require_once('utils/utils.php');
 require_once('utils/db_helper.php');
@@ -58,8 +60,11 @@ if (isset($_POST['submit'])) {
             $password_correct = password_verify($password, $password_from_db);
 
             if ($password_correct) {
-                $user_name =  $user_data['result'][0]['name'];
+                $user_name = $user_data['result'][0]['name'];
                 $is_auth = 1;
+
+                $_SESSION['user_name'] = $user_name;
+                $_SESSION['is_auth'] = $is_auth;
 
                 // echo 'Авторизовался';
                 header('Location: index.php');

@@ -1,14 +1,10 @@
 <?php
 
+require_once('auth.php');
 require_once('helpers.php');
 require_once('utils/db_helper.php');
 
 use yeticave\db\functions as db_func;
-
-// эти параметры должны браться откуда из другого места...
-// пока просто закопирую.
-$user_name = 'Sylar';
-$is_auth = rand(0, 1);
 
 $errors = [];
 $id = null; 

@@ -1,15 +1,14 @@
 <?php
 
+require_once('auth.php');
+
 require_once('helpers.php');
 require_once('utils/utils.php');
 require_once('utils/db_helper.php');
 
 use yeticave\db\functions as db_func;
 
-$is_auth = 0; // rand(0, 1);
 $title = 'Главная';
-$user_name = 'Sylar'; // укажите здесь ваше имя
-
 $stuff_categories = [];
 $lots = [];
 

@@ -7,10 +7,6 @@ require_once('utils/db_helper.php');
 use yeticave\db\functions as db_func;
 
 $title = 'Регистрация пользователя';
-
-// Странно эти данные сюда копировать. но в принципе может же уже авторизованный зарегистрировать еще один аккаунт?
-// $user_name = 'Sylar';
-// $is_auth = rand(0, 1);
 $user_name = '';
 $is_auth = 0;
 
@@ -114,7 +110,7 @@ if (isset($_POST['submit'])) {
 
         // Редирект на страницу авторизации.
         if ($added_user_id !== NULL) {
-            $login_page = 'login.php'; // 'login.php'
+            $login_page = 'login.php';
 
             header('Location: ' . $login_page);
         } else {
