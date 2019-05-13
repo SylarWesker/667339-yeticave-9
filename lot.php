@@ -9,7 +9,6 @@ use yeticave\db\functions as db_func;
 $errors = [];
 $id = null; 
 $lot = null;
-$title = '';
 
 // категории заново получаем? ну вроде да...
 $stuff_categories = [];
@@ -53,17 +52,25 @@ $content = null;
 $title_page = 'Страница показа лота.';
 
 if (count($errors) != 0) {
-    // показываем 404 и ошибки
-    // header('Location: pages/404.html');
-
-    // или все же лучше делать редирект на 404, но передавать туда список ошибок?
     $title_page = 'Страница не найдена.';
     $content = include_template('404.php', ['error_list' =>  $errors]);
 } else {
+    // Расчет минимальной ставки.
+    $lot_min_price = $lot['current_price'];
+
+    if ($lot['current_price'] !== $lot['start_price']) {
+        $lot_min_price += $lot['step_bet'];
+    }
+
+    $add_bet_content = include_template('add-bet.php', ['lot' => $lot,
+                                                        'lot_min_price' => $lot_min_price
+                                                       ]);
+
     $title_page = $lot['name'];
     $content = include_template('lot.php', ['stuff_categories' => $stuff_categories,
                                             'lot' => $lot,
-                                            'is_auth' => $is_auth
+                                            'is_auth' => $is_auth,
+                                            'add_bet_content' => $add_bet_content
                                             ]);
 }
 

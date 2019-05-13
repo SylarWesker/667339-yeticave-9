@@ -5,12 +5,8 @@ $date_now = new DateTime();
 $today_midnight = new DateTime('tomorrow'); // тут по идее нужно брать $lot['end_date']
 $lot_lifetime_end = $date_now->diff($today_midnight); 
 
-// Расчет минимальной ставки.
-$lot_min_price = $lot['current_price'];
-
-if ($lot['current_price'] !== $lot['start_price']) {
-  $lot_min_price += $lot['step_bet'];
-}
+// Тут создавать блок с добавлением ставки или в сценарии lot.php ?
+// пускай пока в lot.php
 ?>
 
 <main>
@@ -74,14 +70,9 @@ if ($lot['current_price'] !== $lot['start_price']) {
                 Мин. ставка <span><?= format_price($lot['start_price']) ?></span>
               </div>
             </div>
-            <form class="lot-item__form" action="https://echo.htmlacademy.ru" method="post" autocomplete="off">
-              <p class="lot-item__form-item form__item form__item--invalid">
-                <label for="cost">Ваша ставка</label>
-                <input id="cost" type="text" name="cost" placeholder="<?= format_price($lot_min_price) ?>">
-                <span class="form__error">Введите наименование лота</span> <!-- вот эта строка тут зачем? -->
-              </p>
-              <button type="submit" class="button">Сделать ставку</button>
-            </form>
+
+            <!-- Тут добавление ставки -->
+            <?= $add_bet_content; ?>
           </div>
           <div class="history">
             <h3>История ставок (<span>10</span>)</h3>
