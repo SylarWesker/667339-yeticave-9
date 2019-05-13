@@ -16,7 +16,7 @@ $stuff_categories = [];
 
  // Получение списка категорий.
  $func_result = db_func\get_stuff_categories($con);
- $stuff_categories = $func_result['result'] === null ? [] : $func_result['result']; 
+ $stuff_categories = $func_result['result'] ?? [];
 
  if ($func_result['error'] !== null) {
      $errors[] = 'Ошибка MySql при получении списка категорий: ' . $func_result['error'];  

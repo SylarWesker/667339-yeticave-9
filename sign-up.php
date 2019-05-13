@@ -13,7 +13,7 @@ $is_auth = 0;
 // Да сколько уже можно копировать этот код???
 // список категорий.
 $func_result = db_func\get_stuff_categories($con);
-$stuff_categories = $func_result['result'] === null ? [] : $func_result['result']; // стремно, но что поделать.
+$stuff_categories = $func_result['result'] ?? [];
 
 if ($func_result['error'] !== null) {
     print('Ошибка MySql при получении списка категорий: ' . $func_result['error']);  

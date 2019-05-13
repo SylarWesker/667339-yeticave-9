@@ -22,7 +22,7 @@ if (!$con) {
 
 // список лотов.
 $func_result = db_func\get_lots($con);
-$lots = $func_result['result'] === null ? [] : $func_result['result']; // стремно, но что поделать.
+$lots = $func_result['result'] ?? [];
 
 if ($func_result['error'] !== null) {
     print('Ошибка MySql при получении лотов: ' . $func_result['error']);  
@@ -30,7 +30,7 @@ if ($func_result['error'] !== null) {
 
 // список категорий.
 $func_result = db_func\get_stuff_categories($con);
-$stuff_categories = $func_result['result'] === null ? [] : $func_result['result']; // стремно, но что поделать.
+$stuff_categories = $func_result['result'] ?? [];
 
 if ($func_result['error'] !== null) {
     print('Ошибка MySql при получении списка категорий: ' . $func_result['error']);  
