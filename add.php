@@ -7,6 +7,12 @@ require_once('utils/db_helper.php');
 
 use yeticave\db\functions as db_func;
 
+// Если пользователь не авторизован, то показываем 403
+if ($is_auth === 0) {
+    http_response_code(403);
+    return;
+}
+
 $title = 'Добавление лота';
 
 // Валидация данных формы.
