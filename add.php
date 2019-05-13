@@ -179,10 +179,7 @@ if (isset($_POST['submit'])) {
 
     // Если все ок, то добавляем в БД.
     if (count($errors) === 0) {
-        // Временный id пользователя. потом будем использовать id авторизированого пользователя.
-        $tmp_user_id = 1;
-
-        $params = [ 'author_id' => $tmp_user_id, 
+        $params = [ 'author_id' => $user_id, 
                     'name' => $lot_name, 
                     'category_id' => $lot_category_id, 
                     'description' => $lot_description, 
