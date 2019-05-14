@@ -79,7 +79,8 @@ function get_bets($con, $user_id)
             JOIN `lot` as l on b.lot_id = l.id
             JOIN `stuff_category` as cat on l.category_id = cat.id
             JOIN `user` as u on l.author_id = u.id
-            WHERE b.user_id = ?';
+            WHERE b.user_id = ?
+            ORDER BY b.create_date DESC';
 
     $result_data = db_fetch_data($con, $sql, [ $user_id ]);
 
