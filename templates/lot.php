@@ -66,7 +66,7 @@ $lot_lifetime_end = $date_now->diff($today_midnight);
                 <span class="lot-item__amount">Текущая цена</span>
                 <span class="lot-item__cost"><?= format_price($lot['current_price']) ?></span>
               </div>
-              <div class="lot-item__min-cost"> <!-- Минимальная ставка или стартовая цена? -->
+              <div class="lot-item__min-cost"> <!-- ToDo Минимальная ставка или стартовая цена? -->
                 Мин. ставка <span><?= format_price($lot['start_price']) ?></span>
               </div>
             </div>
