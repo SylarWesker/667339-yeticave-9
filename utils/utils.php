@@ -140,3 +140,8 @@ function show_error($key, $errors)
 
   return $result;
 }
+
+// 20 минут назад
+// Час назад
+// Вчера, в 21:30
+// 19.03.17 в 08:21
