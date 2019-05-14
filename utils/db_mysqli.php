@@ -7,6 +7,9 @@ namespace yeticave\db\functions;
 // 1) Хранимые процедуры
 // 2) отдельный файл.
 
+// ToDo
+// Разделить функции общей работы с БД и функции работы с конкретной БД (yeticave)
+
 // Возвращает подключение к БД.
 function get_connection()
 {
@@ -69,6 +72,20 @@ function get_lots($con, $id_list = [])
     return $result_data;
 }
 
+// Возвращает ставки пользователя. 
+function get_bets($con, $user_id) 
+{
+    $sql = 'SELECT b.*, l.*, cat.name as category_name, u.contacts FROM `bet` as b 
+            JOIN `lot` as l on b.lot_id = l.id
+            JOIN `stuff_category` as cat on l.category_id = cat.id
+            JOIN `user` as u on l.author_id = u.id
+            WHERE b.user_id = ?';
+
+    $result_data = db_fetch_data($con, $sql, [ $user_id ]);
+
+    return $result_data;
+}
+
 // Возвращает минимально возможную ставку для лота по его id.
 function get_lot_min_bet($con, $lot_id) 
 {
@@ -78,10 +95,6 @@ function get_lot_min_bet($con, $lot_id)
             ON l.id = b.lot_id
             GROUP BY l.id
             HAVING l.id = ?';
-
-    // echo $sql;
-    // echo "<br>";
-    // echo $lot_id;
 
     $result_data = db_fetch_data($con, $sql, [ $lot_id ]);
 

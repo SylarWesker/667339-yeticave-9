@@ -1,5 +1,10 @@
 <?php
 
+require_once('utils/utils.php');
+require_once('helpers.php');
+
+$now = new DateTime('NOW');
+
 ?>
 
 <main>
@@ -31,26 +36,49 @@
   <section class="rates container">
     <h2>Мои ставки</h2>
     <table class="rates__list">
-      <tr class="rates__item">
-        <td class="rates__info">
-          <div class="rates__img">
-            <img src="../img/rate1.jpg" width="54" height="40" alt="Сноуборд">
-          </div>
-          <h3 class="rates__title"><a href="lot.html">2014 Rossignol District Snowboard</a></h3>
-        </td>
-        <td class="rates__category">
-          Доски и лыжи
-        </td>
-        <td class="rates__timer">
-          <div class="timer timer--finishing">07:13:34</div>
-        </td>
-        <td class="rates__price">
-          10 999 р
-        </td>
-        <td class="rates__time">
-          5 минут назад
-        </td>
-      </tr>
+      <?php foreach($bets as $bet): ?>
+        <tr class="rates__item">
+          <td class="rates__info">
+            <div class="rates__img">
+              <img src="<?= $bet['image_url']; ?>" width="54" height="40" alt=""> <!-- Так и не понял как alt выставляют -->
+            </div>
+            <h3 class="rates__title"><a href="lot.php?id=<?= $bet['lot_id']; ?>"><?= $bet['name']; ?></a></h3>
+            
+            <!-- ToDo
+              Контакты юзера создавшего лот. Показываем если выиграли. -->
+            <!-- <p>Телефон +7 900 667-84-48, Скайп: Vlas92. Звонить с 14 до 20</p> -->
+            <?php if($bet['winner_id'] === $bet['user_id']): ?>
+              <p><?= $bet['contacts']; ?></p>
+            <?php endif; ?>
+          </td>
+          <td class="rates__category">
+            <?= $bet['category_name']; ?>
+          </td>
+          <td class="rates__timer">
+            <?php if($bet['winner_id'] === $bet['user_id']): ?>
+              <div class="timer timer--win">Ставка выиграла</div>
+            <?php else: ?>
+              <?php if ($bet['end_date'] >= $now): ?>
+                <div class="timer timer--end">Торги окончены</div>
+              <?php else: ?>
+                <!-- ToDo
+                времени до окончания торгов? -->
+                <div class="timer timer--finishing">07:13:34</div>
+              <?php endif; ?>
+            <?php endif; ?>
+          </td>
+          <td class="rates__price">
+            <?= format_price($bet['price']); ?>
+          </td>
+          <td class="rates__time">
+            <!-- ToDo 
+            Одна из сложных частей. Вывод времени размещения ставки в человекоудобном формате -->
+            <!-- <?= $bet['create_date']; ?> -->
+            5 минут назад
+          </td>
+        </tr>
+      <?php endforeach; ?>
+<!-- 
       <tr class="rates__item">
         <td class="rates__info">
           <div class="rates__img">
@@ -173,7 +201,7 @@
         <td class="rates__time">
           19.03.17 в 08:21
         </td>
-      </tr>
+      </tr> -->
     </table>
   </section>
 </main>

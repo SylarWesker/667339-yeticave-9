@@ -3,6 +3,9 @@
 require_once('auth.php');
 
 require_once('helpers.php');
+
+// ToDo
+// Проверить в файлах все require_once. Все ли они нужны.
 require_once('utils/utils.php');
 require_once('utils/db_helper.php');
 
