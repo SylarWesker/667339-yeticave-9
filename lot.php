@@ -55,6 +55,10 @@ if (count($errors) != 0) {
     $title_page = 'Страница не найдена.';
     $content = include_template('404.php', ['error_list' =>  $errors]);
 } else {
+    // ToDo 
+    // есть функция получения минимальной ставки из БД. 
+    // дублирующий функционал получается. что буду делать?
+
     // Расчет минимальной ставки.
     $lot_min_price = $lot['current_price'];
 

@@ -31,16 +31,15 @@ if (count($errors) === 0) {
     // Минимальная ставка уже расчитывается на lot.php 
     // но... пока страница открыта ситуация может изменится (пользователь может открыть страницу и сделать ставку намного позже => данные могут устареть)
 
-    // echo "<pre>";
-    // var_dump($con);
-    // echo "</pre>";
-
     // Получаем минимальную ставку для лота. 
     $min_lot_bet = db_func\get_lot_min_bet($con, $lot_id);
 
     if ($min_lot_bet === NULL) {
         $errors['lot_id'] = 'Нет лота с указанным id';
-        return; // ??? нужно перейти к блоку кода который редиректит на страницу с лотом и еще ошибки передать.
+
+        // ToDo
+        // ??? нужно перейти к блоку кода который редиректит на страницу с лотом и еще ошибки передать.
+        return; 
     }
 
     // ToDo
@@ -50,14 +49,14 @@ if (count($errors) === 0) {
         // Добавляем ставку. 
         $added_bet_id = db_func\add_bet($con, $user_id, $lot_id, $cost);
 
-        if ($added_bet_id === NULL) {
+        if ($added_bet_id !== NULL) {
+            $lot_url = 'lot.php?id=' . $lot_id;
+
+            header('Location: ' . $lot_url);  
+        } else {
             // ToDo
             // Что делать будем?
             $errors['lot_id'] = 'Ставка не сделана.';
-        } else {
-            $lot_url = 'lot.php?id=' . $lot_id;
-
-            header('Location: ' . $lot_url);
         }
     } else {
         $errors['cost'] = 'Указанная цена меньше минимально возможной ставки.';
