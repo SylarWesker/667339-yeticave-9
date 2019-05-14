@@ -2,7 +2,7 @@
 
 namespace yeticave\db\functions;
 
- use PDO;
+use PDO;
 
 // Возвращает подключение к БД.
 function get_connection() 

@@ -72,7 +72,8 @@ $now = new DateTime('NOW');
             <!-- ToDo 
             Одна из сложных частей. Вывод времени размещения ставки в человекоудобном формате -->
             <!-- <?= $bet['create_date']; ?> -->
-            5 минут назад
+            <?= human_friendly_time($now, $bet['create_date']); ?>
+            <!-- 5 минут назад -->
           </td>
         </tr>
       <?php endforeach; ?>
