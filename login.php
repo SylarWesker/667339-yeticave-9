@@ -59,6 +59,8 @@ if (isset($_POST['submit'])) {
            // 2. В сообщении ошибки - говорить что неверный пользователь или пароль (НЕ РАЗДЕЛЯЕМ чтобы не подобрали злоумыленики список пользователей)
             $password_from_db = $user_data['result'][0]['password'];
 
+            var_dump($user_data); 
+            
             $password_correct = password_verify($password, $password_from_db);
 
             if ($password_correct) {
