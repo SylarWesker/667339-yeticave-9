@@ -13,10 +13,9 @@ $title = 'Авторизация';
 $user_name = '';
 $is_auth = 0;
 
-// Да сколько уже можно копировать этот код???
 // список категорий.
 $func_result = db_func\get_stuff_categories($con);
-$stuff_categories = $func_result['result'] === null ? [] : $func_result['result']; // стремно, но что поделать.
+$stuff_categories = $func_result['result'] ?? []; 
 
 if ($func_result['error'] !== null) {
     print('Ошибка MySql при получении списка категорий: ' . $func_result['error']);  
@@ -55,6 +54,9 @@ if (isset($_POST['submit'])) {
        $user_data = db_func\get_userdata_by_email($con, $email);
 
        if ($user_data['error'] === NULL) {
+           // ToDo
+           // 1. Процесс login вынести в отдельную функцию.
+           // 2. В сообщении ошибки - говорить что неверный пользователь или пароль (НЕ РАЗДЕЛЯЕМ чтобы не подобрали злоумыленики список пользователей)
             $password_from_db = $user_data['result'][0]['password'];
 
             $password_correct = password_verify($password, $password_from_db);
@@ -68,7 +70,6 @@ if (isset($_POST['submit'])) {
                 $_SESSION['user_id'] = $user_id;
                 $_SESSION['is_auth'] = $is_auth;
 
-                // echo 'Авторизовался';
                 header('Location: index.php');
             } else {
                 $errors['password'] = 'Неверный пароль.';

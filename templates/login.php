@@ -4,9 +4,6 @@ require_once('utils/utils.php');
 
 $has_errors = count($errors) > 0;
 
-// ToDo
-// Классы повторяются. 
-// -сделать константами и в отдельный файл???
 $form_invalid_class = 'form--invalid';
 $form_item_invalid_class = 'form__item--invalid';
 
@@ -35,6 +32,7 @@ $form_item_invalid_class = 'form__item--invalid';
       </li>
     </ul>
   </nav>
+  
   <form class="form container <?php if($has_errors) echo $form_invalid_class; ?>" action="login.php" method="post"> <!-- form--invalid -->
     <h2>Вход</h2>
     <div class="form__item <?php if(isset($errors['email'])) echo $form_item_invalid_class; ?>"> <!-- form__item--invalid -->
