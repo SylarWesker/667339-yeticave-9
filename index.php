@@ -45,16 +45,9 @@ $con = null;
 // По идее нужно вынести header и footer в отдельные шаблоны.
 // или не нужно?
 
-// Формирование времени окончания действия лота.
-$date_now = new DateTime();
-$today_midnight = new DateTime('tomorrow');
-
-// Время до полуночи (считаем что это время окончания "жизни" лота).
-$time_to_midnight = $date_now->diff($today_midnight); 
-
 $content = include_template('index.php', ['stuff_categories' => $stuff_categories, 
-                                          'lots' => $lots,
-                                          'lot_lifetime_end' => $time_to_midnight]);
+                                          'lots' => $lots
+                                          ]);
 
 $layout = include_template('layout.php', ['title' => $title, 
                                           'content' => $content, 

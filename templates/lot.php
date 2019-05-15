@@ -2,11 +2,6 @@
 require_once('utils/utils.php');
 
 $date_now = new DateTime();
-$today_midnight = new DateTime('tomorrow'); // тут по идее нужно брать $lot['end_date']
-$lot_lifetime_end = $date_now->diff($today_midnight); 
-
-// Тут создавать блок с добавлением ставки или в сценарии lot.php ?
-// пускай пока в lot.php
 ?>
 
 <main>
@@ -36,6 +31,7 @@ $lot_lifetime_end = $date_now->diff($today_midnight);
         </li>
       </ul>
     </nav>
+
     <section class="lot-item container">
       <h2><?= $lot['name'] ?></h2>
       <div class="lot-item__content">
@@ -48,17 +44,13 @@ $lot_lifetime_end = $date_now->diff($today_midnight);
         </div>
         <div class="lot-item__right">
           <div class="lot-item__state" <?php if($is_auth === 0) echo 'hidden'; ?> >
-            <!-- Тут должно быть время до окончания действия лота? т.е  $lot['end_date'] минус текущее время ?
-            если да, то в каком формате? сейчас указаны часы и минуты. а если до окончания времени больше 24 часов? 
-            пока использовал вариант как на главной странице. Считаю временем окончания жизни лота полночь. -->
-            
-            <?php if (is_equal_or_less_hour($lot_lifetime_end) ): ?>
+            <?php if(is_equal_or_less_hour_beetween_dates($lot['end_date'], $date_now)) : ?>
                 <div class="lot__timer timer timer--finishing">
             <?php else: ?>
                 <div class="lot__timer timer">
             <?php endif; ?>
 
-              <?= $lot_lifetime_end->format("%H:%I") ?>
+              <?= time_to_lot_end_format($lot['end_date'], $date_now); ?>
             </div>
 
             <div class="lot-item__cost-state">
@@ -71,7 +63,7 @@ $lot_lifetime_end = $date_now->diff($today_midnight);
               </div>
             </div>
 
-            <!-- Тут форма добавления ставки -->
+            <!-- Форма добавления ставки -->
             <?= $add_bet_content; ?>
             
           </div>
