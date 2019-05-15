@@ -86,38 +86,32 @@ function get_category_id($con, $category_name)
     return $result;
 }
 
-function has_email($con, $email)
+function filter($con, $table_name, $field_name, $field_value, $limit = null) 
 {
-    $sql = 'SELECT COUNT(*) as email_count FROM `user` WHERE `email` = ?';
-    $result_data = db_fetch_data($con, $sql, [ $email ]);
+    $sql_limit_part = $limit ? " LIMIT $limit" : '';
+
+    $sql = "SELECT * FROM `$table_name` WHERE `$field_name` = ? $sql_limit_part";
+    $result_data = db_fetch_data($con, $sql, [ $field_value ]);
 
     $result = false;
-
-    //var_dump( $result_data);
 
     if ($result_data['error'] !== NULL) {
         $result = false;
     } else {
-        $result = $result_data['result'][0]['email_count'] > 0 ? true : false;
+        $result = !empty($result_data['result']);
     }
 
     return $result;
 }
 
+function has_email($con, $email)
+{
+    return filter($con, 'user', 'email', $email, 1);
+}
+
 function has_user($con, $user_name)
 {
-    $sql = 'SELECT COUNT(*) as user_count FROM `user` WHERE `name` = ?';
-    $result_data = db_fetch_data($con, $sql, [ $user_name ]);
-
-    $result = false;
-
-    if ($result_data['error'] !== NULL) {
-        $result = false;
-    } else {
-        $result = $result_data['result'][0]['user_count'] > 0 ? true : false;
-    }
-
-    return $result;
+    return filter($con, 'user', 'name', $user_name, 1);
 }
 
 // Добавляет пользователя в БД.
@@ -125,21 +119,17 @@ function add_user($con, $email, $user_name, $password, $contacts)
 {
     $params = [ $email, $user_name, $password, $contacts];
 
-    $query_placeholders = array_fill(0, count($params), '?');
-    $query_placeholders_str = implode(', ', $query_placeholders);
-
     $sql = 'INSERT INTO `user` (email, 
                                 name, 
                                 password, 
                                 contacts) 
-            VALUES (' . $query_placeholders_str . ')';
+            VALUES (?, ?, ?, ?)';
 
     $result_data = db_fetch_data($con, $sql, $params);
 
     $insert_id = mysqli_insert_id($con);
-    $added_user_id = $insert_id  === 0 ? NULL : $insert_id;
 
-    return $added_user_id;
+    return $insert_id ?? null;
 }
 
 // Добавляет лот.

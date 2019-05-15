@@ -3,38 +3,15 @@ require_once('utils/utils.php');
 
 $has_errors = count($errors) > 0;
 
-// ToDo
-// Классы повторяются. 
-// -сделать константами и в отдельный файл???
 $form_invalid_class = 'form--invalid';
 $form_item_invalid_class = 'form__item--invalid';
+
+$navigation = include_template('navigate.php', [ 'stuff_categories' => $stuff_categories ]);
 ?>
 
 <main>
-  <!-- Нужна ли тут навигация??? -->
-  <nav class="nav">
-    <ul class="nav__list container">
-      <li class="nav__item">
-        <a href="all-lots.html">Доски и лыжи</a>
-      </li>
-      <li class="nav__item">
-        <a href="all-lots.html">Крепления</a>
-      </li>
-      <li class="nav__item">
-        <a href="all-lots.html">Ботинки</a>
-      </li>
-      <li class="nav__item">
-        <a href="all-lots.html">Одежда</a>
-      </li>
-      <li class="nav__item">
-        <a href="all-lots.html">Инструменты</a>
-      </li>
-      <li class="nav__item">
-        <a href="all-lots.html">Разное</a>
-      </li>
-    </ul>
-  </nav>
-  
+  <?= $navigation; ?>
+
   <form class="form container <?php if($has_errors) echo $form_invalid_class; ?>" action="sign-up.php" method="post" autocomplete="off"> <!-- form--invalid -->
     <h2>Регистрация нового аккаунта</h2>
     <div class="form__item <?php if(isset($errors['email'])) echo $form_item_invalid_class; ?>"> <!-- form__item--invalid -->
