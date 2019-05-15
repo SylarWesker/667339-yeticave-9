@@ -116,10 +116,7 @@ function has_user($con, $user_name)
 
 function get_userdata_by_email($con, $email) 
 {
-    $sql = 'SELECT * FROM `user` WHERE `email` = ?';
-    $result_data = db_fetch_data($con, $sql, [ $email ]);
-
-    return $result_data;
+    return filter($con, 'user', 'email', $email, 1);
 }
 
 // Добавляет пользователя в БД.
