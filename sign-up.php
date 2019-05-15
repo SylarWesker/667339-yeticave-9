@@ -7,10 +7,7 @@ require_once('utils/db_helper.php');
 use yeticave\db\functions as db_func;
 
 $title = 'Регистрация пользователя';
-$user_name = '';
-$is_auth = 0;
 
-// Да сколько уже можно копировать этот код???
 // список категорий.
 $func_result = db_func\get_stuff_categories($con);
 $stuff_categories = $func_result['result'] ?? [];
@@ -23,10 +20,11 @@ if ($func_result['error'] !== null) {
 $errors = [];
 $form_data = [];
 
-if (isset($_POST['submit'])) {
-    // ToDo
-    // можно объединить проверку наличия email и имени пользователя в одном запросе?
+// ToDo
+// Вынести валидация в отдельную функцию.
+// Написать универсальную функцию валидации (те части  которые разные вынести допустим в функцию "создание пользователя")
 
+if (isset($_POST['submit'])) {
     // email
     $email = NULL;
 
@@ -54,7 +52,7 @@ if (isset($_POST['submit'])) {
         $errors['email'] = 'Не указан email.';
     }
 
-    // Пароль
+    // Пароль.
     if (isset($_POST['password'])) {
         $password = $_POST['password'];
         $password = secure_data_for_sql_query($password);
@@ -115,27 +113,24 @@ if (isset($_POST['submit'])) {
             header('Location: ' . $login_page);
         } else {
             // ToDo
-            // Что-то делать
+            // Или я перехватываю ошибки SQL в функциях работы с БД и возврашаю сюда и помещаю в массив ошибок (c отдельным ключом)
+            // см. пример
         }
-    } else {
-        // ToDo
-        // Обдумать этот механизм. Возможно некоторые данные даже не прошедшие проверку лучше все равно отправлять на форму. 
-
-        // Записываем данные формы (данные которые прошли проверку).
-        // foreach($errors as $key => $value) {
-        //     // если есть ошибка по этому ключу, то
-        //     if (array_key_exists($key, $form_data)) {
-        //         // удаляем из массива с данными формы. 
-        //         unset($form_data[$key]);
-        //     }
-        // }
     }
 }
+
+// Пример
+// 
+// $errors = [
+//     'fatal' => [],
+//     'validate' => []
+// ];
 
 $con = null;
 
 $content = include_template('sign-up.php', [ 'form_data' => $form_data,
-                                             'errors' => $errors
+                                             'errors' => $errors,
+                                             'stuff_categories' => $stuff_categories
                                            ]);
 
 $layout = include_template('layout.php', ['title' => $title, 
