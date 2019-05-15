@@ -93,9 +93,30 @@ if (count($errors) != 0) {
     //  лот создан текущим пользователем;
     //  последняя ставка сделана текущим пользователем.
 
-    $add_bet_content = include_template('add-bet.php', ['lot' => $lot,
-                                                        'lot_min_price' => $lot_min_price
-                                                       ]);
+    // начнем здесь
+    $now = new DateTime();
+    $lot_end_date = new DateTime($lot['end_date']);
+
+    // Последняя ставка была сделана текущим пользователем?
+    // $bets_history[0] - использую в качестве последней ставки т.к сортирую их по дате (сначала новые).
+    // в целом это слабое место. надежнее сделать отдельный запрос с логикой получения последней ставки.
+    $last_bet_set_by_current_user = false;
+    if (count($bets_history) !== 0) {
+        $last_bet_set_by_current_user = $bets_history[0]['user_id'] === $user_id;
+    } 
+
+    $allow_add_bet = $is_auth === 1 && 
+                     $now <= $lot_end_date &&
+                     $lot['author_id'] !== $user_id &&
+                     !$last_bet_set_by_current_user;
+    
+    $add_bet_content = NULL;
+
+    if ($allow_add_bet) {
+        $add_bet_content = include_template('add-bet.php', ['lot' => $lot,
+                                                            'lot_min_price' => $lot_min_price
+                                                        ]);
+    }
 
     $content = include_template('lot.php', ['stuff_categories' => $stuff_categories,
                                             'lot' => $lot,

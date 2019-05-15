@@ -90,7 +90,7 @@ function get_bets($con, $user_id)
 // Возвращает историю ставок по лоту.
 function get_bets_history($con, $lot_id)
 {
-    $sql = 'SELECT b.id, b.price, b.create_date, u.name FROM `bet` as b 
+    $sql = 'SELECT b.*, u.name FROM `bet` as b 
             JOIN `lot` as l on b.lot_id = l.id
             JOIN `user` as u on b.user_id = u.id
             WHERE l.id = ?
