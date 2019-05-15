@@ -46,8 +46,6 @@ if (isset($_GET['id'])) {
     $errors[] = 'Не передан параметр id!';
 }
 
-$con = null;
-
 $content = null;
 $title_page = 'Страница показа лота.';
 
@@ -55,6 +53,8 @@ if (count($errors) != 0) {
     $title_page = 'Страница не найдена.';
     $content = include_template('404.php', ['error_list' =>  $errors]);
 } else {
+    $title_page = $lot['name'];
+
     // ToDo 
     // есть функция получения минимальной ставки из БД. 
     // дублирующий функционал получается. что буду делать?
@@ -64,6 +64,18 @@ if (count($errors) != 0) {
 
     if ($lot['current_price'] !== $lot['start_price']) {
         $lot_min_price += $lot['step_bet'];
+    }
+
+
+    // Получаю историю ставок.
+    // список категорий.
+    $func_result = db_func\get_bets_history($con, $id);
+    $bets_history = $func_result['result'] ?? [];
+
+    // ToDo
+    // и снова возвращаемся к теме обработки ошибок. как правильно?
+    if ($func_result['error'] !== null) {
+        print('Ошибка MySql при получении истории ставок лота: ' . $func_result['error']);  
     }
 
     // ToDo
@@ -85,13 +97,15 @@ if (count($errors) != 0) {
                                                         'lot_min_price' => $lot_min_price
                                                        ]);
 
-    $title_page = $lot['name'];
     $content = include_template('lot.php', ['stuff_categories' => $stuff_categories,
                                             'lot' => $lot,
                                             'is_auth' => $is_auth,
-                                            'add_bet_content' => $add_bet_content
+                                            'add_bet_content' => $add_bet_content,
+                                            'bets_history' => $bets_history
                                             ]);
 }
+
+$con = null;
 
 $layout = include_template('layout.php', [ 'title' => $title_page,
                                            'content' => $content, 

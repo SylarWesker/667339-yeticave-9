@@ -75,14 +75,16 @@ $lot_lifetime_end = $date_now->diff($today_midnight);
             <?= $add_bet_content; ?>
           </div>
           <div class="history">
-            <h3>История ставок (<span>10</span>)</h3>
-            <!-- <table class="history__list">
-              <tr class="history__item">
-                <td class="history__name">Иван</td>
-                <td class="history__price">10 999 р</td>
-                <td class="history__time">5 минут назад</td>
-              </tr>
-              <tr class="history__item">
+            <h3>История ставок (<span><?= count($bets_history); ?></span>)</h3>
+            <table class="history__list">
+              <?php foreach($bets_history as $history_record): ?>
+                <tr class="history__item">
+                  <td class="history__name"><?= $history_record['name']; ?></td>
+                  <td class="history__price"><?= format_price($history_record['price']); ?></td>
+                  <td class="history__time"><?= human_friendly_time($date_now, $history_record['create_date']); ?></td>
+                </tr>
+              <?php endforeach; ?>
+              <!-- <tr class="history__item">
                 <td class="history__name">Константин</td>
                 <td class="history__price">10 999 р</td>
                 <td class="history__time">20 минут назад</td>
@@ -126,8 +128,8 @@ $lot_lifetime_end = $date_now->diff($today_midnight);
                 <td class="history__name">Илья</td>
                 <td class="history__price">10 999 р</td>
                 <td class="history__time">19.03.17 в 10:20</td>
-              </tr>
-            </table> -->
+              </tr> -->
+            </table>
           </div>
         </div>
       </div>
