@@ -3,7 +3,7 @@
 require_once('utils/utils.php');
 require_once('helpers.php');
 
-$now = new DateTime('NOW');
+$now = new DateTime('Now');
 
 ?>
 
@@ -59,9 +59,15 @@ $now = new DateTime('NOW');
               <?php if ($bet['end_date'] >= $now): ?>
                 <div class="timer timer--end">Торги окончены</div>
               <?php else: ?>
-                <!-- ToDo
-                времени до окончания торгов? -->
-                <div class="timer timer--finishing">07:13:34</div>
+                <!-- время до окончания торгов -->
+                <?php if(is_equal_or_less_hour_beetween_dates($bet['end_date'], $now)) : ?>
+                    <div class="lot__timer timer timer--finishing">
+                <?php else: ?>
+                    <div class="lot__timer timer">
+                <?php endif; ?>
+
+                  <?= time_to_lot_end_format($bet['end_date'], $now); ?>
+                </div>
               <?php endif; ?>
             <?php endif; ?>
           </td>
@@ -69,11 +75,7 @@ $now = new DateTime('NOW');
             <?= format_price($bet['price']); ?>
           </td>
           <td class="rates__time">
-            <!-- ToDo 
-            Одна из сложных частей. Вывод времени размещения ставки в человекоудобном формате -->
-            <!-- <?= $bet['create_date']; ?> -->
-            <?= human_friendly_time($now, $bet['create_date']); ?>
-            <!-- 5 минут назад -->
+            <?= bet_date_create_format($now, $bet['create_date']); ?>
           </td>
         </tr>
       <?php endforeach; ?>

@@ -71,8 +71,9 @@ $lot_lifetime_end = $date_now->diff($today_midnight);
               </div>
             </div>
 
-            <!-- Тут добавление ставки -->
+            <!-- Тут форма добавления ставки -->
             <?= $add_bet_content; ?>
+            
           </div>
           <div class="history">
             <h3>История ставок (<span><?= count($bets_history); ?></span>)</h3>
@@ -81,9 +82,10 @@ $lot_lifetime_end = $date_now->diff($today_midnight);
                 <tr class="history__item">
                   <td class="history__name"><?= $history_record['name']; ?></td>
                   <td class="history__price"><?= format_price($history_record['price']); ?></td>
-                  <td class="history__time"><?= human_friendly_time($date_now, $history_record['create_date']); ?></td>
+                  <td class="history__time"><?= bet_date_create_format($date_now, $history_record['create_date']); ?></td>
                 </tr>
               <?php endforeach; ?>
+            </table>
           </div>
         </div>
       </div>

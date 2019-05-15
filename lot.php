@@ -115,7 +115,7 @@ if (count($errors) != 0) {
     if ($allow_add_bet) {
         $add_bet_content = include_template('add-bet.php', ['lot' => $lot,
                                                             'lot_min_price' => $lot_min_price
-                                                        ]);
+                                                           ]);
     }
 
     $content = include_template('lot.php', ['stuff_categories' => $stuff_categories,

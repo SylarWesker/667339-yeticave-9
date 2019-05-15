@@ -20,6 +20,23 @@ function strip_tags_for_array($arr_data, $recursive = false)
     return $arr_data;
 }
 
+// Вспомогательная функция. 
+// Из $date2 вычитает $date1 и проверяет меньше ли часа между ними.
+function is_equal_or_less_hour_beetween_dates($date2, $date1)
+{
+    if (is_string($date2)) {
+        $date2 = new DateTime($date2);
+    }
+
+    if (is_string($date1)) {
+        $date1 = new DateTime($date1);
+    }
+
+    $date_diff = $date1->diff($date2);
+
+    return is_equal_or_less_hour($date_diff);
+}
+
 // Возвращает истину, если в интервале один час или меньше.
 function is_equal_or_less_hour($date_interval) 
 {
@@ -143,17 +160,8 @@ function show_error($key, $errors)
   return $result;
 }
 
-// ToDo
-// Подумать как эту функцию можно назвать.
-// ToDo
-// Протестировать!!!
-// 
-// Форматы
-// 20 минут назад
-// Час назад
-// Вчера, в 21:30
-// 19.03.17 в 08:21
-function human_friendly_time($now, $date)
+// Форматирует дату создания ставки в человекоудобном формате.
+function bet_date_create_format($now, $date)
 {
     $result = null;
 
@@ -195,3 +203,52 @@ function get_noun_plural_form_with_number($number, $one, $two, $many)
 
     return $result;
 } 
+
+// Форматирует время до окончания торгов лота.
+function time_to_lot_end_format($end_date, $now) 
+{
+    $result = null;
+
+    if (is_string($end_date)) {
+        $end_date = new DateTime($end_date);
+    }
+
+    $date_diff = $now->diff($end_date);
+
+    // Месяц при разнице дат всегда равен 30 дням (при разнице DateTime с помощью функции diff).
+    $hours_sum = $date_diff->h + $date_diff->d * 24 +  $date_diff->m * 30 * 24;
+    $result = $hours_sum .':' . $date_diff->i;
+
+    return $result;
+}
+
+// Возможно эта функция еще понадобится.
+// Альтернативный вариант
+// Форматирует время до окончания торгов лота.
+function time_to_lot_end_format_NOT_USING($now, $date)
+{
+    $result = null;
+
+    if (is_string($date)) {
+        $date = new DateTime($date);
+    }
+
+    $now_midnight = new DateTime($now->format('Y-m-d'));
+    $date_midnight = new DateTime($date->format('Y-m-d'));
+
+    $date_diff_with_time = $now->diff($date);
+    $date_diff = $now_midnight->diff($date_midnight);
+
+    if ($date_diff->d > 1) {
+        $result = $date->format('d.m.y') . ' в ' . $date->format('H:i');
+    } elseif ($date_diff->d === 1) {
+        $result = 'Завтра, в ' . $date->format('H:i');
+    } else {
+        $hours_ago = get_noun_plural_form_with_number($date_diff_with_time->h, 'час', 'часа', 'часов');
+        $minutes_ago = get_noun_plural_form_with_number($date_diff_with_time->i, 'минута', 'минуты', 'минут');
+
+        $result = 'Осталось ' . $hours_ago . ' ' . $minutes_ago;
+    }
+
+    return $result;
+}
