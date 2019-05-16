@@ -48,8 +48,6 @@ if (isset($_POST['submit'])) {
                 $errors['email'] = 'Пользователь с таким email уже зарегистрирован.';
             }
         } 
-    } else {
-        $errors['email'] = 'Не указан email.';
     }
 
     // Пароль.
@@ -63,8 +61,6 @@ if (isset($_POST['submit'])) {
 
         // хэшируем пароль.
         $password_hash = password_hash($password, PASSWORD_DEFAULT);
-    } else {
-        $errors['password'] = 'Не указан пароль.';
     }
 
     // Имя пользователя.
@@ -84,8 +80,6 @@ if (isset($_POST['submit'])) {
                 $errors['name'] = 'Пользователь с таким именем уже зарегистрирован.';
             }
         }
-    } else {
-        $errors['name'] = 'Не указано имя пользователя.'; 
     }
 
     // Контактные данные (пускай будет обязательными). просто не пусто
@@ -98,8 +92,6 @@ if (isset($_POST['submit'])) {
         if (strlen($user_name) === 0) { 
             $errors['message'] = 'Заполните поле с контактными данными.';
         }
-    } else {
-        $errors['message'] = 'Не указаны контактные данные пользователя.'; 
     }
 
     if (count($errors) === 0) {
