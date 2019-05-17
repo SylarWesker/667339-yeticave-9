@@ -137,3 +137,33 @@ function show_error($key, $errors)
 
   return $result;
 }
+
+// ToDo
+// Должна ли функция знать, какие ключи должны быть в массиве с ошибками
+// По идее лучше передавать аргументы... но вдруг кол-во проверок увеличится => увеличится кол-во параметров - сообщений об ошибках
+//
+// Простая валидация данных из формы.
+// Проверка на пустоту и отсечение тэгов, лишних пробелов, экранирование.
+function validate_form_field($field_name, $field_value, $error_messages, $filter_option = null)
+{
+    $error = '';
+
+    $field_value = secure_data_for_sql_query($field_value);
+
+    if (!empty($filter_option)) {
+        $field_value = filter_var($field_value, $filter_option);
+
+        if (!$field_value) {
+            $error = $error_messages['filter'];
+        }
+    } else {
+        if (strlen($field_value) === 0) {
+            $error = $error_messages['zero_length'];  
+        }
+    }
+
+    return [ 'is_valid' => empty($error), 
+             'field_value' => $field_value,
+             'error' => $error
+           ];
+}

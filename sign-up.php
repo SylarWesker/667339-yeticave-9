@@ -11,124 +11,124 @@ $title = 'Регистрация пользователя';
 $user_name = '';
 $is_auth = 0;
 
+$errors = [ 'validation' => [], 'fatal' => [] ];
+
 // список категорий.
 $func_result = db_func\get_stuff_categories($con);
-$stuff_categories = $func_result['result'] === null ? [] : $func_result['result']; 
+$stuff_categories = $func_result['result'] ?? [];
 
 if ($func_result['error'] !== null) {
-    print('Ошибка MySql при получении списка категорий: ' . $func_result['error']);  
+    $errors['fatal'][] = 'Ошибка MySql при получении списка категорий: ' . $func_result['error'];  
 }
 
 // Валидация.
-$errors = [];
-$form_data = [];
-
-// ToDo
-// Вынести валидация в отдельную функцию.
-// Написать универсальную функцию валидации (те части  которые разные вынести допустим в функцию "создание пользователя")
+$form_data = []; // данные из формы
+$validated_data = []; // провалиидированные (подкорректированные) данные из формы.
 
 if (isset($_POST['submit'])) {
-    // email
-    $email = NULL;
+    // Имена полей, которые будем валидировать.
+    // и вспомогательный данные.
+    // ToDo
+    // не слишком ли сложная структура данных? 
+    $form_fields = [ 'email' => ['filter_option' => FILTER_VALIDATE_EMAIL, 
+                                 'error_messages' => [ 'filter' => 'Не указан email или неверный формат.',
+                                                       'zero_length' => 'Email не может быть пустым'
+                                                     ] 
+                                ], 
+                     'password' => ['error_messages' => [ 'zero_length' => 'Пароль не может быть пустым.']], 
+                     'name' => ['error_messages' => ['zero_length' => 'Имя пользователя не может быть пустым.']], 
+                     'message' => [ 'error_messages' => ['zero_length' => 'Заполните поле с контактными данными.']]
+                   ];
 
-    if (isset($_POST['email'])) {
-        $email = $_POST['email'];
-        $email = secure_data_for_sql_query($email);
-        $email = filter_var($email, FILTER_VALIDATE_EMAIL);
+    foreach($form_fields as $field_name => $field_validate_data)
+    {
+        if (isset($_POST[$field_name])) {
+            $field_value = $_POST[$field_name];
 
-        $form_data['email'] = $email;
+            $form_data[$field_name] = $field_value;
 
-        if (!$email) {
-            $errors['email'] = 'Не указан email или неверный формат.';
-        } else {
-            // Теперь проверяем что такого email нет в БД.
-            $already_has_email = db_func\has_email($con, $email);
-
-            if ($already_has_email) {
-                $errors['email'] = 'Пользователь с таким email уже зарегистрирован.';
-            }
-        } 
-    }
-
-    // Пароль.
-    if (isset($_POST['password'])) {
-        $password = $_POST['password'];
-        $password = secure_data_for_sql_query($password);
-
-        if (strlen($password) === 0) {
-            $errors['password'] = 'Пароль не может быть пустым.';
-        }
-
-        // хэшируем пароль.
-        $password_hash = password_hash($password, PASSWORD_DEFAULT);
-    }
-
-    // Имя пользователя.
-    if (isset($_POST['name'])) {
-        $user_name = $_POST['name'];
-        $user_name = secure_data_for_sql_query($user_name);
-
-        $form_data['name'] = $user_name;
-
-        if (strlen($user_name) === 0) {
-            $errors['name'] = 'Имя пользователя не может быть пустым.';
-        } else {
-            // Теперь проверяем что такого пользователя нет в БД.
-            $already_has_user = db_func\has_user($con, $user_name);
-
-            if ($already_has_user) {
-                $errors['name'] = 'Пользователь с таким именем уже зарегистрирован.';
+            $result_data = validate_form_field($field_name, 
+                                                $field_value, 
+                                                $field_validate_data['error_messages'],
+                                                $field_validate_data['filter_option'] ?? null);
+            
+            if ($result_data['is_valid']) {
+                $validated_data[$field_name] = $result_data['field_value'];
+            } else {
+                $errors['validation'][$field_name] = $result_data['error'];
             }
         }
     }
 
-    // Контактные данные (пускай будет обязательными). просто не пусто
-    if (isset($_POST['message'])) {
-        $contacts = $_POST['message'];
-        $contacts = secure_data_for_sql_query($contacts);
-
-        $form_data['message'] = $contacts;
-
-        if (strlen($user_name) === 0) { 
-            $errors['message'] = 'Заполните поле с контактными данными.';
-        }
-    }
-
-    if (count($errors) === 0) {
+    if (count($errors['validation']) === 0) {
         // Добавляем пользователя в БД.
-        $added_user_id = db_func\add_user($con, $email, $user_name, $password_hash, $contacts);
+        $email      = $validated_data['email'];
+        $user_name  = $validated_data['name'];
+        $password   = $validated_data['password'];
+        $contacts   = $validated_data['message'];
+
+        $added_user = register_user($con, $email, $user_name, $password, $contacts);
 
         // Редирект на страницу авторизации.
-        if ($added_user_id !== NULL) {
+        if (empty($added_user['errors'])) {
             $login_page = 'pages/login.html'; // 'login.php'
 
             header('Location: ' . $login_page);
         } else {
+            // Ошибки могут быть как и валидации - уже есть пользователь/email
+            // так и фатальные - работа с БД.
+            $errors['validation'] = $added_user['errors']['validation'];
+
             // ToDo
-            // Или я перехватываю ошибки SQL в функциях работы с БД и возврашаю сюда и помещаю в массив ошибок (c отдельным ключом)
-            // см. пример
+            // Или я перехватываю ошибки SQL в функциях работы с БД и возврашаю сюда и помещаю в массив ошибок (c отдельным ключом fatal)
         }
     }
 }
 
-// Пример
-// 
-// $errors = [
-//     'fatal' => [],
-//     'validate' => []
-// ];
-
 $con = null;
 
-$content = include_template('sign-up.php', [ 'form_data' => $form_data,
-                                             'errors' => $errors,
+$content = include_template('sign-up.php', [ 
+                                             'form_data' => $form_data,
+                                             'errors' => $errors['validation'],
                                              'stuff_categories' => $stuff_categories
                                            ]);
 
-$layout = include_template('layout.php', ['title' => $title, 
+$layout = include_template('layout.php', [
+                                          'title' => $title, 
                                           'content' => $content, 
                                           'stuff_categories' => $stuff_categories, 
                                           'is_auth' => $is_auth, 
-                                          'user_name' => $user_name]);
+                                          'user_name' => $user_name
+                                          ]);
 
 print($layout);
+
+
+// Функции.
+
+// Функция регистрации (добавления) пользователя.
+function register_user($con, $email, $user_name, $password, $contacts)
+{
+    $errors = ['validation' => [], 'fatal' => []];
+
+    $already_has_user = db_func\has_user($con, $user_name);
+    if ($already_has_user) {
+        $errors['validation']['name'] = 'Пользователь с таким именем уже зарегистрирован.';
+    }
+
+    $already_has_email = db_func\has_email($con, $email);
+    if ($already_has_email) {
+        $errors['validation']['email'] = 'Пользователь с таким email уже зарегистрирован.';
+    }
+
+    $added_user_id = null;
+
+    if (empty($errors)) {
+        $password_hash = password_hash($password, PASSWORD_DEFAULT);
+
+        // Добавляем пользователя в БД.
+        $added_user_id = db_func\add_user($con, $email, $user_name, $password_hash, $contacts);
+    }
+ 
+    return ['errors' => $errors, 'user_id' => $added_user_id];
+}
