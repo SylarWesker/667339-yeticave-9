@@ -44,7 +44,7 @@ if (isset($_POST['submit'])) {
     $form_data = get_form_data(array_keys($form_fields));
 
     // Валидация данных с формы.
-    $validation_result = validate_sign_up($form_data, $form_fields);
+    $validation_result = validate_form_data($form_data, $form_fields);
 
     $errors['validation'] = $validation_result['errors'];
     $validated_data = $validation_result['data'];
@@ -112,31 +112,6 @@ function get_form_data($form_field_names)
     }
 
     return $form_data;
-}
-
-// Функция валидации полей формы sign-up
-function validate_sign_up($form_data, $form_fields) 
-{
-    $errors = [];
-    $validated_data = [];
-
-    foreach($form_fields as $field_name => $field_validate_data)
-    {
-        $field_value = $form_data[$field_name];
-
-        $result_data = validate_form_field( $field_name, 
-                                            $field_value, 
-                                            $field_validate_data['error_messages'],
-                                            $field_validate_data['filter_option'] ?? null);
-
-        if ($result_data['is_valid']) {
-            $validated_data[$field_name] = $result_data['field_value'];
-        } else {
-            $errors[$field_name] = $result_data['error'];
-        }
-    }
-
-    return ['data' => $validated_data, 'errors' => $errors];
 }
 
 // Функция регистрации (добавления) пользователя.
