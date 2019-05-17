@@ -11,35 +11,13 @@ $lot_min_price = $lot['current_price'];
 if ($lot['current_price'] !== $lot['start_price']) {
   $lot_min_price += $lot['step_bet'];
 }
+
+$navigation = include_template('navigate.php', [ 'stuff_categories' => $stuff_categories ]);
 ?>
 
 <main>
-    <!-- список категорий уже есть в БД. но нет ссылок на страницы... 
-    - Хранить ссылки в БД? 
-    - Создать массив на странице?
-    надо подумать... -->
-    <nav class="nav">
-      <ul class="nav__list container">
-        <li class="nav__item">
-          <a href="all-lots.html">Доски и лыжи</a>
-        </li>
-        <li class="nav__item">
-          <a href="all-lots.html">Крепления</a>
-        </li>
-        <li class="nav__item">
-          <a href="all-lots.html">Ботинки</a>
-        </li>
-        <li class="nav__item">
-          <a href="all-lots.html">Одежда</a>
-        </li>
-        <li class="nav__item">
-          <a href="all-lots.html">Инструменты</a>
-        </li>
-        <li class="nav__item">
-          <a href="all-lots.html">Разное</a>
-        </li>
-      </ul>
-    </nav>
+    <?= $navigation; ?>
+
     <section class="lot-item container">
       <h2><?= $lot['name'] ?></h2>
       <div class="lot-item__content">

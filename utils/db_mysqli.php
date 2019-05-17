@@ -2,11 +2,6 @@
 
 namespace yeticave\db\functions;
 
-// ToDo
-// Вынести бы все sql запросы в одно место...
-// 1) Хранимые процедуры
-// 2) отдельный файл.
-
 // Возвращает подключение к БД.
 function get_connection()
 {
@@ -42,10 +37,10 @@ function get_lots($con, $id_list = [])
     $sql_where_id_part = ' ';
     if (isset($id_list)) {
         if (count($id_list) != 0) {
-            // что-то как-то сложно и странно. Можно ли проще?
             // Этот кусок кода выполняется снова. функция?
             $query_placeholders = array_fill(0,  count($id_list), '?');
             $id_placeholders = implode(', ', $query_placeholders);
+
             $sql_where_id_part = ' AND l.id IN (' . $id_placeholders . ') ';
         }
     }
