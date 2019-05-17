@@ -11,8 +11,6 @@ $title = 'Регистрация пользователя';
 $user_name = '';
 $is_auth = 0;
 
-$errors = [ 'validation' => [], 'fatal' => [] ];
-
 // список категорий.
 $func_result = db_func\get_stuff_categories($con);
 $stuff_categories = $func_result['result'] ?? [];
@@ -21,13 +19,13 @@ if ($func_result['error'] !== null) {
     $errors['fatal'][] = 'Ошибка MySql при получении списка категорий: ' . $func_result['error'];  
 }
 
-// Валидация.
+$errors = [ 'validation' => [], 'fatal' => [] ];
 $form_data = []; // данные из формы
 $validated_data = []; // провалидированные (скорректированные) данные из формы.
 
+// Если отправлена форма. 
 if (isset($_POST['submit'])) {
-    // Имена полей, которые будем валидировать.
-    // и вспомогательный данные.
+    // Имена полей, которые будем валидировать. и вспомогательный данные.
     // ToDo
     // не слишком ли сложная структура данных? 
     $form_fields = [ 'email' => ['filter_option' => FILTER_VALIDATE_EMAIL, 
@@ -39,28 +37,15 @@ if (isset($_POST['submit'])) {
                      'name' => ['error_messages' => ['zero_length' => 'Имя пользователя не может быть пустым.']], 
                      'message' => [ 'error_messages' => ['zero_length' => 'Заполните поле с контактными данными.']]
                    ];
+     
+    $form_data = get_form_data(array_keys($form_fields));
 
-    foreach($form_fields as $field_name => $field_validate_data)
-    {
-        if (isset($_POST[$field_name])) {
-            // Сбор данных с формы.
-            $field_value = $_POST[$field_name];
-            $form_data[$field_name] = $field_value;
+    $validation_result = validate_sign_up($form_data, $form_fields);
 
-            // Валидация поля.
-            $result_data = validate_form_field( $field_name, 
-                                                $field_value, 
-                                                $field_validate_data['error_messages'],
-                                                $field_validate_data['filter_option'] ?? null);
-            
-            if ($result_data['is_valid']) {
-                $validated_data[$field_name] = $result_data['field_value'];
-            } else {
-                $errors['validation'][$field_name] = $result_data['error'];
-            }
-        }
-    }
+    $errors['validation'] = $validation_result['errors'];
+    $validated_data = $validation_result['data'];
 
+    // Если нет ошибок валидации, то
     if (count($errors['validation']) === 0) {
         // Добавляем пользователя в БД.
         $email      = $validated_data['email'];
@@ -106,6 +91,45 @@ print($layout);
 
 
 // Функции.
+
+// Функция сбора данных пришедших из формы. 
+function get_form_data($form_field_names) 
+{
+    $form_data = [];
+
+    foreach($form_field_names as $field_name) {
+        if (isset($_POST[$field_name])) {
+            $form_data[$field_name] = $_POST[$field_name];
+        }
+    }
+
+    return $form_data;
+}
+
+// Функция валидации полей формы sign-up
+function validate_sign_up($form_data, $form_fields) 
+{
+    $errors = [];
+    $validated_data = [];
+
+    foreach($form_fields as $field_name => $field_validate_data)
+    {
+        $field_value = $form_data[$form_data];
+
+        $result_data = validate_form_field( $field_name, 
+                                            $field_value, 
+                                            $field_validate_data['error_messages'],
+                                            $field_validate_data['filter_option'] ?? null);
+
+        if ($result_data['is_valid']) {
+            $validated_data[$field_name] = $result_data['field_value'];
+        } else {
+            $errors[$field_name] = $result_data['error'];
+        }
+    }
+
+    return ['data' => $validated_data, 'errors' => errors];
+}
 
 // Функция регистрации (добавления) пользователя.
 function register_user($con, $email, $user_name, $password, $contacts)
