@@ -167,3 +167,28 @@ function validate_form_field($field_name, $field_value, $error_messages, $filter
              'error' => $error
            ];
 }
+
+// Функция валидации полей формы
+function validate_form_data($form_data, $form_fields) 
+{
+    $errors = [];
+    $validated_data = [];
+
+    foreach($form_fields as $field_name => $field_validate_data)
+    {
+        $field_value = $form_data[$field_name];
+
+        $result_data = validate_form_field( $field_name, 
+                                            $field_value, 
+                                            $field_validate_data['error_messages'],
+                                            $field_validate_data['filter_option'] ?? null);
+
+        if ($result_data['is_valid']) {
+            $validated_data[$field_name] = $result_data['field_value'];
+        } else {
+            $errors[$field_name] = $result_data['error'];
+        }
+    }
+
+    return ['data' => $validated_data, 'errors' => $errors];
+}
