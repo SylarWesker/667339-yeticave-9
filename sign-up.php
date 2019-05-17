@@ -28,8 +28,10 @@ if (isset($_POST['submit'])) {
     // Имена полей, которые будем валидировать. и вспомогательный данные.
     // ToDo
     // не слишком ли сложная структура данных? 
-    $form_fields = [ 'email' => ['filter_option' => FILTER_VALIDATE_EMAIL, 
-                                 'error_messages' => [ 'filter' => 'Не указан email или неверный формат.',
+    $form_fields = [ 'email' => [
+                                 'filter_option' => FILTER_VALIDATE_EMAIL, 
+                                 'error_messages' => [ 
+                                                       'filter' => 'Не указан email или неверный формат.',
                                                        'zero_length' => 'Email не может быть пустым'
                                                      ] 
                                 ], 
@@ -37,9 +39,11 @@ if (isset($_POST['submit'])) {
                      'name' => ['error_messages' => ['zero_length' => 'Имя пользователя не может быть пустым.']], 
                      'message' => [ 'error_messages' => ['zero_length' => 'Заполните поле с контактными данными.']]
                    ];
-     
+
+    // Сбор данных с формы.
     $form_data = get_form_data(array_keys($form_fields));
 
+    // Валидация данных с формы.
     $validation_result = validate_sign_up($form_data, $form_fields);
 
     $errors['validation'] = $validation_result['errors'];
@@ -55,8 +59,11 @@ if (isset($_POST['submit'])) {
 
         $added_user = register_user($con, $email, $user_name, $password, $contacts);
 
+        $no_errors = empty($added_user['errors']['validation']) &&
+                     empty($added_user['errors']['fatal']);
+
         // Редирект на страницу авторизации.
-        if (empty($added_user['errors'])) {
+        if ($no_errors) {
             $login_page = 'pages/login.html'; // 'login.php'
 
             header('Location: ' . $login_page);
@@ -64,6 +71,7 @@ if (isset($_POST['submit'])) {
             // Ошибки могут быть как и валидации - уже есть пользователь/email
             // так и фатальные - работа с БД.
             $errors['validation'] = $added_user['errors']['validation'];
+            $errors['fatal'] = array_merge($errors['fatal'], $added_user['errors']['fatal']);
 
             // ToDo
             // Или я перехватываю ошибки SQL в функциях работы с БД и возврашаю сюда и помещаю в массив ошибок (c отдельным ключом fatal)
@@ -80,11 +88,11 @@ $content = include_template('sign-up.php', [
                                            ]);
 
 $layout = include_template('layout.php', [
-                                          'title' => $title, 
-                                          'content' => $content, 
-                                          'stuff_categories' => $stuff_categories, 
-                                          'is_auth' => $is_auth, 
-                                          'user_name' => $user_name
+                                            'title' => $title, 
+                                            'content' => $content, 
+                                            'stuff_categories' => $stuff_categories, 
+                                            'is_auth' => $is_auth, 
+                                            'user_name' => $user_name
                                           ]);
 
 print($layout);
@@ -114,7 +122,7 @@ function validate_sign_up($form_data, $form_fields)
 
     foreach($form_fields as $field_name => $field_validate_data)
     {
-        $field_value = $form_data[$form_data];
+        $field_value = $form_data[$field_name];
 
         $result_data = validate_form_field( $field_name, 
                                             $field_value, 
@@ -128,7 +136,7 @@ function validate_sign_up($form_data, $form_fields)
         }
     }
 
-    return ['data' => $validated_data, 'errors' => errors];
+    return ['data' => $validated_data, 'errors' => $errors];
 }
 
 // Функция регистрации (добавления) пользователя.
