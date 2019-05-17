@@ -23,7 +23,7 @@ if ($func_result['error'] !== null) {
 
 // Валидация.
 $form_data = []; // данные из формы
-$validated_data = []; // провалиидированные (подкорректированные) данные из формы.
+$validated_data = []; // провалидированные (скорректированные) данные из формы.
 
 if (isset($_POST['submit'])) {
     // Имена полей, которые будем валидировать.
@@ -43,11 +43,12 @@ if (isset($_POST['submit'])) {
     foreach($form_fields as $field_name => $field_validate_data)
     {
         if (isset($_POST[$field_name])) {
+            // Сбор данных с формы.
             $field_value = $_POST[$field_name];
-
             $form_data[$field_name] = $field_value;
 
-            $result_data = validate_form_field($field_name, 
+            // Валидация поля.
+            $result_data = validate_form_field( $field_name, 
                                                 $field_value, 
                                                 $field_validate_data['error_messages'],
                                                 $field_validate_data['filter_option'] ?? null);
@@ -123,7 +124,7 @@ function register_user($con, $email, $user_name, $password, $contacts)
 
     $added_user_id = null;
 
-    if (empty($errors)) {
+    if (empty($errors['validation']) && empty($errors['fatal'])) {
         $password_hash = password_hash($password, PASSWORD_DEFAULT);
 
         // Добавляем пользователя в БД.
