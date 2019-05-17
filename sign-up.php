@@ -7,9 +7,12 @@ require_once('utils/db_helper.php');
 use yeticave\db\functions as db_func;
 
 $title = 'Регистрация пользователя';
-
 $user_name = '';
 $is_auth = 0;
+
+$errors = [ 'validation' => [], 'fatal' => [] ];
+$form_data = []; // данные из формы
+$validated_data = []; // провалидированные (скорректированные) данные из формы.
 
 // список категорий.
 $func_result = db_func\get_stuff_categories($con);
@@ -18,10 +21,6 @@ $stuff_categories = $func_result['result'] ?? [];
 if ($func_result['error'] !== null) {
     $errors['fatal'][] = 'Ошибка MySql при получении списка категорий: ' . $func_result['error'];  
 }
-
-$errors = [ 'validation' => [], 'fatal' => [] ];
-$form_data = []; // данные из формы
-$validated_data = []; // провалидированные (скорректированные) данные из формы.
 
 // Если отправлена форма. 
 if (isset($_POST['submit'])) {
