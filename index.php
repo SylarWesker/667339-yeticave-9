@@ -1,10 +1,9 @@
 <?php
 
-require_once('auth.php');
-require_once('helpers.php');
-
 // ToDo
 // Проверить в файлах все require_once. Все ли они нужны.
+require_once('auth.php');
+require_once('helpers.php');
 require_once('utils/utils.php');
 require_once('utils/db_helper.php');
 
@@ -41,25 +40,17 @@ $con = null;
 // ToDo
 // По идее нужно вынести header и footer в отдельные шаблоны.
 
-// ToDo 
-// Пора уже убрать время до полуночи и использовать реальную дату окончания торгов по лоту.
-
-// Формирование времени окончания действия лота.
-$date_now = new DateTime();
-$today_midnight = new DateTime('tomorrow');
-
-// Время до полуночи (считаем что это время окончания "жизни" лота).
-// как выяснилось так верно. diff - вернет разницу между параметром и объектом. (ОЧЕНЬ ЛОГИЧНО! НЕТ!)
-$time_to_midnight = $date_now->diff($today_midnight); 
-
-$content = include_template('index.php', ['stuff_categories' => $stuff_categories, 
+$content = include_template('index.php', [
+                                          'stuff_categories' => $stuff_categories, 
                                           'lots' => $lots
                                           ]);
 
-$layout = include_template('layout.php', ['title' => $title, 
+$layout = include_template('layout.php', [
+                                          'title' => $title, 
                                           'content' => $content, 
                                           'stuff_categories' => $stuff_categories, 
                                           'is_auth' => is_auth(), 
-                                          'user_name' => $user_name]);
+                                          'user_name' => $user_name
+                                          ]);
 
 print($layout);
