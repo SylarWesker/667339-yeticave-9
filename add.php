@@ -19,6 +19,7 @@ $accepted_mime_types = ['image/png', 'image/jpeg'];
 $errors = [];
 $form_data = [];
 
+// ToDo поддумать над валидацией в формате как в файлах sign-up.php и login.php
 // ToDo поработать над текстом ошибок.
 // Валидация данных формы.
 if (isset($_POST['submit'])) {
