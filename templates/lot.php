@@ -3,13 +3,6 @@ require_once('utils/utils.php');
 
 $date_now = new DateTime();
 
-// Расчет минимальной ставки.
-$lot_min_price = $lot['current_price'];
-
-if ($lot['current_price'] !== $lot['start_price']) {
-  $lot_min_price += $lot['step_bet'];
-}
-
 $navigation = include_template('navigate.php', [ 'stuff_categories' => $stuff_categories ]);
 ?>
 

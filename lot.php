@@ -2,6 +2,7 @@
 
 require_once('auth.php');
 require_once('helpers.php');
+require_once('utils/utils.php');
 require_once('utils/db_helper.php');
 
 use yeticave\db\functions as db_func;
@@ -49,17 +50,10 @@ if (count($errors) != 0) {
 } else {
     $title_page = $lot['name'];
 
-    // ToDo 
-    // есть функция получения минимальной ставки из БД. 
-    // дублирующий функционал получается. что буду делать?
-
-    // Расчет минимальной ставки.
-    $lot_min_price = $lot['current_price'];
-
-    if ($lot['current_price'] !== $lot['start_price']) {
-        $lot_min_price += $lot['step_bet'];
-    }
-
+    // Расчет минимальной ставки на лот.
+    $lot_min_price = get_lot_min_price($lot['start_price'], 
+                                       $lot['current_price'], 
+                                       $lot['step_bet']);
 
     // Получаю историю ставок.
     // список категорий.
@@ -90,7 +84,7 @@ if (count($errors) != 0) {
         $last_bet_set_by_current_user = $bets_history[0]['user_id'] === $user_id;
     } 
 
-    $allow_add_bet = $is_auth === 1 && 
+    $allow_add_bet = is_auth() && 
                      $now <= $lot_end_date &&
                      $lot['author_id'] !== $user_id &&
                      !$last_bet_set_by_current_user;
@@ -105,6 +99,7 @@ if (count($errors) != 0) {
 
     $content = include_template('lot.php', ['stuff_categories' => $stuff_categories,
                                             'lot' => $lot,
+                                            'lot_min_price' => $lot_min_price,
                                             'is_auth' => is_auth(),
                                             'add_bet_content' => $add_bet_content,
                                             'bets_history' => $bets_history
