@@ -11,16 +11,13 @@ $id = null;
 $lot = null;
 $title = '';
 
-// категории заново получаем? ну вроде да...
-$stuff_categories = [];
+// Получение списка категорий.
+$func_result = db_func\get_stuff_categories($con);
+$stuff_categories = $func_result['result'] ?? [];
 
- // Получение списка категорий.
- $func_result = db_func\get_stuff_categories($con);
- $stuff_categories = $func_result['result'] ?? [];
-
- if ($func_result['error'] !== null) {
-     $errors[] = 'Ошибка MySql при получении списка категорий: ' . $func_result['error'];  
- }
+if ($func_result['error'] !== null) {
+    $errors[] = 'Ошибка MySql при получении списка категорий: ' . $func_result['error'];  
+}
 
 if (isset($_GET['id'])) {
     // проверяю является ли числом (ну или просто сразу пытаюсь привести к числу)
@@ -61,16 +58,18 @@ if (count($errors) != 0) {
     $content = include_template('404.php', ['error_list' =>  $errors]);
 } else {
     $title_page = $lot['name'];
-    $content = include_template('lot.php', ['stuff_categories' => $stuff_categories,
+    $content = include_template('lot.php', [
+                                            'stuff_categories' => $stuff_categories,
                                             'lot' => $lot,
-                                            'is_auth' => $is_auth
-                                            ]);
+                                            'is_auth' => is_auth()
+                                           ]);
 }
 
-$layout = include_template('layout.php', [ 'title' => $title_page,
+$layout = include_template('layout.php', [ 
+                                           'title' => $title_page,
                                            'content' => $content, 
                                            'stuff_categories' => $stuff_categories, 
-                                           'is_auth' => $is_auth, 
+                                           'is_auth' => is_auth(), 
                                            'user_name' => $user_name
                                          ]);
 

@@ -44,8 +44,6 @@ $date_now = new DateTime();
 $today_midnight = new DateTime('tomorrow');
 
 // Время до полуночи (считаем что это время окончания "жизни" лота).
-// $time_to_midnight = $today_midnight->diff($date_now); 
-
 // как выяснилось так верно. diff - вернет разницу между параметром и объектом. (ОЧЕНЬ ЛОГИЧНО! НЕТ!)
 $time_to_midnight = $date_now->diff($today_midnight); 
 

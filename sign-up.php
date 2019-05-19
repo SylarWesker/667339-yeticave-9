@@ -62,7 +62,7 @@ if (isset($_POST['submit'])) {
 
         // Редирект на страницу авторизации.
         if ($no_errors) {
-            $login_page = 'pages/login.html'; // 'login.php'
+            $login_page = 'pages/login.php';
 
             header('Location: ' . $login_page);
         } else {

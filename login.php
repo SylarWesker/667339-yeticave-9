@@ -80,6 +80,7 @@ print($layout);
 function login_user($con, $email, $password)
 {
     $errors = [ 'validation' => [], 'fatal' => [] ];
+    $error_msg = 'Неверный логин и/или пароль.';
 
     $user_data = db_func\get_userdata_by_email($con, $email);
 
@@ -95,12 +96,12 @@ function login_user($con, $email, $password)
             // Сохраняем данные пользователя в сессии.
             save_user_data($user_name, $user_id);
         } else {
-            $errors['validation']['email'] = 'Неверный логин и/или пароль.';
-            $errors['validation']['password'] = 'Неверный логин и/или пароль.';
+            $errors['validation']['email'] = $error_msg ;
+            $errors['validation']['password'] = $error_msg ;
         }
    } else {
-        $errors['validation']['email'] = 'Неверный логин и/или пароль.';
-        $errors['validation']['password'] = 'Неверный логин и/или пароль.';
+        $errors['validation']['email'] = $error_msg ;
+        $errors['validation']['password'] = $error_msg ;
    }
 
    return ['errors' => $errors, 'result' => empty($errors['validation']) && empty($errors['fatal'])];
