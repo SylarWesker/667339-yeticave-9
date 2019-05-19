@@ -81,6 +81,16 @@ function get_category_id($con, $category_name)
     return $result;
 }
 
+function get_data_by_field($con, $table_name, $field_name, $field_value, $limit = null) 
+{
+    $sql_limit_part = $limit ? " LIMIT $limit" : '';
+
+    $sql = "SELECT * FROM `$table_name` WHERE `$field_name` = ? $sql_limit_part";
+    $result_data = db_fetch_data($con, $sql, [ $field_value ]);
+
+    return $result_data;
+}
+
 function filter($con, $table_name, $field_name, $field_value, $limit = null) 
 {
     $sql_limit_part = $limit ? " LIMIT $limit" : '';
@@ -111,7 +121,9 @@ function has_user($con, $user_name)
 
 function get_userdata_by_email($con, $email) 
 {
-    return filter($con, 'user', 'email', $email, 1);
+    $user_data = get_data_by_field($con, 'user', 'email', $email, 1);
+
+    return ['error' => $user_data['error'], 'result' => $user_data['result'][0]];
 }
 
 // Добавляет пользователя в БД.

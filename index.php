@@ -18,8 +18,6 @@ if (!$con) {
     die('Ошибка подключения к БД!');
 } 
 
-// print('Соединение уставлено!');
-
 // список лотов.
 $func_result = db_func\get_lots($con);
 $lots = $func_result['result'] ?? [];
@@ -58,7 +56,7 @@ $content = include_template('index.php', ['stuff_categories' => $stuff_categorie
 $layout = include_template('layout.php', ['title' => $title, 
                                           'content' => $content, 
                                           'stuff_categories' => $stuff_categories, 
-                                          'is_auth' => $is_auth, 
+                                          'is_auth' => is_auth(), 
                                           'user_name' => $user_name]);
 
 print($layout);

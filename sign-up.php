@@ -8,8 +8,6 @@ require_once('utils/db_helper.php');
 use yeticave\db\functions as db_func;
 
 $title = 'Регистрация пользователя';
-$user_name = '';
-$is_auth = 0;
 
 $errors = [ 'validation' => [], 'fatal' => [] ];
 $form_data = []; // данные из формы
@@ -99,20 +97,6 @@ print($layout);
 
 
 // Функции.
-
-// Функция сбора данных пришедших из формы. 
-function get_form_data($form_field_names) 
-{
-    $form_data = [];
-
-    foreach($form_field_names as $field_name) {
-        if (isset($_POST[$field_name])) {
-            $form_data[$field_name] = $_POST[$field_name];
-        }
-    }
-
-    return $form_data;
-}
 
 // Функция регистрации (добавления) пользователя.
 function register_user($con, $email, $user_name, $password, $contacts)
