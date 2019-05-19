@@ -98,9 +98,6 @@ function secure_data_for_sql_query($param)
         $param = trim($param);
         $param = strip_tags($param);
 
-        // т.к использую подготовленные запросы, то экранировать не обязательно
-        // но предположим, что я передаю это коду записи в БД, которому не доверяю (не знаю использует он подготовленные запросы или нет).
-        // короче перестраховываюсь
         $param = addslashes($param); 
     }
 
@@ -251,4 +248,73 @@ function time_to_lot_end_format_NOT_USING($now, $date)
     }
 
     return $result;
+}
+
+// ToDo
+// Должна ли функция знать, какие ключи должны быть в массиве с ошибками
+// По идее лучше передавать аргументы... но вдруг кол-во проверок увеличится => увеличится кол-во параметров - сообщений об ошибках
+//
+// Простая валидация данных из формы.
+// Проверка на пустоту и отсечение тэгов, лишних пробелов, экранирование.
+function validate_form_field($field_name, $field_value, $error_messages, $filter_option = null)
+{
+    $error = '';
+
+    $field_value = secure_data_for_sql_query($field_value);
+
+    if (!empty($filter_option)) {
+        $field_value = filter_var($field_value, $filter_option);
+
+        if (!$field_value) {
+            $error = $error_messages['filter'];
+        }
+    } else {
+        if (strlen($field_value) === 0) {
+            $error = $error_messages['zero_length'];  
+        }
+    }
+
+    return [ 'is_valid' => empty($error), 
+             'field_value' => $field_value,
+             'error' => $error
+           ];
+}
+
+// Функция валидации полей формы
+function validate_form_data($form_data, $form_fields) 
+{
+    $errors = [];
+    $validated_data = [];
+
+    foreach($form_fields as $field_name => $field_validate_data)
+    {
+        $field_value = $form_data[$field_name];
+
+        $result_data = validate_form_field( $field_name, 
+                                            $field_value, 
+                                            $field_validate_data['error_messages'],
+                                            $field_validate_data['filter_option'] ?? null);
+
+        if ($result_data['is_valid']) {
+            $validated_data[$field_name] = $result_data['field_value'];
+        } else {
+            $errors[$field_name] = $result_data['error'];
+        }
+    }
+
+    return ['data' => $validated_data, 'errors' => $errors];
+}
+
+// Функция сбора данных пришедших из формы. 
+function get_form_data($form_field_names) 
+{
+    $form_data = [];
+
+    foreach($form_field_names as $field_name) {
+        if (isset($_POST[$field_name])) {
+            $form_data[$field_name] = $_POST[$field_name];
+        }
+    }
+
+    return $form_data;
 }

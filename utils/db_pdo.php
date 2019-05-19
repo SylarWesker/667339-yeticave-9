@@ -4,6 +4,9 @@ namespace yeticave\db\functions;
 
 use PDO;
 
+// ToDo
+// Доделать как все будет готово до уровня db_mysqli.php
+
 // Возвращает подключение к БД.
 function get_connection() 
 {

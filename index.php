@@ -1,7 +1,6 @@
 <?php
 
 require_once('auth.php');
-
 require_once('helpers.php');
 
 // ToDo
@@ -20,8 +19,6 @@ if (!$con) {
 
     die('Ошибка подключения к БД!');
 } 
-
-// print('Соединение уставлено!');
 
 // список лотов.
 $func_result = db_func\get_lots($con);
@@ -43,7 +40,17 @@ $con = null;
 
 // ToDo
 // По идее нужно вынести header и footer в отдельные шаблоны.
-// или не нужно?
+
+// ToDo 
+// Пора уже убрать время до полуночи и использовать реальную дату окончания торгов по лоту.
+
+// Формирование времени окончания действия лота.
+$date_now = new DateTime();
+$today_midnight = new DateTime('tomorrow');
+
+// Время до полуночи (считаем что это время окончания "жизни" лота).
+// как выяснилось так верно. diff - вернет разницу между параметром и объектом. (ОЧЕНЬ ЛОГИЧНО! НЕТ!)
+$time_to_midnight = $date_now->diff($today_midnight); 
 
 $content = include_template('index.php', ['stuff_categories' => $stuff_categories, 
                                           'lots' => $lots
@@ -52,7 +59,7 @@ $content = include_template('index.php', ['stuff_categories' => $stuff_categorie
 $layout = include_template('layout.php', ['title' => $title, 
                                           'content' => $content, 
                                           'stuff_categories' => $stuff_categories, 
-                                          'is_auth' => $is_auth, 
+                                          'is_auth' => is_auth(), 
                                           'user_name' => $user_name]);
 
 print($layout);

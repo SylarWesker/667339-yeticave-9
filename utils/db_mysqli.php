@@ -4,6 +4,8 @@ namespace yeticave\db\functions;
 
 // ToDo
 // Разделить функции общей работы с БД и функции работы с конкретной БД (yeticave)
+ // ToDo
+ // Проверить все функции работы с БД на предмет поведения при ошибке (нет соединения, неверный sql запрос)
 
 // Возвращает подключение к БД.
 function get_connection()
@@ -40,10 +42,10 @@ function get_lots($con, $id_list = [])
     $sql_where_id_part = ' ';
     if (isset($id_list)) {
         if (count($id_list) != 0) {
-            // что-то как-то сложно и странно. Можно ли проще?
             // Этот кусок кода выполняется снова. функция?
             $query_placeholders = array_fill(0,  count($id_list), '?');
             $id_placeholders = implode(', ', $query_placeholders);
+
             $sql_where_id_part = ' AND l.id IN (' . $id_placeholders . ') ';
         }
     }
@@ -136,7 +138,17 @@ function get_category_id($con, $category_name)
     return $result;
 }
 
-function get_data_by_field($con, $table_name, $field_name, $field_value, $limit = null)
+function get_data_by_field($con, $table_name, $field_name, $field_value, $limit = null) 
+{
+    $sql_limit_part = $limit ? " LIMIT $limit" : '';
+
+    $sql = "SELECT * FROM `$table_name` WHERE `$field_name` = ? $sql_limit_part";
+    $result_data = db_fetch_data($con, $sql, [ $field_value ]);
+
+    return $result_data;
+}
+
+function filter($con, $table_name, $field_name, $field_value, $limit = null) 
 {
     $sql_limit_part = $limit ? " LIMIT $limit" : '';
     $sql = "SELECT * FROM `$table_name` WHERE `$field_name` = ? $sql_limit_part";
@@ -171,7 +183,9 @@ function has_user($con, $user_name)
 
 function get_userdata_by_email($con, $email) 
 {
-    return get_data_by_field($con, 'user', 'email', $email, 1);
+    $user_data = get_data_by_field($con, 'user', 'email', $email, 1);
+
+    return ['error' => $user_data['error'], 'result' => $user_data['result'][0]];
 }
 
 // Добавляет пользователя в БД.

@@ -2,18 +2,46 @@
 
 session_start();
 
-$user_name = ''; 
-$is_auth = 0;
-$user_id = NULL;
+$user_name = get_user_name();
+$user_id = get_user_id();
 
-$is_auth_help = isset($_SESSION['user_name']) && 
-                isset($_SESSION['user_id']) && 
-                isset($_SESSION['is_auth']);
-
-if ($is_auth_help) {
-    $user_name = $_SESSION['user_name'];
-    $user_id = $_SESSION['user_id'];
-
-    $is_auth = 1;
+function is_auth()
+{
+    return !(empty($_SESSION['user']['name']) && 
+             empty($_SESSION['user']['id']));
 }
-  
+
+function get_user_name()
+{
+    $user_name = '';
+
+    if(is_auth()) {
+        $user_name = $_SESSION['user']['name'];
+    }
+
+    return $user_name;
+}
+
+function get_user_id()
+{
+    $user_id = NULL;
+
+    if(is_auth()) {
+        $user_id = $_SESSION['user']['id'];
+    }
+
+    return $user_id;
+}
+ 
+function save_user_data($user_name, $user_id)
+{
+    $_SESSION['user'] = [
+                            'name' => $user_name,
+                            'id' =>  $user_id
+                        ];
+}
+
+function delete_user_data()
+{
+    unset($_SESSION['user']);
+}
