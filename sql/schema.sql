@@ -65,4 +65,5 @@ CREATE TABLE IF NOT EXISTS bet (
     CONSTRAINT bet_lot_fk FOREIGN KEY (lot_id) REFERENCES lot(id) 
 );
 
+-- ToDo
 -- Добавить уникальный индекс на имя пользователя и его почту

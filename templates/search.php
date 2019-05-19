@@ -1,32 +1,53 @@
 <?php
+require_once('utils/utils.php');
 
+$date_now = new DateTime();
+
+$navigation = include_template('navigate.php', [ 'stuff_categories' => $stuff_categories ]);
 ?>
 
 <main>
-  
+  <?= $navigation; ?>
 
   <div class="container">
     <section class="lots">
       <h2>Результаты поиска по запросу «<span>Union</span>»</h2>
       <ul class="lots__list">
+
         <li class="lots__item lot">
           <div class="lot__image">
-            <img src="../img/lot-1.jpg" width="350" height="260" alt="Сноуборд">
+            <img src="<?= $lot['image_url'] ?>" width="350" height="260" alt="">
           </div>
           <div class="lot__info">
-            <span class="lot__category">Доски и лыжи</span>
-            <h3 class="lot__title"><a class="text-link" href="lot.html">2014 Rossignol District Snowboard</a></h3>
+            <span class="lot__category">Категория: <span><?= $lot['category'] ?></span>
+            <h3 class="lot__title"><a class="text-link" href="lot.html"><?= $lot['name'] ?></a></h3>
             <div class="lot__state">
               <div class="lot__rate">
+                <!-- Если я правильно понимаю, то если не было ставок, то выводим начальную стоимость
+                Если ставки были, то выводим кол-во ставок и текущую цену -->
+
+                <!-- нет ставок -->
                 <span class="lot__amount">Стартовая цена</span>
-                <span class="lot__cost">10 999<b class="rub">р</b></span>
+                <span class="lot__cost"><?= $lot['start_price'] ?><b class="rub">р</b></span>   <!-- использовать format_price ?-->
+
+                <!-- есть ставки -->
+                <span class="lot__amount">12 ставок</span>
+                <span class="lot__cost">15 999<b class="rub">р</b></span>
               </div>
-              <div class="lot__timer timer">
-                16:54:12
+
+              <?php if(is_equal_or_less_hour_beetween_dates($lot['end_date'], $date_now)) : ?>
+                  <div class="lot__timer timer timer--finishing">
+              <?php else: ?>
+                  <div class="lot__timer timer">
+              <?php endif; ?>
+
+                <?= time_to_lot_end_format($lot['end_date'], $date_now); ?>
               </div>
+
             </div>
           </div>
         </li>
+
         <li class="lots__item lot">
           <div class="lot__image">
             <img src="../img/lot-2.jpg" width="350" height="260" alt="Сноуборд">
