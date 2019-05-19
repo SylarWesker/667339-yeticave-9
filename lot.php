@@ -61,7 +61,7 @@ if (count($errors) != 0) {
     $bets_history = $func_result['result'] ?? [];
 
     if ($func_result['error'] !== null) {
-        $errors[] = 'Ошибка MySql при получении истории ставок лота: ' . $func_result['error']);  
+        $errors[] = 'Ошибка MySql при получении истории ставок лота: ' . $func_result['error'];  
     }
 
     // Ограничения
