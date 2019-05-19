@@ -150,14 +150,6 @@ function get_data_by_field($con, $table_name, $field_name, $field_value, $limit 
 
 function filter($con, $table_name, $field_name, $field_value, $limit = null) 
 {
-    $sql_limit_part = $limit ? " LIMIT $limit" : '';
-    $sql = "SELECT * FROM `$table_name` WHERE `$field_name` = ? $sql_limit_part";
-
-    return db_fetch_data($con, $sql, [ $field_value ]);
-}
-
-function filter($con, $table_name, $field_name, $field_value, $limit = null) 
-{
     $result_data = get_data_by_field($con, $table_name, $field_name, $field_value, $limit);
 
     $result = false;
