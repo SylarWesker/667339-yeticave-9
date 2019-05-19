@@ -20,13 +20,12 @@ if ($func_result['error'] !== null) {
 }
 
 if (isset($_GET['id'])) {
-    // проверяю является ли числом (ну или просто сразу пытаюсь привести к числу)
     if (is_numeric($_GET['id'])) {
         $id = intval($_GET['id']);
 
         // Берем лот по id.
         $func_result = db_func\get_lots($con, [ $id ]);
-        if (!($func_result['result'] === null || count($func_result['result']) === 0)) {
+        if (!empty($func_result['result'])) {
             $lot = $func_result['result'][0];
         }
 
@@ -40,8 +39,6 @@ if (isset($_GET['id'])) {
     } else {
         $errors[] = 'Параметр id неверного формата. Должно быть целое число.';
     }
-} else {
-    $errors[] = 'Не передан параметр id!';
 }
 
 $con = null;
@@ -50,10 +47,6 @@ $content = null;
 $title_page = 'Страница показа лота.';
 
 if (count($errors) != 0) {
-    // показываем 404 и ошибки
-    // header('Location: pages/404.html');
-
-    // или все же лучше делать редирект на 404, но передавать туда список ошибок?
     $title_page = 'Страница не найдена.';
     $content = include_template('404.php', ['error_list' =>  $errors]);
 } else {
