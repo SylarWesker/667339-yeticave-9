@@ -7,8 +7,8 @@ require_once('utils/db_helper.php');
 use yeticave\db\functions as db_func;
 
 $errors = ['validation' => [], 'fatal' => ''];
-$cost = NULL;
-$lot_id = NULL;
+$cost = null;
+$lot_id = null;
 
 if (isset($_POST['submit'])) {
 
@@ -29,10 +29,8 @@ if (isset($_POST['submit'])) {
     } else {
         $errors['validation']['cost'] = 'Ставка должна быть числом.';
     }
-       
-    // ToDo
-    // этот блок кода нет смысла выполнять если не указана цена
-    // т.е получается снова нужно оборачивать код в if
+    
+    
     $has_lot = db_func\has_lot($con, $validated_data['lot_id']);
     if ($has_lot) {
         // Получаем минимальную ставку для лота. 
@@ -45,11 +43,6 @@ if (isset($_POST['submit'])) {
         $errors['validation']['lot_id'] = 'Нет лота с указанным Id';
     }
 }
-
-// if ($errors) {
-//     showLot();
-//     exit;
-// }
 
 if (empty($errors['validation'])) {
     // Добавляем ставку. 
@@ -69,5 +62,5 @@ $con = null;
 // ToDo
 // Как передать ошибки отсюда на форму лота или на эту же форму (add-bet.php) ???
 
-// 1. сформировать шаблон лота и туда передать ошибки.
-// 2. т.к код формирования лота будет повторяться, то вынести в отдельную функцию.
+// 1. Вернуть все в lot.php (просто разбить проверку лота и ставки на отдельные функции)
+// 2. если раздельные сценарии обработки лота и ставки, то потом попробовать использовать ajax/axios
