@@ -2,6 +2,11 @@
 
 namespace yeticave\db\functions;
 
+// ToDo
+// Разделить функции общей работы с БД и функции работы с конкретной БД (yeticave)
+ // ToDo
+ // Проверить все функции работы с БД на предмет поведения при ошибке (нет соединения, неверный sql запрос)
+
 // Возвращает подключение к БД.
 function get_connection()
 {
@@ -64,6 +69,58 @@ function get_lots($con, $id_list = [])
     return $result_data;
 }
 
+// Возвращает ставки пользователя. 
+function get_bets($con, $user_id) 
+{
+    $sql = 'SELECT b.*, l.*, cat.name as category_name, u.contacts FROM `bet` as b 
+            JOIN `lot` as l on b.lot_id = l.id
+            JOIN `stuff_category` as cat on l.category_id = cat.id
+            JOIN `user` as u on l.author_id = u.id
+            WHERE b.user_id = ?
+            ORDER BY b.create_date DESC';
+
+    $result_data = db_fetch_data($con, $sql, [ $user_id ]);
+
+    return $result_data;
+}
+
+// Возвращает историю ставок по лоту.
+function get_bets_history($con, $lot_id)
+{
+    $sql = 'SELECT b.*, u.name FROM `bet` as b 
+            JOIN `lot` as l on b.lot_id = l.id
+            JOIN `user` as u on b.user_id = u.id
+            WHERE l.id = ?
+            ORDER BY b.create_date DESC';
+    
+    $result_data = db_fetch_data($con, $sql, [ $lot_id ]);
+
+    return $result_data;
+}
+
+// Возвращает минимально возможную ставку для лота по его id.
+function get_lot_min_bet($con, $lot_id) 
+{
+    $sql = 'SELECT l.id, b.lot_id, IF(ISNULL(b.price), l.start_price, MAX(b.price) + l.step_bet) as min_bet 
+            FROM `bet` as b
+            RIGHT JOIN `lot` as l
+            ON l.id = b.lot_id
+            GROUP BY l.id
+            HAVING l.id = ?';
+
+    $result_data = db_fetch_data($con, $sql, [ $lot_id ]);
+
+    $result = NULL;
+
+    if ($result_data['error'] !== NULL) {
+        $result = NULL;
+    } else {
+        $result = count($result_data['result']) > 0 ? $result_data['result'][0]['min_bet'] : NULL;
+    }
+
+    return $result;
+}
+
 // Возвращает id категории по ее названию.
 function get_category_id($con, $category_name)
 {
@@ -81,12 +138,19 @@ function get_category_id($con, $category_name)
     return $result;
 }
 
-function filter($con, $table_name, $field_name, $field_value, $limit = null) 
+function get_data_by_field($con, $table_name, $field_name, $field_value, $limit = null) 
 {
     $sql_limit_part = $limit ? " LIMIT $limit" : '';
 
     $sql = "SELECT * FROM `$table_name` WHERE `$field_name` = ? $sql_limit_part";
     $result_data = db_fetch_data($con, $sql, [ $field_value ]);
+
+    return $result_data;
+}
+
+function filter($con, $table_name, $field_name, $field_value, $limit = null) 
+{
+    $result_data = get_data_by_field($con, $table_name, $field_name, $field_value, $limit);
 
     $result = false;
 
@@ -109,9 +173,16 @@ function has_user($con, $user_name)
     return filter($con, 'user', 'name', $user_name, 1);
 }
 
+function has_lot($con, $lot_id)
+{
+    return filter($con, 'lot', 'id', $lot_id);
+}
+
 function get_userdata_by_email($con, $email) 
 {
-    return filter($con, 'user', 'email', $email, 1);
+    $user_data = get_data_by_field($con, 'user', 'email', $email, 1);
+
+    return ['error' => $user_data['error'], 'result' => $user_data['result'][0]];
 }
 
 // Добавляет пользователя в БД.
@@ -163,10 +234,84 @@ function add_lot($con, $params)
     return $added_lot_id;
 }
 
+function add_bet($con, $user_id, $lot_id, $bet_cost) 
+{
+    $params = [ $user_id, $lot_id, $bet_cost];
+
+    $query_placeholders = array_fill(0, count($params), '?');
+    $query_placeholders_str = implode(', ', $query_placeholders);
+
+    $sql = 'INSERT INTO bet (user_id, 
+                            lot_id, 
+                            price) 
+            VALUES (' . $query_placeholders_str . ')';
+
+    $result_data = db_fetch_data($con, $sql, $params);
+
+    $insert_id = mysqli_insert_id($con);
+    $added_bet_id = $insert_id  === 0 ? NULL : $insert_id;
+
+    return $added_bet_id;
+}
+
 // Получить последнюю ошибку при работе с БД.
 function get_last_db_error($con)
 {
     return mysqli_error($con);
+}
+
+/**
+ * Создает подготовленное выражение на основе готового SQL запроса и переданных данных
+ *
+ * @param $link mysqli Ресурс соединения
+ * @param $sql string SQL запрос с плейсхолдерами вместо значений
+ * @param array $data Данные для вставки на место плейсхолдеров
+ *
+ * @return mysqli_stmt Подготовленное выражение
+ */
+function db_get_prepare_stmt($link, $sql, $data = []) {
+    $stmt = mysqli_prepare($link, $sql);
+
+    if ($stmt === false) {
+        $errorMsg = 'Не удалось инициализировать подготовленное выражение: ' . mysqli_error($link);
+        die($errorMsg);
+    }
+
+    if ($data) {
+        $types = '';
+        $stmt_data = [];
+
+        foreach ($data as $value) {
+            $type = 's';
+
+            if (is_int($value)) {
+                $type = 'i';
+            }
+            else if (is_string($value)) {
+                $type = 's';
+            }
+            else if (is_double($value)) {
+                $type = 'd';
+            }
+
+            if ($type) {
+                $types .= $type;
+                $stmt_data[] = $value;
+            }
+        }
+
+        $values = array_merge([$stmt, $types], $stmt_data);
+
+        $func = 'mysqli_stmt_bind_param';
+        $func(...$values);
+
+        if (mysqli_errno($link) > 0) {
+            $errorMsg = 'Не удалось связать подготовленное выражение с параметрами: ' . mysqli_error($link);
+            die($errorMsg);
+        }
+    }
+
+    return $stmt;
 }
 
 // Вспомогательная функция получения записей.

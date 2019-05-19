@@ -8,19 +8,20 @@ require_once('utils/db_helper.php');
 use yeticave\db\functions as db_func;
 
 // Если пользователь не авторизован, то показываем 403
-if ($is_auth === 0) {
+if (is_auth()) {
     http_response_code(403);
     return;
 }
 
 $title = 'Добавление лота';
 
-// Валидация данных формы.
 $accepted_mime_types = ['image/png', 'image/jpeg'];
 $errors = [];
 $form_data = [];
 
+// ToDo поддумать над валидацией в формате как в файлах sign-up.php и login.php
 // ToDo поработать над текстом ошибок.
+// Валидация данных формы.
 if (isset($_POST['submit'])) {
     // Наименование (обязательное)
     $lot_name = NULL;
@@ -35,16 +36,9 @@ if (isset($_POST['submit'])) {
         if (strlen($lot_name) === 0) {
             $errors['lot-name'] = 'Введите название лота';
         }
-    } else {
-        // такая ошибка может произойти только если на форме нет поля с именем 'lot-name' ?
-        // если да, то это будет больше отладочная инфа для разработчиков. нужно будет текст ошибки изменить.
-        $errors['lot-name'] = 'Не задано название лота!';
     }
 
-    // Категория...
-    // ToDo
-    // Как проверить допустимая ли категория? Каждый раз выполнять запрос к БД? Это накладно?
-    // Или не проверять в php, а проверку заложить на уровне sql (БД). Но как тогда понять почему именно не выполнился запрос? корректное сообщение об ошибке.
+    // Категория.
     $lot_category = NULL;
     $lot_category_id = NULL;
 
@@ -60,8 +54,6 @@ if (isset($_POST['submit'])) {
         if ($lot_category_id === NULL) {
             $errors['category'] = 'Такой категории нет в БД!';
         }
-    } else {
-        $errors['category'] = 'Не задана категория лота!';
     }
 
     // Описание (пускай будет необязательное)
@@ -93,8 +85,6 @@ if (isset($_POST['submit'])) {
         } else {
             $errors['lot-rate'] = 'Начальная цена должна быть числом';
         }
-    } else {
-        $errors['lot-rate'] = 'Не задана начальная цена лота!';
     }
 
     // Шаг ставки (обязательное)
@@ -106,8 +96,6 @@ if (isset($_POST['submit'])) {
         $step_bet = secure_data_for_sql_query($step_bet);
         $form_data['lot-step'] = $step_bet;
 
-        // этот код уже второй раз использую!
-        // ToDo Вынести в функцию!!!
         if (is_numeric($step_bet)) {
             // В ТЗ говорится, что шаг ставки должен быть целым числом. 
             // Нужно ли проверять является ли целым?
@@ -119,8 +107,6 @@ if (isset($_POST['submit'])) {
         } else {
             $errors['lot-step'] = 'Шаг ставки должен быть числом!';
         }
-    } else { 
-        $errors['lot-step'] = 'Не задан шаг ставки!';
     }
  
     // Дата окончания торгов (обязательное)
@@ -145,8 +131,6 @@ if (isset($_POST['submit'])) {
         if (!at_least_one_day_bigger($date_diff)) {
             $errors['lot-date'] = 'Дата завершения торгов должна быть больше текущей даты хотя на 1 день!';
         }
-    } else {
-        $errors['lot-date'] = 'Не задана дата окончания торгов!';
     }
 
     // Изображение лота (необязательный пока)
@@ -234,7 +218,7 @@ $content = include_template('add-lot.php', [ 'stuff_categories' => $stuff_catego
 $layout = include_template('layout.php', [  'title' => $title,
                                             'content' => $content, 
                                             'stuff_categories' => $stuff_categories, 
-                                            'is_auth' => $is_auth, 
+                                            'is_auth' => is_auth(), 
                                             'user_name' => $user_name
                                             ]);
 

@@ -8,8 +8,6 @@ require_once('utils/db_helper.php');
 use yeticave\db\functions as db_func;
 
 $title = 'Регистрация пользователя';
-$user_name = '';
-$is_auth = 0;
 
 $errors = [ 'validation' => [], 'fatal' => [] ];
 $form_data = []; // данные из формы
@@ -64,7 +62,7 @@ if (isset($_POST['submit'])) {
 
         // Редирект на страницу авторизации.
         if ($no_errors) {
-            $login_page = 'pages/login.html'; // 'login.php'
+            $login_page = 'pages/login.php';
 
             header('Location: ' . $login_page);
         } else {
@@ -72,9 +70,6 @@ if (isset($_POST['submit'])) {
             // так и фатальные - работа с БД.
             $errors['validation'] = $added_user['errors']['validation'];
             $errors['fatal'] = array_merge($errors['fatal'], $added_user['errors']['fatal']);
-
-            // ToDo
-            // Или я перехватываю ошибки SQL в функциях работы с БД и возврашаю сюда и помещаю в массив ошибок (c отдельным ключом fatal)
         }
     }
 }
@@ -91,7 +86,7 @@ $layout = include_template('layout.php', [
                                             'title' => $title, 
                                             'content' => $content, 
                                             'stuff_categories' => $stuff_categories, 
-                                            'is_auth' => $is_auth, 
+                                            'is_auth' => is_auth(), 
                                             'user_name' => $user_name
                                           ]);
 
@@ -99,20 +94,6 @@ print($layout);
 
 
 // Функции.
-
-// Функция сбора данных пришедших из формы. 
-function get_form_data($form_field_names) 
-{
-    $form_data = [];
-
-    foreach($form_field_names as $field_name) {
-        if (isset($_POST[$field_name])) {
-            $form_data[$field_name] = $_POST[$field_name];
-        }
-    }
-
-    return $form_data;
-}
 
 // Функция регистрации (добавления) пользователя.
 function register_user($con, $email, $user_name, $password, $contacts)

@@ -106,4 +106,26 @@ VALUES ('new lot example',
         50,
         1,
         1)
+
+-- Возвращает ставки пользователя. 
+SELECT b.*, l.*, cat.name as category_name, u.contacts FROM `bet` as b 
+JOIN `lot` as l on b.lot_id = l.id
+JOIN `stuff_category` as cat on l.category_id = cat.id
+JOIN `user` as u on l.author_id = u.id
+WHERE b.user_id = ?
+
+-- Возвращает минимально возможную ставку для лота по его id.
+SELECT l.id, b.lot_id, IF(ISNULL(b.price), l.start_price, MAX(b.price) + l.step_bet) as min_bet 
+FROM `bet` as b
+RIGHT JOIN `lot` as l
+ON l.id = b.lot_id
+GROUP BY l.id
+HAVING l.id = ?
+
+-- Добавляет пользователя
+INSERT INTO `user` (email, 
+                    name, 
+                    password, 
+                    contacts) 
+VALUES (?, ?, ?, ?)
         

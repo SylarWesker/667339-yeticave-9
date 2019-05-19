@@ -1,5 +1,7 @@
 <?php
     require_once('utils/utils.php');
+
+    $now = new DateTime();
 ?>
 
 <main class="container">
@@ -36,13 +38,13 @@
                             </div>
 
                             <!-- если времени осталось ровно один час или меньше -->
-                            <?php if (is_equal_or_less_hour($lot_lifetime_end) ): ?>
+                            <?php if(is_equal_or_less_hour_beetween_dates($lot['end_date'], $now)) : ?>
                                 <div class="lot__timer timer timer--finishing">
                             <?php else: ?>
                                 <div class="lot__timer timer">
                             <?php endif; ?>
 
-                               <?= $lot_lifetime_end->format("%H:%I") ?>
+                            <?= time_to_lot_end_format($lot['end_date'], $now); ?>
                             </div>
                         </div>
                     </div>
