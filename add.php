@@ -1,15 +1,18 @@
 <?php
 
+require_once('auth.php');
 require_once('helpers.php');
 require_once('utils/utils.php');
 require_once('utils/db_helper.php');
 
 use yeticave\db\functions as db_func;
 
-// эти параметры должны браться откуда из другого места...
-// пока просто закопирую.
-$user_name = 'Sylar';
-$is_auth = rand(0, 1);
+// Если пользователь не авторизован, то показываем 403
+if ($is_auth === 0) {
+    http_response_code(403);
+    return;
+}
+
 $title = 'Добавление лота';
 
 // Валидация данных формы.
@@ -176,10 +179,7 @@ if (isset($_POST['submit'])) {
 
     // Если все ок, то добавляем в БД.
     if (count($errors) === 0) {
-        // Временный id пользователя. потом будем использовать id авторизированого пользователя.
-        $tmp_user_id = 1;
-
-        $params = [ 'author_id' => $tmp_user_id, 
+        $params = [ 'author_id' => $user_id, 
                     'name' => $lot_name, 
                     'category_id' => $lot_category_id, 
                     'description' => $lot_description, 
@@ -200,6 +200,9 @@ if (isset($_POST['submit'])) {
             // Как обрабатывать эту ошибку?
         }
     } else {
+        // ToDo
+        // Обдумать этот механизм. Возможно некоторые данные даже не прошедшие проверку лучше все равно отправлять на форму. 
+
         // Записываем данные формы (данные которые прошли проверку).
         foreach($errors as $key => $value) {
             // если есть ошибка по этому ключу, то
@@ -215,7 +218,7 @@ $stuff_categories = [];
 
 // Получение списка категорий.
 $func_result = db_func\get_stuff_categories($con);
-$stuff_categories = $func_result['result'] === null ? [] : $func_result['result']; 
+$stuff_categories = $func_result['result'] ?? [];
 
 if ($func_result['error'] !== null) {
     // ToDo

@@ -2,11 +2,6 @@
 
 namespace yeticave\db\functions;
 
-// ToDo
-// Вынести бы все sql запросы в одно место...
-// 1) Хранимые процедуры
-// 2) отдельный файл.
-
 // Возвращает подключение к БД.
 function get_connection()
 {
@@ -42,13 +37,10 @@ function get_lots($con, $id_list = [])
     $sql_where_id_part = ' ';
     if (isset($id_list)) {
         if (count($id_list) != 0) {
-            // список id пока не проверяю. предполагаю, что он коректный и проверен извне (на sql инъекции)
-            // $id_str = implode(', ', $id_list);
-
-            // что-то как-то сложно и странно. Можно ли проще?
             // Этот кусок кода выполняется снова. функция?
             $query_placeholders = array_fill(0,  count($id_list), '?');
             $id_placeholders = implode(', ', $query_placeholders);
+
             $sql_where_id_part = ' AND l.id IN (' . $id_placeholders . ') ';
         }
     }
@@ -87,6 +79,57 @@ function get_category_id($con, $category_name)
     }
 
     return $result;
+}
+
+function filter($con, $table_name, $field_name, $field_value, $limit = null) 
+{
+    $sql_limit_part = $limit ? " LIMIT $limit" : '';
+
+    $sql = "SELECT * FROM `$table_name` WHERE `$field_name` = ? $sql_limit_part";
+    $result_data = db_fetch_data($con, $sql, [ $field_value ]);
+
+    $result = false;
+
+    if ($result_data['error'] !== NULL) {
+        $result = false;
+    } else {
+        $result = !empty($result_data['result']);
+    }
+
+    return $result;
+}
+
+function has_email($con, $email)
+{
+    return filter($con, 'user', 'email', $email, 1);
+}
+
+function has_user($con, $user_name)
+{
+    return filter($con, 'user', 'name', $user_name, 1);
+}
+
+function get_userdata_by_email($con, $email) 
+{
+    return filter($con, 'user', 'email', $email, 1);
+}
+
+// Добавляет пользователя в БД.
+function add_user($con, $email, $user_name, $password, $contacts) 
+{
+    $params = [ $email, $user_name, $password, $contacts];
+
+    $sql = 'INSERT INTO `user` (email, 
+                                name, 
+                                password, 
+                                contacts) 
+            VALUES (?, ?, ?, ?)';
+
+    $result_data = db_fetch_data($con, $sql, $params);
+
+    $insert_id = mysqli_insert_id($con);
+
+    return $insert_id ?? null;
 }
 
 // Добавляет лот.
