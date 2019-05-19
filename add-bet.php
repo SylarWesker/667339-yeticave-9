@@ -6,33 +6,44 @@ require_once('utils/db_helper.php');
 
 use yeticave\db\functions as db_func;
 
-// Валидация.
-$errors = [];
+$errors = ['validation' => [], 'fatal' => ''];
 $cost = NULL;
 $lot_id = NULL;
 
 if (isset($_POST['submit'])) {
-    if (isset($_POST['cost'])) {
-        $cost = $_POST['cost'];
-        $cost = secure_data_for_sql_query($cost);
 
-        // ToDo
-        // тут тоже проверить на пустоту 
-        $cost = intval($cost);
+    $form_fields = [ 
+                     'cost' => ['error_messages' => ['zero_length' => 'Не задана ставка на лот.']], 
+                     'lot_id' => ['error_messages' => ['zero_length' => 'Id лота не задан.']]
+                    ];
+
+    // Сбор данных с формы.
+    $form_data = get_form_data(array_keys($form_fields));
+
+    // Валидация.                
+    $validated_data = validate_form_data($form_data, $form_fields);
+    $errors['validation'] = $validation_result['errors'];
+
+    if (is_numeric($validated_data['cost'])) {
+        $cost = intval($validated_data['cost']);
     } else {
-        $errors['cost'] = 'Не указана цена ставки.';
+        $errors['validation']['cost'] = 'Ставка должна быть числом.';
     }
+       
+    // ToDo
+    // этот блок кода нет смысла выполнять если не указана цена
+    // т.е получается снова нужно оборачивать код в if
+    $has_lot = db_func\has_lot($con, $validated_data['lot_id']);
+    if ($has_lot) {
+        // Получаем минимальную ставку для лота. 
+        $min_lot_bet = db_func\get_lot_min_bet($con, $lot_id);
 
-    if (isset($_POST['lot_id'])) {
-        $lot_id = $_POST['lot_id'];
-        $lot_id = secure_data_for_sql_query($lot_id);
-
-        // ToDo
-        // тут проверяем есть ли лот или нет
-    } 
-    // else {
-    //     $errors['lot_id'] = 'Не указан индетификатор лота.';
-    // }
+        if ($cost < $min_lot_bet) {
+            $errors['valiation']['cost'] = 'Указанная цена меньше минимально возможной ставки.';
+        }
+    } else {
+        $errors['validation']['lot_id'] = 'Нет лота с указанным Id';
+    }
 }
 
 // if ($errors) {
@@ -40,37 +51,16 @@ if (isset($_POST['submit'])) {
 //     exit;
 // }
 
-if (count($errors) === 0) {
-    // Минимальная ставка уже расчитывается на lot.php 
-    // но... пока страница открыта ситуация может изменится (пользователь может открыть страницу и сделать ставку намного позже => данные могут устареть)
+if (empty($errors['validation'])) {
+    // Добавляем ставку. 
+    $added_bet_id = db_func\add_bet($con, $user_id, $lot_id, $cost);
 
-    // Получаем минимальную ставку для лота. 
-    $min_lot_bet = db_func\get_lot_min_bet($con, $lot_id);
+    if ($added_bet_id !== NULL) {
+        $lot_url = 'lot.php?id=' . $lot_id;
 
-    // если провериили в блоке валидации, то такой ситуации тут не возникнет (сюда не дойдем).
-    if ($min_lot_bet === NULL) {
-        $errors['lot_id'] = 'Нет лота с указанным id';
-
-        // ToDo
-        // ??? нужно перейти к блоку кода который редиректит на страницу с лотом и еще ошибки передать.
-        return; 
-    }
-
-    // условие ($cost >= $min_lot_bet) вынести в отдельную функцию проверки ставки
-    // и перенести в блок валидации.
-    if ($cost >= $min_lot_bet) {
-        // Добавляем ставку. 
-        $added_bet_id = db_func\add_bet($con, $user_id, $lot_id, $cost);
-
-        if ($added_bet_id !== NULL) {
-            $lot_url = 'lot.php?id=' . $lot_id;
-
-            header('Location: ' . $lot_url);  
-        } else {
-            $errors['lot_id'] = 'Ставка не сделана.';
-        }
+        header('Location: ' . $lot_url);  
     } else {
-        $errors['cost'] = 'Указанная цена меньше минимально возможной ставки.';
+        $errors['fatal'][] = 'Ставка не сделана.';
     }
 }
 

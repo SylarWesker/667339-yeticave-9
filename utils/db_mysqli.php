@@ -173,6 +173,11 @@ function has_user($con, $user_name)
     return filter($con, 'user', 'name', $user_name, 1);
 }
 
+function has_lot($con, $lot_id)
+{
+    return filter($con, 'lot', 'id', $lot_id);
+}
+
 function get_userdata_by_email($con, $email) 
 {
     $user_data = get_data_by_field($con, 'user', 'email', $email, 1);
