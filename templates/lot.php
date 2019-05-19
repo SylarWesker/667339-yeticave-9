@@ -2,8 +2,6 @@
 require_once('utils/utils.php');
 
 $date_now = new DateTime();
-$today_midnight = new DateTime('tomorrow'); // тут по идее нужно брать $lot['end_date']
-$lot_lifetime_end = $date_now->diff($today_midnight); 
 
 // Расчет минимальной ставки.
 $lot_min_price = $lot['current_price'];
