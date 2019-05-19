@@ -2,10 +2,9 @@
 
 session_start();
 
-$user_name = ''; 
-$user_id = NULL;
+$user_name = get_user_name();
+$user_id = get_user_id();
 
-load_user_data();
 
 function is_auth()
 {
@@ -13,12 +12,26 @@ function is_auth()
              empty($_SESSION['user']['id']));
 }
 
-function load_user_data()
+function get_user_name()
 {
+    $user_name = '';
+
     if(is_auth()) {
         $user_name = $_SESSION['user']['name'];
+    }
+
+    return $user_name;
+}
+
+function get_user_id()
+{
+    $user_id = NULL;
+
+    if(is_auth()) {
         $user_id = $_SESSION['user']['id'];
     }
+
+    return $user_id;
 }
  
 function save_user_data($user_name, $user_id)
