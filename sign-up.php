@@ -70,9 +70,6 @@ if (isset($_POST['submit'])) {
             // так и фатальные - работа с БД.
             $errors['validation'] = $added_user['errors']['validation'];
             $errors['fatal'] = array_merge($errors['fatal'], $added_user['errors']['fatal']);
-
-            // ToDo
-            // Или я перехватываю ошибки SQL в функциях работы с БД и возврашаю сюда и помещаю в массив ошибок (c отдельным ключом fatal)
         }
     }
 }

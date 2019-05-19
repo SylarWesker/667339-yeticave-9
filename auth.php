@@ -5,7 +5,6 @@ session_start();
 $user_name = get_user_name();
 $user_id = get_user_id();
 
-
 function is_auth()
 {
     return !(empty($_SESSION['user']['name']) && 

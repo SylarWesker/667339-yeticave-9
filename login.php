@@ -51,7 +51,7 @@ if (isset($_POST['submit'])) {
             header('Location: index.php');
         } else {
             $errors['validation'] = $login_result['errors']['validation'];
-            $errors['fatal'] = array_merge($errors['fatal'], $added_user['errors']['fatal']);
+            $errors['fatal'] = array_merge($errors['fatal'], $login_result['errors']['fatal']);
         }
     }
 }
