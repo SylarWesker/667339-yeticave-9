@@ -9,9 +9,12 @@ require_once('utils/db_helper.php');
 use yeticave\db\functions as db_func;
 
 $title = 'Авторизация';
-
 $user_name = '';
 $is_auth = 0;
+
+$errors = [ 'validation' => [], 'fatal' => [] ];
+$form_data = []; // данные из формы
+$validated_data = []; // провалидированные (скорректированные) данные из формы.
 
 // список категорий.
 $func_result = db_func\get_stuff_categories($con);
@@ -21,42 +24,21 @@ if ($func_result['error'] !== null) {
     print('Ошибка MySql при получении списка категорий: ' . $func_result['error']);  
 }
 
-// Валидация.
-$errors = [];
-$form_data = [];
-
 if (isset($_POST['submit'])) {
-    // email
-    if (isset($_POST['email'])) {
-        $email = $_POST['email'];
-        $email = secure_data_for_sql_query($email);
-        $email = filter_var($email, FILTER_VALIDATE_EMAIL);
+    // Сбор данных с формы.
+    $form_data = get_form_data(array_keys($form_fields));
 
-        $form_data['email'] = $email;
-    } else {
-        $errors['email'] = 'Не указан email.';
-    }
+    // Верификация логина и пароля
 
-    // пароль
-    if (isset($_POST['password'])) {
-        $password = $_POST['password'];
-        $password = secure_data_for_sql_query($password);
-
-        if (strlen($password) === 0) {
-            $errors['password'] = 'Пароль не может быть пустым.';
-        }
-    } else {
-        $errors['password'] = 'Не указан пароль.';
-    }
 
     // теперь проверяем зарегистрирован ли пользователь.
     if (count($errors) === 0) {
        $user_data = db_func\get_userdata_by_email($con, $email);
 
        if ($user_data['error'] === NULL) {
-           // ToDo
-           // 1. Процесс login вынести в отдельную функцию.
-           // 2. В сообщении ошибки - говорить что неверный пользователь или пароль (НЕ РАЗДЕЛЯЕМ чтобы не подобрали злоумыленики список пользователей)
+            // ToDo
+            // 1. Процесс login вынести в отдельную функцию.
+            // 2. В сообщении ошибки - говорить что неверный пользователь или пароль (НЕ РАЗДЕЛЯЕМ чтобы не подобрали злоумыленики список пользователей)
             $password_from_db = $user_data['result'][0]['password'];
 
             $password_correct = password_verify($password, $password_from_db);
@@ -72,10 +54,10 @@ if (isset($_POST['submit'])) {
 
                 header('Location: index.php');
             } else {
-                $errors['password'] = 'Неверный пароль.';
+                $errors['password'] = 'Неверный логин и/или пароль.';
             }
        } else {
-            $errors['email'] = 'Пользователь с указанным email не найден.';
+            $errors['email'] = 'Неверный логин и/или пароль.';
        }
     }
 }
@@ -93,3 +75,5 @@ $layout = include_template('layout.php', ['title' => $title,
                                           'user_name' => $user_name]);
 
 print($layout);
+
+// Функции. 
