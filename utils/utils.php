@@ -290,6 +290,9 @@ function validate_form_data($form_data, $form_fields)
     {
         $field_value = $form_data[$field_name];
 
+        // var_dump($field_name);
+        // var_dump($field_value);
+
         $result_data = validate_form_field( $field_name, 
                                             $field_value, 
                                             $field_validate_data['error_messages'],
@@ -310,9 +313,16 @@ function get_form_data($form_field_names)
 {
     $form_data = [];
 
+    $raw_form_data = [];
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+      $raw_form_data = $_POST;
+    } else {
+      $raw_form_data = $_GET;
+    }
+
     foreach($form_field_names as $field_name) {
-        if (isset($_POST[$field_name])) {
-            $form_data[$field_name] = $_POST[$field_name];
+        if (isset($raw_form_data[$field_name])) {
+            $form_data[$field_name] = $raw_form_data[$field_name];
         }
     }
 
