@@ -67,10 +67,6 @@ if (isset($_GET['find'])) {
     $func_result = db_func\get_lots_by_fulltext_search($con, $search_query, $lots_limit, $lot_offset);
     $lots = $func_result['result'];
 
-    // var_dump($min_page_number);
-    // var_dump($page_number);
-    // var_dump($max_page_number);
-
     // ToDo подумать над записью ошибок
     // $errors['fatal'][] = $func_result['error'];
   }
