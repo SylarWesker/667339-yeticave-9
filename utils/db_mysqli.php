@@ -365,3 +365,26 @@ function get_lots_by_fulltext_search($con, $search_query, $limit, $offset)
 
     return $result_data;
 }
+
+// ToDo
+// Неужели это единственный способ (кроме кэша) узнать кол-во лотов подходящих под поисковый запрос. 
+// Используется для пагинации.
+function get_lots_count_with_fulltext_search($con, $search_query)
+{
+    $sql =  'SELECT COUNT(*) as count_lots FROM 
+            (SELECT l.id
+            FROM `lot` as l 
+            LEFT JOIN `stuff_category` as cat on l.category_id = cat.id
+            LEFT JOIN bet as b on l.id = b.lot_id
+            WHERE MATCH(l.name, l.description) AGAINST(?) AND 
+                    l.end_date IS NOT NULL AND 
+                    l.end_date > NOW() AND
+                    l.winner_id IS NULL
+            GROUP BY l.id
+            ORDER BY l.creation_date) as help';
+
+    $result_data = db_fetch_data($con, $sql, [$search_query]); 
+
+    //return $result_data;
+    return ['result' => $result_data['result'][0]['count_lots'], 'error' => $result_data['error']];
+}

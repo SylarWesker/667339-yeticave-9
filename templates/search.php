@@ -208,13 +208,28 @@ $nothing_not_found_msg = 'Ничего не найдено по вашему з�
       </ul>
     </section>
 
+    <!-- Что-то как-то уродливо ( 
+      плюс странно отображается страница если на странице 2 лота -->
     <ul class="pagination-list">
-      <li class="pagination-item pagination-item-prev"><a>Назад</a></li>
-      <li class="pagination-item pagination-item-active"><a>1</a></li>
-      <li class="pagination-item"><a href="#">2</a></li>
-      <li class="pagination-item"><a href="#">3</a></li>
-      <li class="pagination-item"><a href="#">4</a></li>
-      <li class="pagination-item pagination-item-next"><a href="#">Вперед</a></li>
+      <?php if($current_page !== $min_page_number): ?>
+        <li class="pagination-item pagination-item-prev"><a href="search.php?find=Найти&search=<?= $search_query?>&page=<?= $current_page - 1; ?>">Назад</a></li>
+      <?php else: ?>
+        <li class="pagination-item pagination-item-prev"><a href="#">Назад</a></li>
+      <?php endif; ?>
+
+      <?php for($page_number = $min_page_number; $page_number <= $max_page_number; $page_number++): ?>
+        <?php if($page_number === $current_page): ?>
+          <li class="pagination-item pagination-item-active"><a href="search.php?find=Найти&search=<?= $search_query?>&page=<?= $page_number; ?>"><?= $page_number; ?></a></li>
+        <?php else: ?>
+          <li class="pagination-item"><a href="search.php?find=Найти&search=<?= $search_query?>&page=<?= $page_number; ?>"><?= $page_number; ?></a></li>
+        <?php endif; ?>
+      <?php endfor; ?>
+
+      <?php if($current_page !== $max_page_number): ?>
+        <li class="pagination-item pagination-item-next"><a href="search.php?find=Найти&search=<?= $search_query?>&page=<?= $current_page + 1; ?>">Вперед</a></li>
+      <?php else: ?>
+        <li class="pagination-item pagination-item-next"><a href="#">Вперед</a></li>
+      <?php endif; ?>
     </ul>
   </div>
 </main>
