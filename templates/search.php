@@ -4,6 +4,8 @@ require_once('utils/utils.php');
 $date_now = new DateTime();
 
 $navigation = include_template('navigate.php', [ 'stuff_categories' => $stuff_categories ]);
+
+$nothing_not_found_msg = 'Ничего не найдено по вашему запросу';
 ?>
 
 <main>
@@ -11,7 +13,12 @@ $navigation = include_template('navigate.php', [ 'stuff_categories' => $stuff_ca
 
   <div class="container">
     <section class="lots">
-      <h2>Результаты поиска по запросу «<span><?= $search_query; ?></span>»</h2>
+      <?php if(empty($lots)):?>
+        <h2><?= $nothing_not_found_msg ?></h2>
+      <?php else:?>
+        <h2>Результаты поиска по запросу «<span><?= $search_query; ?></span>»</h2>
+      <?php endif;?>
+      
       <ul class="lots__list">
 
         <?php foreach($lots as $lot): ?>

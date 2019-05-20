@@ -14,7 +14,7 @@ $errors = ['validation' => [], 'fatal' => []];
 $func_result = db_func\get_stuff_categories($con);
 $stuff_categories = $func_result['result'] ?? [];
 
-$search_query = null;
+$search_query = '';
 $lots = [];
 $lots_limit = 9; // ограничение кол-ва лотов на странице.
 $page_number = 1;
@@ -55,10 +55,6 @@ if (isset($_GET['find'])) {
 
     // ToDo подумать над записью ошибок
     // $errors['fatal'][] = $func_result['error'];
-
-    if (empty($lots)) {
-      $search_query = 'Ничего не найдено по вашему запросу';
-    }
   }
 }
 
@@ -73,7 +69,8 @@ $layout = include_template('layout.php', [
                                             'content' => $content, 
                                             'stuff_categories' => $stuff_categories, 
                                             'is_auth' => is_auth(), 
-                                            'user_name' => $user_name
+                                            'user_name' => $user_name,
+                                            'search_query' => $search_query
                                          ]);
 
 print($layout);
