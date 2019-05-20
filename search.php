@@ -49,6 +49,11 @@ if (isset($_GET['find'])) {
     // ToDo
     // Валидация Поисковый запрос должен быть минимум 3 символа
 
+    // ToDo
+    // Подсчитать кол-во страниц всего.
+    // На этот момент только один вариант. Вызвать запрос из get_lots_by_fulltext_search без указания
+    // лимита и оффсета и получить от него COUNT(*)
+
     // Получаем лоты 
     $func_result = db_func\get_lots_by_fulltext_search($con, $search_query, $lots_limit, $lot_offset);
     $lots = $func_result['result'];
