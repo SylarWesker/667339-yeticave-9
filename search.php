@@ -15,33 +15,56 @@ $func_result = db_func\get_stuff_categories($con);
 $stuff_categories = $func_result['result'] ?? [];
 
 $search_query = null;
-$lots = null;
+$lots = [];
+$lots_limit = 9; // ограничение кол-ва лотов на странице.
+$page_number = 1;
 
-if (isset($_GET['find'])) {
-    $form_field = ['search' => ['error_messages' => [ 'zero_length' => 'Запрос должен содержать хотя бы один символ']]];
+if(isset($_GET['page_number'])) {
+  $page_param = $_GET['page_number'];
 
-    // Сбор данных с формы.
-    $form_data = get_form_data(array_keys($form_fields));
-
-    // Валидация данных с формы.
-    $validation_result = validate_form_data($form_data, $form_fields);
-
-    $errors['validation'] = $validation_result['errors'];
-    $validated_data = $validation_result['data'];
-
-    if (empty($errors['validation'])) {
-       // Получаем лоты 
-
-    }
+  if (is_numeric($page_param)) {
+    $page_number = intval($page_param);
+  }
 }
 
-// ToDo
-// и снова...
-// как правильно передавать 'поисковый запрос'
-// его может не быть, он может быть пустым
+// расчитываем смещение для запроса в зависимости от номера текущей страницы
+$lot_offset = ($page_number - 1) * $lots_limit;
+
+// Валидация
+if (isset($_GET['find'])) {
+  $form_fields = ['search' => ['error_messages' => [ 'zero_length' => 'Запрос должен содержать хотя бы один символ']]];
+
+  // Сбор данных с формы.
+  $form_data = get_form_data(array_keys($form_fields), );
+
+  // Валидация данных с формы.
+  $validation_result = validate_form_data($form_data, $form_fields);
+
+  $errors['validation'] = $validation_result['errors'];
+  $validated_data = $validation_result['data'];
+
+  if (empty($errors['validation'])) {
+    $search_query = $validated_data['search'];
+
+    // ToDo
+    // Валидация Поисковый запрос должен быть минимум 3 символа
+
+    // Получаем лоты 
+    $func_result = db_func\get_lots_by_fulltext_search($con, $search_query, $lots_limit, $lot_offset);
+    $lots = $func_result['result'];
+
+    // ToDo подумать над записью ошибок
+    // $errors['fatal'][] = $func_result['error'];
+
+    if (empty($lots)) {
+      $search_query = 'Ничего не найдено по вашему запросу';
+    }
+  }
+}
+
 $content = include_template('search.php', [ 
+                                            'search_query' => $search_query,
                                             'lots' => $lots,
-                                            'search_query' => $validated_data['search'],
                                             'stuff_categories' => $stuff_categories
                                           ]);
 
