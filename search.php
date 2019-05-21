@@ -43,6 +43,9 @@ if (isset($_GET['find'])) {
 
   // ToDo
   // Валидация Поисковый запрос должен быть минимум 3 символа
+  if (strlen($validated_data['search']) < 3) {
+    $errors['validation']['search'] = 'Поисковый запрос должен содержать минимум 3 символа.';
+  }
 
   if (empty($errors['validation'])) {
     $search_query = $validated_data['search'];
