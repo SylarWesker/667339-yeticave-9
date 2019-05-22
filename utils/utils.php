@@ -340,3 +340,22 @@ function get_lot_min_price($start_price, $current_price, $bet_step)
 
     return $lot_min_price;
 }
+
+function show_404($errors, $categories, $is_auth, $user_name)
+{
+    $title_page = 'Страница не найдена.';
+    $content = include_template('404.php', [
+                                            'error_list' => $errors,
+                                            'stuff_categories' => $categories
+                                           ]); 
+    
+    $layout = include_template('layout.php', [ 
+                                                'title' => $title_page,
+                                                'content' => $content, 
+                                                'stuff_categories' => $categories, 
+                                                'is_auth' => $is_auth, 
+                                                'user_name' => $user_name
+                                             ]);
+    
+    print($layout);
+}

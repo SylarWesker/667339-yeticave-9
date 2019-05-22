@@ -7,8 +7,8 @@ require_once('utils/db_helper.php');
 
 use yeticave\db\functions as db_func;
 
-$errors_lot = ['validation' => [], 'fatal' => ''];
-$errors_add_bet = ['validation' => [], 'fatal' => ''];
+$errors_lot = ['validation' => [], 'fatal' => []];
+$errors_add_bet = ['validation' => [], 'fatal' => []];
 
 // Получение списка категорий.
 $func_result = db_func\get_stuff_categories($con);
@@ -107,10 +107,7 @@ if (!empty($errors_lot['validation'])) {
         if (is_null($lot)) {
             $errors_lot['fatal'][] = 'Не найден лот с id = ' . $lot_id;
 
-            // ToDo!!!
-            // Когда и как показывать 404 (и вообще работать с ошибками... логика обработки какая)
-            // show_404();
-            echo 'lot is null';
+            show_404($errors_lot['fatal'], $stuff_categories, $is_auth, $user_name);
             exit;
         } 
     }
