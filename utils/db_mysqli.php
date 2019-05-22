@@ -60,9 +60,10 @@ function get_lots($con, $id_list = [])
             AND l.end_date > NOW() 
             AND l.winner_id IS NULL'
             . $sql_where_id_part .
-            'GROUP BY l.id,
-                      cat.name
-            ORDER BY l.creation_date DESC';
+            'GROUP BY l.id
+            ORDER BY l.creation_date DESC'; 
+            // зачем-то групировал по категории... (cat.name)
+            // проверить. если не нужно, то убрать
 
     $result_data = db_fetch_data($con, $sql, $id_list);
 
@@ -332,4 +333,58 @@ function db_fetch_data($link, $sql, $data = [])
     }
 
     return ['result' => $result, 'error' => $error];
+}
+
+// Получаю список лотов с помощью полнотекстового поиска по названию и описанию лота.
+function get_lots_by_fulltext_search($con, $search_query, $limit, $offset)
+{
+    $params = [$search_query, $limit, $offset];
+
+    // ToDo
+    // В некоторых запросах одни и те же куски логики... 
+    // Тут например "активные лоты" - у которых нет победителя и дата завершения не прошла
+    // Эта логика может поменяться и тогда придется искать все места, где она использовалась и менять ее
+    // Как это можно изменить? (чтобы она была в одном месте) и чтобы к основной логике можно было добавлять что-то или менять "параметры"
+    $sql =  'SELECT l.*, 
+                    cat.name category, 
+                    IFNULL(max(b.price), l.start_price) current_price,
+                    COUNT(b.id) as bets_count
+            FROM `lot` as l 
+            LEFT JOIN `stuff_category` as cat on l.category_id = cat.id
+            LEFT JOIN bet as b on l.id = b.lot_id
+            WHERE MATCH(l.name, l.description) AGAINST(?) AND 
+                    l.end_date IS NOT NULL AND 
+                    l.end_date > NOW() AND
+                    l.winner_id IS NULL
+            GROUP BY l.id
+            ORDER BY l.creation_date
+            LIMIT ?
+            OFFSET ?';
+
+    $result_data = db_fetch_data($con, $sql, $params);
+
+    return $result_data;
+}
+
+// ToDo
+// Неужели это единственный способ (кроме кэша) узнать кол-во лотов подходящих под поисковый запрос. 
+// Используется для пагинации.
+function get_lots_count_with_fulltext_search($con, $search_query)
+{
+    $sql =  'SELECT COUNT(*) as count_lots FROM 
+            (SELECT l.id
+            FROM `lot` as l 
+            LEFT JOIN `stuff_category` as cat on l.category_id = cat.id
+            LEFT JOIN bet as b on l.id = b.lot_id
+            WHERE MATCH(l.name, l.description) AGAINST(?) AND 
+                    l.end_date IS NOT NULL AND 
+                    l.end_date > NOW() AND
+                    l.winner_id IS NULL
+            GROUP BY l.id
+            ORDER BY l.creation_date) as help';
+
+    $result_data = db_fetch_data($con, $sql, [$search_query]); 
+
+    //return $result_data;
+    return ['result' => $result_data['result'][0]['count_lots'], 'error' => $result_data['error']];
 }

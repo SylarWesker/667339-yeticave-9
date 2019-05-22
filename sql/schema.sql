@@ -47,6 +47,10 @@ CREATE TABLE IF NOT EXISTS lot (
     FOREIGN KEY (category_id) REFERENCES stuff_category(id)
 );
 
+-- Добавление полнотекстного индекса для поиска лота по их названию и описанию.
+CREATE FULLTEXT INDEX lot_name_desc_search
+on lot(name, description)
+
 -- Таблица ставок.
 CREATE TABLE IF NOT EXISTS bet ( 
     id INT AUTO_INCREMENT PRIMARY KEY, 
@@ -61,4 +65,5 @@ CREATE TABLE IF NOT EXISTS bet (
     CONSTRAINT bet_lot_fk FOREIGN KEY (lot_id) REFERENCES lot(id) 
 );
 
+-- ToDo
 -- Добавить уникальный индекс на имя пользователя и его почту
