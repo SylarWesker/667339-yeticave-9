@@ -405,3 +405,44 @@ function get_lots_count_with_fulltext_search($con, $search_query)
     //return $result_data;
     return ['result' => $result_data['result'][0]['count_lots'], 'error' => $result_data['error']];
 }
+
+// Возвращает лоты без победителей на данный момент и пользователя чья ставка была последней.
+function get_lots_without_winners($con)
+{
+    // Не верно возвращает winner_id (b.user_id) - потому что надо брать id пользователя из ставок с максимальной ставкой по данному лоту
+    // $sql = 'SELECT l.id as lot_id, b.user_id as winner_id FROM `lot` l
+    //         LEFT JOIN `bet` b on l.id = b.lot_id
+    //         WHERE l.winner_id IS NULL AND
+    //         l.end_date < CURRENT_DATE() AND
+    //         b.user_id IS NOT NULL
+    //         GROUP BY l.id';
+
+    // Вроде даже как работает верно
+    // тут подощел с другого конца и джойню лоты к ставкам
+    // но есть подзапрос - не есть хорошо
+    $sql = 'SELECT l.id as lot_id, b1.user_id as winner_id, b1.price FROM `bet` b1
+            JOIN `lot` l on l.id = b1.lot_id 
+            WHERE price = (SELECT MAX(price) FROM `bet` b2 WHERE b1.lot_id = b2.lot_id) AND
+            l.winner_id IS NULL AND
+            l.end_date < CURRENT_DATE() AND
+            b1.user_id IS NOT NULL';
+
+    $result_data = db_fetch_data($con, $sql); 
+
+    return $result_data;
+}
+
+// $lot_winner - массив, где каждый элемент пара: id лота - id победителя
+function set_lots_winners($con, $lot_winner_arr)
+{
+    // Подготавливаем запрос.
+    $stmt = $con->prepare("UPDATE `lot` FROM winner_id = ? WHERE id=?");
+
+    // Выполняем все
+    foreach ($lot_winner_arr as $lot_winner) {
+        $stmt->bind_param('ii', $lot_winner['lot_id'], $lot_winner['winner_id']);
+        $stmt->execute();
+    }
+
+    $stmt->close();
+}

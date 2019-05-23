@@ -16,9 +16,14 @@ $errors = [];
 // Дата окончания торгов.
 // Это или сегодня полночь или сегодня 23.59.59
 
-// Пускай пока без времени. 
-$lots_without_winner = [];
+// Пускай пока без времени.
+$func_result = get_lots_without_winners($con);
+$lots_without_winner = func_result['data'];
 
-// SELECT * FROM `lot` WHERE 
-// winner_id IS NULL AND
-// end_date < CURRENT_DATE()
+// Обновляем победителей.
+set_lots_winners($con, $lots_without_winner);
+
+// Рассылаем письма
+foreach ($lots_without_winner as $lot_winner) {
+   
+}
