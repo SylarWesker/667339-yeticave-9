@@ -6,7 +6,9 @@ require_once('utils/db_helper.php');
 
 use yeticave\db\functions as db_func;
 
-if ($is_auth === 0) {
+$is_auth = is_auth();
+
+if (!$is_auth) {
     http_response_code(403);
     return;
 }
@@ -29,7 +31,7 @@ if ($func_result['error'] !== null) {
     print('Ошибка MySql при получении ставок: ' . $func_result['error']);  
 }
 
-$content = include_template('my-bets.php', ['bets' => $bets]);
+$content = include_template('my-bets.php', ['bets' => $bets, 'stuff_categories' => $stuff_categories]);
 
 $layout = include_template('layout.php', [ 'title' => $title_page,
                                            'content' => $content, 
