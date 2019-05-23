@@ -420,7 +420,7 @@ function get_lots_without_winners($con)
     // Вроде даже как работает верно
     // тут подощел с другого конца и джойню лоты к ставкам
     // но есть подзапрос - не есть хорошо
-    $sql = 'SELECT l.id as lot_id, b1.user_id as winner_id, b1.price FROM `bet` b1
+    $sql = 'SELECT l.id as lot_id, l.name as lot_name, b1.user_id as winner_id, b1.price FROM `bet` b1
             JOIN `lot` l on l.id = b1.lot_id 
             WHERE price = (SELECT MAX(price) FROM `bet` b2 WHERE b1.lot_id = b2.lot_id) AND
             l.winner_id IS NULL AND
@@ -445,4 +445,10 @@ function set_lots_winners($con, $lot_winner_arr)
     }
 
     $stmt->close();
+}
+
+// Возвращает данные победителей
+function get_winners_info($con, $winner_id_arr)
+{
+   // $sql =
 }
