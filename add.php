@@ -8,7 +8,7 @@ require_once('utils/db_helper.php');
 use yeticave\db\functions as db_func;
 
 // Если пользователь не авторизован, то показываем 403
-if (is_auth()) {
+if (!is_auth()) {
     http_response_code(403);
     return;
 }
