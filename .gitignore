@@ -10,4 +10,5 @@ vendor
 uploads/*
 !uploads/.gitkeep
 .vscode
+test.php
 #db_config.php
