@@ -59,11 +59,9 @@ function get_lots($con, $id_list = [])
     $sql_where_id_part = ' ';
     if (isset($id_list)) {
         if (count($id_list) != 0) {
-            // Этот кусок кода выполняется снова. функция?
-            $query_placeholders = array_fill(0,  count($id_list), '?');
-            $id_placeholders = implode(', ', $query_placeholders);
+            $placeholders = create_placeholders_for_prepared_query(count($id_list));
 
-            $sql_where_id_part = ' AND l.id IN (' . $id_placeholders . ') ';
+            $sql_where_id_part = ' AND l.id IN (' . $placeholders . ') ';
         }
     }
 
@@ -139,6 +137,8 @@ function get_lot_min_bet($con, $lot_id)
     return $result;
 }
 
+// ToDo
+// Использовать функцию filter или get_data_by_field
 // Возвращает id категории по ее названию.
 function get_category_id($con, $category_name)
 {
@@ -217,16 +217,16 @@ function add_user($con, $email, $user_name, $password, $contacts)
     $result_data = db_fetch_data($con, $sql, $params);
 
     $insert_id = mysqli_insert_id($con);
+    $inserted_user_id = $insert_id === 0 ? null : $insert_id;
 
-    return $insert_id ?? null;
+    return $inserted_user_id;
 }
 
 // Добавляет лот.
 // Возвращает id лота в случае успеха, NULL - если нет.
 function add_lot($con, $params) 
 {
-    $query_placeholders = array_fill(0,  count($params), '?');
-    $query_placeholders_str = implode(', ', $query_placeholders);
+    $placeholders = create_placeholders_for_prepared_query(count($params));
 
     $sql = 'INSERT INTO lot (author_id, 
                             name, 
@@ -236,7 +236,7 @@ function add_lot($con, $params)
                             step_bet, 
                             end_date, 
                             image_url) 
-            VALUES (' . $query_placeholders_str . ')';
+            VALUES (' . $placeholders . ')';
 
     // Порядок параметров важен!
     // - можно попробовать привязать параметры
@@ -247,29 +247,36 @@ function add_lot($con, $params)
     $result_data = db_fetch_data($con, $sql, $ordered_params);
 
     $insert_id = mysqli_insert_id($con);
-    $added_lot_id = $insert_id  === 0 ? NULL : $insert_id;
+    $added_lot_id = $insert_id === 0 ? null : $insert_id;
 
     return $added_lot_id;
 }
 
 function add_bet($con, $user_id, $lot_id, $bet_cost) 
 {
-    $params = [ $user_id, $lot_id, $bet_cost];
+    $params = [ $user_id, $lot_id, $bet_cost ];
 
-    $query_placeholders = array_fill(0, count($params), '?');
-    $query_placeholders_str = implode(', ', $query_placeholders);
+    $placeholders = create_placeholders_for_prepared_query(count($params));
 
-    $sql = 'INSERT INTO bet (user_id, 
-                            lot_id, 
-                            price) 
-            VALUES (' . $query_placeholders_str . ')';
+    $sql = 'INSERT INTO bet (user_id, lot_id, price) 
+            VALUES (?, ?, ?)';
 
     $result_data = db_fetch_data($con, $sql, $params);
 
     $insert_id = mysqli_insert_id($con);
-    $added_bet_id = $insert_id  === 0 ? NULL : $insert_id;
+    $added_bet_id = $insert_id === 0 ? null : $insert_id;
 
     return $added_bet_id;
+}
+
+// Вспомогательная функция
+// Формирует подстановочные знаки для параметров в подготовленных запросах.
+function create_placeholders_for_prepared_query($count, $placeholder = '?')
+{
+    $query_placeholders = array_fill(0, $count, '?');
+    $query_placeholders_str = implode(', ', $query_placeholders);
+
+    return $query_placeholders_str;
 }
 
 // Получить последнюю ошибку при работе с БД.
@@ -402,7 +409,6 @@ function get_lots_count_with_fulltext_search($con, $search_query)
 
     $result_data = db_fetch_data($con, $sql, [$search_query]); 
 
-    //return $result_data;
     return ['result' => $result_data['result'][0]['count_lots'], 'error' => $result_data['error']];
 }
 
@@ -418,13 +424,13 @@ function get_lots_without_winners($con)
     //         GROUP BY l.id';
 
     // Вроде даже как работает верно
-    // тут подощел с другого конца и джойню лоты к ставкам
+    // тут подошел с другого конца и джойню лоты к ставкам
     // но есть подзапрос - не есть хорошо
     $sql = 'SELECT l.id as lot_id, l.name as lot_name, b1.user_id as winner_id, b1.price FROM `bet` b1
             JOIN `lot` l on l.id = b1.lot_id 
             WHERE price = (SELECT MAX(price) FROM `bet` b2 WHERE b1.lot_id = b2.lot_id) AND
             l.winner_id IS NULL AND
-            l.end_date < CURRENT_DATE() AND
+            l.end_date <= CURRENT_DATE() AND
             b1.user_id IS NOT NULL';
 
     $result_data = db_fetch_data($con, $sql); 
@@ -447,8 +453,18 @@ function set_lots_winners($con, $lot_winner_arr)
     $stmt->close();
 }
 
-// Возвращает данные победителей
+// Возвращает данные победителей (имя и email)
 function get_winners_info($con, $winner_id_arr)
 {
-   // $sql =
+    $placeholders = create_placeholders_for_prepared_query(count($winner_id_arr));
+
+    // Тут подошла бы filter
+    // точнее ее нужно изменить, чтобы была возможность доставать не только все поля, но и определенные. 
+    $sql = 'SELECT name, email 
+            FROM `user` 
+            WHERE id in (' . $placeholders . ')';
+
+    $result_data = db_fetch_data($con, $sql, $winner_id_arr); 
+
+    return $result_data;
 }
