@@ -28,7 +28,7 @@ $errors[] = $func_result['error'];
 
 // Если нет победителей, то выполнять последующий код бессмыслено
 if (empty($lots_without_winner)) {
-  exit;
+  return;
 }
 
 // ToDo
