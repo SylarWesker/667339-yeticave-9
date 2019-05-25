@@ -21,6 +21,12 @@ $errors = [];
 // Пускай пока без времени.
 $func_result = get_lots_without_winners($con);
 $lots_without_winner = func_result['data'];
+$errors[] = func_result['error'];
+
+// Если нет победителей, то выполнять последующий код бессмыслено
+if (empty($lots_without_winner)) {
+  exit;
+}
 
 // ToDo
 // Проверить set_lots_winners. 
@@ -30,8 +36,10 @@ set_lots_winners($con, $lots_without_winner);
 // ToDo
 // Реализовать функцию get_winners_info
 // Получаем инфо победителя
-$winner_info = get_winners_info($con, [] );
-
+$winners_id = array_column($lots_without_winner, 'winner_id');
+$func_result = get_winners_info($con, $winners_id);
+$winner_info = func_result['data'];
+$errors[] = func_result['error'];
 
 // ToDo
 // Проверить отправку. 
@@ -46,12 +54,10 @@ $email_content_type = 'text/html';
 $email_subject = 'Ваша ставка победила';
 $sender_name = 'keks@phpdemo.ru';
 
-// Create the Transport
 $transport = (new Swift_SmtpTransport($email_server , $email_server_port))
   ->setUsername($sender_email)
   ->setPassword($sender_email_password);
 
-// Create the Mailer using your created Transport
 $mailer = new Swift_Mailer($transport);
 
 foreach ($winner_info as $info) {
@@ -63,20 +69,10 @@ foreach ($winner_info as $info) {
 
     $email_receiver = $info['email'];
 
-    // Create a message
     $message = (new Swift_Message($email_subject))
-    ->setFrom([$sender_email => $sender_name ])
-    ->setTo([$email_receiver => $info['user_name'] ])
-    ->setBody($email_text);
+      ->setFrom([$sender_email => $sender_name])
+      ->setTo([$email_receiver => $info['user_name']])
+      ->setBody($email_text, $email_content_type);
 
-    // Send the message
     $result = $mailer->send($message);
 }
-
-
-
-
-
-
-
-
