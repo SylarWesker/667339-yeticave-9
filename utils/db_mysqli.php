@@ -460,9 +460,10 @@ function get_winners_info($con, $winner_id_arr)
 
     // Тут подошла бы filter
     // точнее ее нужно изменить, чтобы была возможность доставать не только все поля, но и определенные. 
-    $sql = 'SELECT name, email 
-            FROM `user` 
-            WHERE id in (' . $placeholders . ')';
+    $sql = "SELECT u.name as 'user_name', u.email as 'user_email', l.name as 'lot_name', l.id as 'lot_id' 
+            FROM `user` u
+            LEFT JOIN `lot` l on l.winner_id = u.id
+            WHERE u.id in (" . $placeholders . ")";
 
     $result_data = db_fetch_data($con, $sql, $winner_id_arr); 
 
