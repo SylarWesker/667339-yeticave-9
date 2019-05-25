@@ -438,18 +438,24 @@ function get_lots_without_winners($con)
     return $result_data;
 }
 
+// ToDo
+// Тут на каждом шагу может быть ошибка. Добавить обработку ошибок
+
+// Устанавливает победителей у лотов.
 // $lot_winner - массив, где каждый элемент пара: id лота - id победителя
 function set_lots_winners($con, $lot_winner_arr)
 {
     // Подготавливаем запрос.
-    $stmt = $con->prepare("UPDATE `lot` FROM winner_id = ? WHERE id=?");
+    $stmt = $con->prepare("UPDATE `lot` SET winner_id = ? WHERE id = ?");
 
     // Выполняем все
     foreach ($lot_winner_arr as $lot_winner) {
-        $stmt->bind_param('ii', $lot_winner['lot_id'], $lot_winner['winner_id']);
+        $stmt->bind_param('ii', $lot_winner['winner_id'], $lot_winner['lot_id']);
         $stmt->execute();
     }
 
+    // ToDo
+    // если не получить подготовить запрос, то в $stmt будет false и при выполнении close ошибка будет
     $stmt->close();
 }
 

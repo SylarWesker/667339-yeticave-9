@@ -7,6 +7,10 @@ require_once('helpers.php');
 require_once('utils/utils.php');
 require_once('utils/db_helper.php');
 
+// ToDo
+// Подумать только ли здесь должен быть и запускаться скрипт определения победителя...
+require_once('getwinner.php');
+
 use yeticave\db\functions as db_func;
 
 $title = 'Главная';
