@@ -71,8 +71,7 @@ function get_lots($con, $id_list = [])
             FROM lot as l
             LEFT JOIN stuff_category as cat on l.category_id = cat.id
             LEFT JOIN bet as b on l.id = b.lot_id
-            WHERE l.end_date IS NOT NULL 
-            AND l.end_date > NOW() 
+            WHERE l.end_date > NOW() 
             AND l.winner_id IS NULL'
             . $sql_where_id_part .
             'GROUP BY l.id
