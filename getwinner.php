@@ -24,23 +24,27 @@ $lots_without_winner = $func_result['result'];
 
 // ToDo
 // Проверить места где использовал подобный код. нет смысла добавлять в массив null (ошибки может и не быть).
-$errors[] = $func_result['error'];
+if (!empty($func_result['error'])) {
+  $errors[] = $func_result['error'];
+}
 
 // Если нет победителей, то выполнять последующий код бессмыслено
 if (empty($lots_without_winner)) {
   return;
 }
 
-// ToDo
-// Мог в принципе и кого не обновить... функция должна возвращать список id пользователей, которых она обновила?
 // Обновляем победителей.
-db_func\set_lots_winners($con, $lots_without_winner);
+$func_result = db_func\set_lots_winners($con, $lots_without_winner);
+$winners_id = $func_result['result'];
 
 // Получаем инфо победителя
-$winners_id = array_column($lots_without_winner, 'winner_id');
+// $winners_id = array_column($lots_without_winner, 'winner_id');
 $func_result = db_func\get_winners_info($con, $winners_id);
 $winners_info = $func_result['result'];
-$errors[] = $func_result['error'];
+
+if (!empty($func_result['error'])) {
+  $errors[] = $func_result['error'];
+}
 
 // Рассылаем письма
 $sender_email = 'keks@phpdemo.ru';

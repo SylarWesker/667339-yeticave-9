@@ -448,25 +448,45 @@ function get_lots_without_winners($con)
     return $result_data;
 }
 
-// ToDo
-// Тут на каждом шагу может быть ошибка. Добавить обработку ошибок
-
 // Устанавливает победителей у лотов.
 // $lot_winner - массив, где каждый элемент пара: id лота - id победителя
 function set_lots_winners($con, $lot_winner_arr)
 {
+    $updated_id_winners = [];
+    $errors = [];
+
     // Подготавливаем запрос.
     $stmt = $con->prepare("UPDATE `lot` SET winner_id = ? WHERE id = ?");
+    if (!$stmt) {
+        $errors[] = 'Не удалось подготовить запрос обновления id победителя лота.';
+
+        return ['result' => $updated_id_winners, 'errors' => $errors];
+    }
 
     // Выполняем все
     foreach ($lot_winner_arr as $lot_winner) {
-        $stmt->bind_param('ii', $lot_winner['winner_id'], $lot_winner['lot_id']);
-        $stmt->execute();
+        $lot_id = $lot_winner['lot_id'];
+        $winner_id = $lot_winner['winner_id'];
+
+        $res = $stmt->bind_param('ii', $winner_id, $lot_id );
+
+        if (!$res) {
+            $errors[] = "Не удалось привязать параметры (lot_id = $lot_id, winner_id = $winner_id)";
+            continue;
+        } 
+
+        $res = $stmt->execute();
+
+        if ($res) {
+            $updated_id_winners[] = $winner_id;
+        } else {
+            $errors[] = "Не удалось выполнить обновление (lot_id = $lot_id, winner_id = $winner_id)";
+        }      
     }
 
-    // ToDo
-    // если не получить подготовить запрос, то в $stmt будет false и при выполнении close ошибка будет
     $stmt->close();
+
+    return ['result' => $updated_id_winners, 'errors' => $errors];
 }
 
 // Возвращает данные победителей (имя и email)
