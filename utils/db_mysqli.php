@@ -54,15 +54,28 @@ function get_stuff_categories($con)
 
 // Возвращает список лотов. 
 // $id_list - список лотов. Если ни одного не передано, то возвращаем все лоты.
-function get_lots($con, $id_list = [])
+// $show_active - показывать активные лоты? (активные это у которых не истекла дата окончания и пустой победитель)
+function get_lots($con, $id_list = [], $show_active = true)
 {
-    $sql_where_id_part = ' ';
-    if (isset($id_list)) {
-        if (count($id_list) != 0) {
-            $placeholders = create_placeholders_for_prepared_query(count($id_list));
+    $sql_where_id_part = '';
+    if (!empty($id_list)) {
+        $placeholders = create_placeholders_for_prepared_query(count($id_list));
 
-            $sql_where_id_part = ' AND l.id IN (' . $placeholders . ') ';
-        }
+        $sql_where_id_part = 'l.id IN (' . $placeholders . ')';
+    }
+    
+    $sql_active_lots_where_part = '';
+    if ($show_active) {
+        $sql_active_lots_where_part = 'l.end_date > NOW() 
+                                       AND l.winner_id IS NULL';
+    }
+
+    $parts = [ $sql_where_id_part, $sql_active_lots_where_part];
+    $parts = array_filter($parts, function($p) { if(!empty($p)) return $p; });
+    $sql_where_part = implode(' AND ', $parts);
+
+    if (!empty($sql_where_part)) {
+        $sql_where_part = ' WHERE ' . $sql_where_part . ' ';
     }
 
     $sql = 'SELECT  l.*,
@@ -70,11 +83,9 @@ function get_lots($con, $id_list = [])
                     IFNULL(max(b.price), l.start_price) current_price
             FROM lot as l
             LEFT JOIN stuff_category as cat on l.category_id = cat.id
-            LEFT JOIN bet as b on l.id = b.lot_id
-            WHERE l.end_date > NOW() 
-            AND l.winner_id IS NULL'
-            . $sql_where_id_part .
-            'GROUP BY l.id
+            LEFT JOIN bet as b on l.id = b.lot_id ' .
+            $sql_where_part .
+            ' GROUP BY l.id
             ORDER BY l.creation_date DESC'; 
             // зачем-то групировал по категории... (cat.name)
             // проверить. если не нужно, то убрать

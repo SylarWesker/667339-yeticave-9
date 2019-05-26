@@ -102,7 +102,7 @@ if (!empty($errors_lot['validation'])) {
                                            ]);
 } else {
     // Берем лот по id.
-    $func_result = db_func\get_lots($con, [ $lot_id ]);
+    $func_result = db_func\get_lots($con, [ $lot_id ], false);
     if (!empty($func_result['result'])) {
         $lot = $func_result['result'][0];
     }
@@ -114,7 +114,7 @@ if (!empty($errors_lot['validation'])) {
             $errors_lot['fatal'][] = 'Не найден лот с id = ' . $lot_id;
 
             show_404($errors_lot['fatal'], $stuff_categories, $is_auth, $user_name);
-            exit;
+            exit; // ToDo или retrun???
         } 
     }
 
@@ -199,10 +199,11 @@ function get_lot_page_content($lot, $con, $user_id, $is_auth, $stuff_categories,
                                             'lot' => $lot,
                                             'lot_min_price' => $lot_min_price,
                                             'is_auth' => $is_auth,
+                                            'user_id' => $user_id,
                                             'allow_add_bet' => $allow_add_bet,
                                             'bets_history' => $bets_history,
                                             'add_bet_errors' => $add_bet_errors
-                                            ]);
+    ]);
 
     return $content;
 }

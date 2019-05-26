@@ -290,9 +290,6 @@ function validate_form_data($form_data, $form_fields)
     {
         $field_value = $form_data[$field_name];
 
-        // var_dump($field_name);
-        // var_dump($field_value);
-
         $result_data = validate_form_field( $field_name, 
                                             $field_value, 
                                             $field_validate_data['error_messages'],
