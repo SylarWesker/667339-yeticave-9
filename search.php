@@ -27,6 +27,8 @@ if(isset($_GET['page'])) {
   if (is_numeric($page_param)) {
     $page_number = intval($page_param);
   }
+  // ToDo
+  // если page не число, то выводим ошибку?
 }
 
 if (isset($_GET['find'])) {
@@ -41,8 +43,7 @@ if (isset($_GET['find'])) {
   $errors['validation'] = $validation_result['errors'];
   $validated_data = $validation_result['data'];
 
-  // ToDo
-  // Валидация Поисковый запрос должен быть минимум 3 символа
+  // Валидация - Поисковый запрос должен быть минимум 3 символа
   if (strlen($validated_data['search']) < 3) {
     $errors['validation']['search'] = 'Поисковый запрос должен содержать минимум 3 символа.';
   }
@@ -62,6 +63,8 @@ if (isset($_GET['find'])) {
     // расчитываем смещение для запроса в зависимости от номера текущей страницы
     $lot_offset = ($page_number - 1) * $lots_limit;
 
+    // ToDo
+    // Нет смысла делать этот запрос если $count_lots = 0
     // Получаем лоты 
     $func_result = db_func\get_lots_by_fulltext_search($con, $search_query, $lots_limit, $lot_offset);
     $lots = $func_result['result'];
@@ -70,6 +73,9 @@ if (isset($_GET['find'])) {
     // $errors['fatal'][] = $func_result['error'];
   }
 }
+
+// ToDo
+// Если есть ошибки валидации, то обработать их!
 
 $content = include_template('search.php', [ 
                                             'search_query' => $search_query,
