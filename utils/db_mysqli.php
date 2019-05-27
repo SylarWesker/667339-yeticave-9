@@ -24,6 +24,9 @@ namespace yeticave\db\functions;
 // К предыдущему ToDo - обратить внимание что в запросах использую NOW(). now - возвращает текущую дату и время
 // CURRENT_DATE() - только текущую дату.
 
+// ToDo
+// Внимательно проверить все используемые JOIN (почему и зачем использую full, left, right)
+
 // Возвращает подключение к БД.
 function get_connection()
 {
@@ -98,7 +101,8 @@ function get_lots($con, $id_list = [], $show_active = true)
 // Возвращает ставки пользователя. 
 function get_bets($con, $user_id) 
 {
-    $sql = 'SELECT b.*, l.*, cat.name as category_name, u.contacts FROM `bet` as b 
+    $sql = 'SELECT b.*, l.*, cat.name as category_name, u.contacts 
+            FROM `bet` as b 
             JOIN `lot` as l on b.lot_id = l.id
             JOIN `stuff_category` as cat on l.category_id = cat.id
             JOIN `user` as u on l.author_id = u.id
@@ -113,7 +117,8 @@ function get_bets($con, $user_id)
 // Возвращает историю ставок по лоту.
 function get_bets_history($con, $lot_id)
 {
-    $sql = 'SELECT b.*, u.name FROM `bet` as b 
+    $sql = 'SELECT b.*, u.name 
+            FROM `bet` as b 
             JOIN `lot` as l on b.lot_id = l.id
             JOIN `user` as u on b.user_id = u.id
             WHERE l.id = ?
@@ -409,13 +414,13 @@ function get_lots_count_with_fulltext_search($con, $search_query)
     $sql =  'SELECT COUNT(*) as count_lots FROM 
             (SELECT l.id
             FROM `lot` as l 
-            LEFT JOIN `stuff_category` as cat on l.category_id = cat.id
-            LEFT JOIN bet as b on l.id = b.lot_id
             WHERE MATCH(l.name, l.description) AGAINST(?) AND
                 l.end_date > NOW() AND
                 l.winner_id IS NULL
             GROUP BY l.id
             ORDER BY l.creation_date) as help';
+            // LEFT JOIN `stuff_category` as cat on l.category_id = cat.id
+            // LEFT JOIN bet as b on l.id = b.lot_id
 
     $result_data = db_fetch_data($con, $sql, [$search_query]); 
 
@@ -514,13 +519,13 @@ function get_lots_count_by_category($con, $category_id)
     $sql = 'SELECT COUNT(*) as count_lots FROM 
             (SELECT l.id
             FROM `lot` as l 
-            LEFT JOIN `stuff_category` as cat on l.category_id = cat.id
-            LEFT JOIN bet as b on l.id = b.lot_id
-            WHERE cat.id = ? AND
+            WHERE l.category_id = ? AND
                   l.end_date > NOW() AND
                   l.winner_id IS NULL
             GROUP BY l.id
             ORDER BY l.creation_date) as help';
+            //  LEFT JOIN `stuff_category` as cat on l.category_id = cat.id
+            //  LEFT JOIN bet as b on l.id = b.lot_id
 
     $result_data = db_fetch_data($con, $sql, [$category_id]); 
 
