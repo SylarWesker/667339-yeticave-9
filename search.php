@@ -50,10 +50,6 @@ if (isset($_GET['find'])) {
   if (empty($errors['validation'])) {
     $search_query = $validated_data['search'];
 
-    // ToDo
-    // Подсчитать кол-во страниц всего.
-    // На этот момент только один вариант. Вызвать запрос из get_lots_by_fulltext_search без указания
-    // лимита и оффсета и получить от него COUNT(*)
     $func_result = db_func\get_lots_count_with_fulltext_search($con, $search_query);
     $count_lots = $func_result['result'];
 
@@ -79,7 +75,6 @@ $content = include_template('search.php', [
                                             'search_query' => $search_query,
                                             'lots' => $lots,
                                             'stuff_categories' => $stuff_categories,
-
                                             'min_page_number' => $min_page_number,
                                             'current_page' => $page_number,
                                             'max_page_number' => $max_page_number

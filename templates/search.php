@@ -2,15 +2,23 @@
 require_once('utils/utils.php');
 
 $date_now = new DateTime();
+$nothing_not_found_msg = 'Ничего не найдено по вашему запросу';
+
+$page_name = 'search.php';
+$url_params = [
+                'find' => 'Найти',
+                'search' => $search_query
+];
 
 $navigation = include_template('navigate.php', [ 'stuff_categories' => $stuff_categories ]);
 
-$nothing_not_found_msg = 'Ничего не найдено по вашему запросу';
-
-function get_search_href($search_text, $page) 
-{
-  return 'search.php?find=Найти&search=' . $search_text . '&page='. $page . '';
-}
+$pagination = include_template('pagination.php', [
+  'current_page'    => $current_page,
+  'min_page_number' => $min_page_number,
+  'max_page_number' => $max_page_number,
+  'page_name'       => $page_name,
+  'url_params'      => $url_params
+]);
 
 ?>
 
@@ -67,29 +75,8 @@ function get_search_href($search_text, $page)
       </ul>
     </section>
 
-    <!-- Что-то как-то уродливо ( 
-      плюс странно отображается страница если на странице 2 лота -->
-    <ul class="pagination-list">
-      <?php if($current_page !== $min_page_number): ?>
-        <li class="pagination-item pagination-item-prev"><a href="<?= get_search_href($search_query, $current_page - 1); ?>">Назад</a></li>
-      <?php else: ?>
-        <li class="pagination-item pagination-item-prev"><a href="#">Назад</a></li>
-      <?php endif; ?>
-
-      <?php for($page_number = $min_page_number; $page_number <= $max_page_number; $page_number++): ?>
-        <?php if($page_number === $current_page): ?>
-          <li class="pagination-item pagination-item-active"><a href="<?= get_search_href($search_query, $page_number); ?>"><?= $page_number; ?></a></li>
-        <?php else: ?>
-          <li class="pagination-item"><a href="<?= get_search_href($search_query, $page_number); ?>"><?= $page_number; ?></a></li>
-        <?php endif; ?>
-      <?php endfor; ?>
-
-      <?php if($current_page !== $max_page_number): ?>
-        <li class="pagination-item pagination-item-next"><a href="<?= get_search_href($search_query, $current_page + 1); ?>">Вперед</a></li>
-      <?php else: ?>
-        <li class="pagination-item pagination-item-next"><a href="#">Вперед</a></li>
-      <?php endif; ?>
-    </ul>
+    <!-- Пагинация -->
+    <?= $pagination ?>
   </div>
 </main>
 

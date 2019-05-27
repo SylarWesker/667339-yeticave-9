@@ -356,3 +356,13 @@ function show_404($errors, $categories, $is_auth, $user_name)
     
     print($layout);
 }
+
+// Использую в шаблоне пагинации.
+// $url_params - пары ключ - значение. 
+// ключ - название параметра, значение - его значение
+function get_href($page_name, $url_params)
+{
+  $result = $page_name . '?' . http_build_query($url_params);
+  
+  return $result;
+}
