@@ -54,7 +54,8 @@ if(isset($_GET['category_name'])) {
     }
 
     if (empty($errors['validation'])) {
-        $func_result = db_func\get_lots_count_by_category($con, $category_name);
+        // $func_result = db_func\get_lots_count_by_category($con, $category_name);
+        $func_result = db_func\get_lots_count_by_category($con, $category_id);
         $count_lots = $func_result['result']; // кол-во лотов всего по данной категории
     
         // ToDo
@@ -69,14 +70,15 @@ if(isset($_GET['category_name'])) {
         $lot_offset = ($page_number - 1) * $lots_limit;
 
         // Получаем лоты по категории
-        $func_result = db_func\get_lots_by_category($con, $category_name, $lots_limit, $lot_offset);
-        $lots_by_category  = $func_result['result'];
+        // $func_result = db_func\get_lots_by_category($con, $category_name, $lots_limit, $lot_offset);
+        $func_result = db_func\get_lots_by_category($con, $category_id, $lots_limit, $lot_offset);
+        $lots_by_category = $func_result['result'];
     }
     // ToDo
     // Если есть ошибки валидации, то обработать их!
   }
 
-  $content = include_template('search.php', [ 
+  $content = include_template('all-lots.php', [ 
                                                 'category_name' => $category_name,
                                                 'lots' => $lots_by_category,
                                                 'stuff_categories' => $stuff_categories,
