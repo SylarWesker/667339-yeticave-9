@@ -88,12 +88,6 @@ function format_price($number, $currency_symbol = '₽')
 
 function secure_data_for_sql_query($param)
 {
-    // Еще можно такой вариант попробовать.
-    // $functions = ['trim', 'strip_tags', 'addslashes'];
-    // foreach($functions as $func) {
-    //     $param = call_user_func($func, $param);
-    // }
-
     if (is_string($param)) {
         $param = trim($param);
         $param = strip_tags($param);
@@ -274,7 +268,8 @@ function validate_form_field($field_name, $field_value, $error_messages, $filter
         }
     }
 
-    return [ 'is_valid' => empty($error), 
+    return [ 
+             'is_valid' => empty($error), 
              'field_value' => $field_value,
              'error' => $error
            ];
@@ -290,10 +285,10 @@ function validate_form_data($form_data, $form_fields)
     {
         $field_value = $form_data[$field_name];
 
-        $result_data = validate_form_field( $field_name, 
-                                            $field_value, 
-                                            $field_validate_data['error_messages'],
-                                            $field_validate_data['filter_option'] ?? null);
+        $result_data = validate_form_field($field_name, 
+                                           $field_value, 
+                                           $field_validate_data['error_messages'],
+                                           $field_validate_data['filter_option'] ?? null);
 
         if ($result_data['is_valid']) {
             $validated_data[$field_name] = $result_data['field_value'];

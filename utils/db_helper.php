@@ -15,4 +15,6 @@ $con = db_func\get_connection();
 
 if ($con) {
     db_func\set_charset($con);
+} else {
+    die("Ошибка подключения: " . mysqli_connect_error());
 }
