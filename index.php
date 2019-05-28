@@ -1,6 +1,11 @@
 <?php
 
 // ToDo
+// - добавить в каждый сценарий
+// - добавить в каждый шаблон ???
+error_reporting(E_ALL);
+
+// ToDo
 // Проверить в файлах все require_once. Все ли они нужны.
 require_once('auth.php');
 require_once('helpers.php');

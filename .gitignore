@@ -11,4 +11,5 @@ uploads/*
 !uploads/.gitkeep
 .vscode
 test.php
+todo.txt
 #db_config.php
