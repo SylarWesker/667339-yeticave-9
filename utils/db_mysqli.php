@@ -207,7 +207,9 @@ function get_userdata_by_email($con, $email)
 {
     $user_data = get_data_by_field($con, 'user', 'email', $email, 1);
 
-    return ['error' => $user_data['error'], 'result' => $user_data['result'][0]];
+    $result = !empty($user_data['result']) ? $user_data['result'][0] : null;
+
+    return ['error' => $user_data['error'], 'result' => $result];
 }
 
 // Добавляет пользователя в БД.
