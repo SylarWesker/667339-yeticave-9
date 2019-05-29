@@ -7,8 +7,10 @@ require_once('utils/db_helper.php');
 
 use yeticave\db\functions as db_func;
 
+$is_auth = is_auth();
+
 // Если пользователь не авторизован, то показываем 403
-if (!is_auth()) {
+if (!$is_auth) {
     http_response_code(403);
     return;
 }
@@ -16,14 +18,24 @@ if (!is_auth()) {
 $title = 'Добавление лота';
 
 $accepted_mime_types = ['image/png', 'image/jpeg'];
-$errors = [];
+$errors = ['validation' => [], 'fatal' => []];
 $form_data = [];
+
+$stuff_categories = [];
+
+// Получение списка категорий.
+$func_result = db_func\get_stuff_categories($con);
+$stuff_categories = $func_result['result'] ?? [];
+
+if ($func_result['error'] !== null) {
+    $errors['fatal']['get_categories'] = 'Ошибка MySql при получении списка категорий: ' . $func_result['error'];  
+}
 
 // ToDo поддумать над валидацией в формате как в файлах sign-up.php и login.php
 // ToDo поработать над текстом ошибок.
 // Валидация данных формы.
 if (isset($_POST['submit'])) {
-    // Наименование (обязательное)
+    // Наименование
     $lot_name = NULL;
 
     if (isset($_POST['lot-name'])) {
@@ -34,7 +46,7 @@ if (isset($_POST['submit'])) {
 
         // не пустое должно быть.
         if (strlen($lot_name) === 0) {
-            $errors['lot-name'] = 'Введите название лота';
+            $errors['validation']['lot-name'] = 'Введите название лота';
         }
     }
 
@@ -51,22 +63,22 @@ if (isset($_POST['submit'])) {
         // Проверяем есть ли такая категория в БД.
         $lot_category_id = db_func\get_category_id($con, $lot_category);
 
-        if ($lot_category_id === NULL) {
-            $errors['category'] = 'Такой категории нет в БД!';
+        if (is_null($lot_category_id)) {
+            $errors['validation']['category'] = 'Такой категории нет в БД!';
         }
     }
 
-    // Описание (пускай будет необязательное)
+    // Описание
     $lot_description = NULL;
 
     if (isset($_POST['message'])) {
         $lot_description = $_POST['message'];
 
         $lot_description = secure_data_for_sql_query($lot_description);
-        $form_data['message'] = $lot_description;
+        $form_data['validation']['message'] = $lot_description;
     }
 
-    // Начальная цена (обязательное)
+    // Начальная цена
     $start_price = NULL;
 
     if (isset($_POST['lot-rate'])) {
@@ -80,14 +92,14 @@ if (isset($_POST['submit'])) {
             $start_price = intval($start_price);
 
             if ($start_price <= 0) {
-                $errors['lot-rate'] = 'Начальная цена должна быть больше нуля';
+                $errors['validation']['lot-rate'] = 'Начальная цена должна быть больше нуля';
             }
         } else {
-            $errors['lot-rate'] = 'Начальная цена должна быть числом';
+            $errors['validation']['lot-rate'] = 'Начальная цена должна быть числом';
         }
     }
 
-    // Шаг ставки (обязательное)
+    // Шаг ставки
     $step_bet = NULL;
 
     if (isset($_POST['lot-step'])) {
@@ -102,14 +114,14 @@ if (isset($_POST['submit'])) {
             $step_bet = intval($step_bet);
 
             if ($step_bet <= 0) {
-                $errors['lot-step'] = 'Шаг ставки должен быть больше нуля!';
+                $errors['validation']['lot-step'] = 'Шаг ставки должен быть больше нуля!';
             }
         } else {
-            $errors['lot-step'] = 'Шаг ставки должен быть числом!';
+            $errors['validation']['lot-step'] = 'Шаг ставки должен быть числом!';
         }
     }
  
-    // Дата окончания торгов (обязательное)
+    // Дата окончания торгов
     $lot_end_date = NULL;
 
     if (isset($_POST['lot-date'])) {
@@ -119,7 +131,7 @@ if (isset($_POST['submit'])) {
         $form_data['lot-date'] = $lot_end_date;
 
         if (!is_date_valid($lot_end_date)) {
-            $errors['lot-date'] = 'Дата должна быть в формате ГГГГ-ММ-ДД.';
+            $errors['validation']['lot-date'] = 'Дата должна быть в формате ГГГГ-ММ-ДД.';
         }
 
         // Проверка того что дата больше текущей хотя бы на один день.
@@ -129,7 +141,7 @@ if (isset($_POST['submit'])) {
         $date_diff = $date_now->diff($lot_end_date);
 
         if (!at_least_one_day_bigger($date_diff)) {
-            $errors['lot-date'] = 'Дата завершения торгов должна быть больше текущей даты хотя на 1 день!';
+            $errors['validation']['lot-date'] = 'Дата завершения торгов должна быть больше текущей даты хотя на 1 день!';
         }
     }
 
@@ -143,11 +155,11 @@ if (isset($_POST['submit'])) {
         $mime_type = mime_content_type($tmp_file_path);
 
         if (!in_array($mime_type, $accepted_mime_types)) {
-            $errors['lot-img'] = 'Недопустимый тип файла';
+            $errors['validation']['lot-img'] = 'Недопустимый тип файла';
         }
 
         // если все ок, то перещаем в папку uploads
-        if (!isset($errors['lot-img'])) {
+        if (!isset($errors['validation']['lot-img'])) {
             $extension = pathinfo($file_name , PATHINFO_EXTENSION);
 
             $uploads_dir = 'uploads';
@@ -162,16 +174,17 @@ if (isset($_POST['submit'])) {
     }
 
     // Если все ок, то добавляем в БД.
-    if (count($errors) === 0) {
-        $params = [ 'author_id' => $user_id, 
-                    'name' => $lot_name, 
-                    'category_id' => $lot_category_id, 
-                    'description' => $lot_description, 
-                    'start_price' => $start_price, 
-                    'step_bet' => $step_bet, 
-                    'end_date' => $lot_end_date->format('Y/m/d H:i:s'), 
-                    'image_url' => $relative_img_path
-                    ];
+    if (count($errors['validation']) === 0) {
+        $params = [ 
+                    'author_id'     => $user_id, 
+                    'name'          => $lot_name, 
+                    'category_id'   => $lot_category_id, 
+                    'description'   => $lot_description, 
+                    'start_price'   => $start_price, 
+                    'step_bet'      => $step_bet, 
+                    'end_date'      => $lot_end_date->format('Y/m/d H:i:s'), 
+                    'image_url'     => $relative_img_path
+        ];
 
         $added_lot_id = db_func\add_lot($con, $params);
 
@@ -198,27 +211,15 @@ if (isset($_POST['submit'])) {
     }
 }
 
-$stuff_categories = [];
-
-// Получение списка категорий.
-$func_result = db_func\get_stuff_categories($con);
-$stuff_categories = $func_result['result'] ?? [];
-
-if ($func_result['error'] !== null) {
-    // ToDo
-    // Это уже другой тип ошибок. Нужно будет писать в другой массив.
-    $errors['get_categories'] = 'Ошибка MySql при получении списка категорий: ' . $func_result['error'];  
-}
-
 $content = include_template('add-lot.php', [ 'stuff_categories' => $stuff_categories,
-                                             'errors' => $errors,
+                                             'errors' => $errors['validation'],
                                              'form_data' => $form_data
                                            ]);
 
 $layout = include_template('layout.php', [  'title' => $title,
                                             'content' => $content, 
                                             'stuff_categories' => $stuff_categories, 
-                                            'is_auth' => is_auth(), 
+                                            'is_auth' => $is_auth, 
                                             'user_name' => $user_name
                                             ]);
 
