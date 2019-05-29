@@ -131,7 +131,7 @@ function show_form_data($key, $form_data, $errors)
 {
   $result = '';
 
-  if(!isset($errors[$key]) && isset($form_data[$key])) {
+  if(isset($form_data[$key])) { // && !isset($errors[$key])
     $result = $form_data[$key];
   }
     

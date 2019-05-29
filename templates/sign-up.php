@@ -12,9 +12,9 @@ $navigation = include_template('navigate.php', [ 'stuff_categories' => $stuff_ca
 <main>
   <?= $navigation; ?>
 
-  <form class="form container <?php if($has_errors) echo $form_invalid_class; ?>" action="sign-up.php" method="post" autocomplete="off"> <!-- form--invalid -->
+  <form class="form container <?php if($has_errors) echo $form_invalid_class; ?>" action="sign-up.php" method="post" autocomplete="off">
     <h2>Регистрация нового аккаунта</h2>
-    <div class="form__item <?php if(isset($errors['email'])) echo $form_item_invalid_class; ?>"> <!-- form__item--invalid -->
+    <div class="form__item <?php if(isset($errors['email'])) echo $form_item_invalid_class; ?>">
       <label for="email">E-mail <sup>*</sup></label>
       <input id="email" type="text" name="email" placeholder="Введите e-mail" value="<?= show_form_data('email', $form_data, $errors); ?>">
       <span class="form__error"><?= show_error('email', $errors); ?></span>
@@ -34,6 +34,19 @@ $navigation = include_template('navigate.php', [ 'stuff_categories' => $stuff_ca
       <textarea id="message" name="message" placeholder="Напишите как с вами связаться"><?= show_form_data('message', $form_data, $errors); ?></textarea>
       <span class="form__error"><?= show_error('message', $errors); ?></span>
     </div>
+
+    <!-- Код добавлентя аватарки нужен? -->
+    <!-- <div class="form__item form__item--file <?php if(isset($errors['avatar'])) echo $form_item_invalid_class; ?>">
+      <label>Аватар <sup>*</sup></label>
+      <div class="form__input-file">
+        <input class="visually-hidden" type="file" id="avatar" name='avatar' value="">
+        <label for="avatar">
+          + Добавить
+        </label>
+      </div>
+      <span class="form__error"><?= show_error('avatar', $errors); ?></span>
+    </div> -->
+
     <span class="form__error form__error--bottom">Пожалуйста, исправьте ошибки в форме.</span>
     <button type="submit" name="submit" class="button">Зарегистрироваться</button>
     <a class="text-link" href="login.php">Уже есть аккаунт</a>
