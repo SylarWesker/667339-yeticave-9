@@ -293,6 +293,8 @@ function validate_form_data($form_data, $form_fields)
         if ($result_data['is_valid']) {
             $validated_data[$field_name] = $result_data['field_value'];
         } else {
+            $validated_data[$field_name] = null;
+            
             $errors[$field_name] = $result_data['error'];
         }
     }

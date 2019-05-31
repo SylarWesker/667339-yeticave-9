@@ -144,19 +144,15 @@ function get_lot_min_bet($con, $lot_id)
     return $result;
 }
 
-// ToDo
-// Использовать функцию filter или get_data_by_field
 // Возвращает id категории по ее названию.
 function get_category_id($con, $category_name)
 {
-    $sql = 'SELECT id FROM stuff_category WHERE name = ?'; // ToDo Limit 1 ?
+    $sql = 'SELECT id FROM stuff_category WHERE name = ? LIMIT 1';
     $result_data = db_fetch_data($con, $sql, [ $category_name ]);
 
     $result = null;
 
-    if ($result_data['error'] !== null) {
-        $result = null;
-    } else {
+    if (is_null($result_data['error'])) {
         $result = count($result_data['result']) > 0 ? $result_data['result'][0]['id'] : null;
     }
 
@@ -179,7 +175,7 @@ function filter($con, $table_name, $field_name, $field_value, $limit = null)
 
     $result = false;
 
-    if ($result_data['error'] !== NULL) {
+    if ($result_data['error'] !== null) {
         $result = false;
     } else {
         $result = !empty($result_data['result']);

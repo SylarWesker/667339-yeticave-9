@@ -20,6 +20,7 @@ $title = 'Добавление лота';
 $accepted_mime_types = ['image/png', 'image/jpeg'];
 $errors = ['validation' => [], 'fatal' => []];
 $form_data = [];
+$upload_dir = 'uploads'; // папка для загрузки файлов
 
 $stuff_categories = [];
 
@@ -31,122 +32,79 @@ if ($func_result['error'] !== null) {
     $errors['fatal']['get_categories'] = 'Ошибка MySql при получении списка категорий: ' . $func_result['error'];  
 }
 
-// ToDo поддумать над валидацией в формате как в файлах sign-up.php и login.php
 // ToDo поработать над текстом ошибок.
 // Валидация данных формы.
 if (isset($_POST['submit'])) {
-    // Наименование
-    $lot_name = NULL;
+    $form_fields = [
+        'lot-name' => [ 'error_messages' => ['zero_length' => 'Введите название лота']],
+        'category' => [ 'error_messages' => ['zero_length' => 'Не указана категория лота']],
+        'message'  => [ 'error_messages' => ['zero_length' => 'Введите описание лота']],
+        'lot-rate' => [ 'error_messages' => ['zero_length' => 'Введите начальную стоимость лота']],
+        'lot-step' => [ 'error_messages' => ['zero_length' => 'Введите шаг ставки']],
+        'lot-date' => [ 'error_messages' => ['zero_length' => 'Введите дату окончания торгов']],
+    ];
 
-    if (isset($_POST['lot-name'])) {
-        $lot_name = $_POST['lot-name'];
+    // Сбор данных с формы.
+    $form_data = get_form_data(array_keys($form_fields));
 
-        $lot_name = secure_data_for_sql_query($lot_name);
-        $form_data['lot-name'] = $lot_name;
+    // Валидация данных с формы.
+    $validation_result = validate_form_data($form_data, $form_fields);
 
-        // не пустое должно быть.
-        if (strlen($lot_name) === 0) {
-            $errors['validation']['lot-name'] = 'Введите название лота';
-        }
-    }
+    $errors['validation'] = $validation_result['errors'];
+    $validated_data = $validation_result['data'];
 
-    // Категория.
-    $lot_category = NULL;
-    $lot_category_id = NULL;
+    
+    $lot_name = $validated_data['lot-name']; // Наименование
+    $lot_description = $validated_data['message']; // Описание
+   
+    // Уникальные проверки.
+    // ------------------------------------------------------------------------------
+    $lot_category = $validated_data['category'];  // Категория.
 
-    if (isset($_POST['category'])) {
-        $lot_category = $_POST['category'];
+    // Проверяем есть ли такая категория в БД.
+    $lot_category_id = db_func\get_category_id($con, $lot_category);
 
-        $lot_category = secure_data_for_sql_query($lot_category);
-        $form_data['category'] = $lot_category;
-
-        // Проверяем есть ли такая категория в БД.
-        $lot_category_id = db_func\get_category_id($con, $lot_category);
-
-        if (is_null($lot_category_id)) {
-            $errors['validation']['category'] = 'Такой категории нет в БД!';
-        }
-    }
-
-    // Описание
-    $lot_description = NULL;
-
-    if (isset($_POST['message'])) {
-        $lot_description = $_POST['message'];
-
-        $lot_description = secure_data_for_sql_query($lot_description);
-        $form_data['validation']['message'] = $lot_description;
+    if (is_null($lot_category_id)) {
+        $errors['validation']['category'] = 'Категории $lot_category не существует!';
     }
 
     // Начальная цена
-    $start_price = NULL;
+    $start_price = $validated_data['lot-rate']; 
 
-    if (isset($_POST['lot-rate'])) {
-        $start_price = $_POST['lot-rate'];
+    $belong_zero_msg = 'Начальная цена должна быть больше нуля';
+    $not_number_msg = 'Начальная цена должна быть числом';
 
-        $start_price = secure_data_for_sql_query($start_price);
-        $form_data['lot-rate'] = $start_price;
-
-        // Будем считать, что может быть только целое число.
-        if (is_numeric($start_price)) {
-            $start_price = intval($start_price);
-
-            if ($start_price <= 0) {
-                $errors['validation']['lot-rate'] = 'Начальная цена должна быть больше нуля';
-            }
-        } else {
-            $errors['validation']['lot-rate'] = 'Начальная цена должна быть числом';
-        }
+    $func_result = validate_price($start_price, $belong_zero_msg, $not_number_msg);
+    if (!$func_result['is_valid']) {
+        $errors['validation']['lot-rate'] = $func_result['error'];
     }
 
     // Шаг ставки
-    $step_bet = NULL;
+    $step_bet = $validated_data['lot-step'];
 
-    if (isset($_POST['lot-step'])) {
-        $step_bet = $_POST['lot-step'];
+    $belong_zero_msg = 'Шаг ставки должен быть больше нуля';
+    $not_number_msg = 'Шаг ставки должен должна быть числом';
 
-        $step_bet = secure_data_for_sql_query($step_bet);
-        $form_data['lot-step'] = $step_bet;
-
-        if (is_numeric($step_bet)) {
-            // В ТЗ говорится, что шаг ставки должен быть целым числом. 
-            // Нужно ли проверять является ли целым?
-            $step_bet = intval($step_bet);
-
-            if ($step_bet <= 0) {
-                $errors['validation']['lot-step'] = 'Шаг ставки должен быть больше нуля!';
-            }
-        } else {
-            $errors['validation']['lot-step'] = 'Шаг ставки должен быть числом!';
-        }
+    $func_result = validate_price($step_bet, $belong_zero_msg, $not_number_msg);
+    if (!$func_result['is_valid']) {
+        $errors['validation']['lot-step'] = $func_result['error'];
     }
+
+    // ToDo
+    // В ТЗ говорится, что шаг ставки должен быть целым числом. 
+    // Нужно ли проверять является ли целым?
  
+
     // Дата окончания торгов
-    $lot_end_date = NULL;
+    $lot_end_date = $validated_data['lot-date'];
 
-    if (isset($_POST['lot-date'])) {
-        $lot_end_date = $_POST['lot-date'];
-
-        $lot_end_date = secure_data_for_sql_query($lot_end_date);
-        $form_data['lot-date'] = $lot_end_date;
-
-        if (!is_date_valid($lot_end_date)) {
-            $errors['validation']['lot-date'] = 'Дата должна быть в формате ГГГГ-ММ-ДД.';
-        }
-
-        // Проверка того что дата больше текущей хотя бы на один день.
-        $date_now = new DateTime();
-        $lot_end_date = new DateTime($lot_end_date);
-
-        $date_diff = $date_now->diff($lot_end_date);
-
-        if (!at_least_one_day_bigger($date_diff)) {
-            $errors['validation']['lot-date'] = 'Дата завершения торгов должна быть больше текущей даты хотя на 1 день!';
-        }
+    $func_result = validate_lot_end_date($lot_end_date);
+    if (!$func_result['is_valid']) {
+        $errors['validation']['lot-date'] = $func_result['error'];
     }
 
-    // Изображение лота (необязательный пока)
-    $relative_img_path = NULL;
+    // Изображение лота
+    $relative_img_path = null;
 
     if (isset($_FILES['lot-img']) && $_FILES['lot-img']['error'] === UPLOAD_ERR_OK) {
         $tmp_file_path = $_FILES['lot-img']['tmp_name'];
@@ -160,16 +118,9 @@ if (isset($_POST['submit'])) {
 
         // если все ок, то перещаем в папку uploads
         if (!isset($errors['validation']['lot-img'])) {
-            $extension = pathinfo($file_name , PATHINFO_EXTENSION);
+            $func_result = save_file_on_server($tmp_file_path, $file_name, $upload_dir);
 
-            $uploads_dir = 'uploads';
-            $uploads_path = __DIR__ . '/' . $uploads_dir;
-            $new_file_name = uniqid() . '.' . $extension;
-
-            $lot_img_path = $uploads_path . '/' . $new_file_name;
-            $relative_img_path = $uploads_dir . '/' . $new_file_name;
-
-            move_uploaded_file($tmp_file_path, $lot_img_path);
+            $relative_img_path = $uploads_dir . '/' . $func_result['new_file_name'];
         }
     }
 
@@ -182,31 +133,18 @@ if (isset($_POST['submit'])) {
                     'description'   => $lot_description, 
                     'start_price'   => $start_price, 
                     'step_bet'      => $step_bet, 
-                    'end_date'      => $lot_end_date->format('Y/m/d H:i:s'), 
+                    'end_date'      => $lot_end_date->format('Y/m/d 23:59:59'), 
                     'image_url'     => $relative_img_path
         ];
 
         $added_lot_id = db_func\add_lot($con, $params);
 
-        if ($added_lot_id !== NULL) {
+        if ($added_lot_id !== null) {
             $new_lot_url = 'lot.php?id=' . $added_lot_id;
 
             header('Location: ' . $new_lot_url);
         } else {
-            // ToDo
-            // Как обрабатывать эту ошибку?
-        }
-    } else {
-        // ToDo
-        // Обдумать этот механизм. Возможно некоторые данные даже не прошедшие проверку лучше все равно отправлять на форму. 
-
-        // Записываем данные формы (данные которые прошли проверку).
-        foreach($errors as $key => $value) {
-            // если есть ошибка по этому ключу, то
-            if (array_key_exists($key, $form_data)) {
-                // удаляем из массива с данными формы. 
-                unset($form_data[$key]);
-            }
+            $errors['fatal'] = 'Не удалось добавить лот.';
         }
     }
 }
@@ -224,3 +162,65 @@ $layout = include_template('layout.php', [  'title' => $title,
                                             ]);
 
 print($layout);
+
+// Функции
+
+// Валидация даты окончания торгов
+function validate_lot_end_date($end_date)
+{
+    $error_msg = '';
+
+    if (!is_date_valid($end_date)) {
+        $error_msg = 'Дата должна быть в формате ГГГГ-ММ-ДД.';
+    }
+
+    // Проверка того что дата больше текущей хотя бы на один день.
+    $date_now = new DateTime();
+    $lot_end_date = new DateTime($end_date);
+    $date_diff = $date_now->diff($end_date);
+
+    if (!at_least_one_day_bigger($date_diff)) {
+        $error_msg = 'Дата завершения торгов должна быть больше текущей даты хотя на 1 день!';
+    }
+
+    $is_valid = $error_msg === '';
+
+    return ['is_valid' => $is_valid, 'error' => $error_msg];
+}
+
+// Перемещение картинки в папку на сервере (постоянную папку)
+function save_file_on_server($tmp_file_path, $file_name, $uploads_dir)
+{
+    $extension = pathinfo($file_name, PATHINFO_EXTENSION);
+
+    $uploads_path = __DIR__ . '/' . $uploads_dir;
+    $new_file_name = uniqid() . '.' . $extension;
+
+    $new_file_path = $uploads_path . '/' . $new_file_name;
+
+    // ToDo чисто теоретически файл может не переместиться... 
+    // смогу ли обработать эту ошибку? и как?
+    move_uploaded_file($tmp_file_path, $new_file_path);
+
+    return ['new_file_name' => $new_file_name, 'new_file_path' => $new_file_path];
+}
+
+// Валидация цены
+function validate_price($price_value, $belong_zero_msg, $now_number_msg)
+{
+    $error_msg = '';
+
+    if (is_numeric($price_value)) {
+        $price_value = intval($price_value);
+
+        if ($price_value <= 0) {
+            $error_msg = $belong_zero_msg;
+        }
+    } else {
+        $error_msg = $now_number_msg;
+    }
+
+    $is_valid = $error_msg === '';
+
+    return ['is_valid' => $is_valid, 'error' => $error_msg];
+}
