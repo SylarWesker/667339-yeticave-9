@@ -4,8 +4,20 @@ namespace yeticave\db\functions;
 
 // ToDo
 // Разделить функции общей работы с БД и функции работы с конкретной БД (yeticave)
- // ToDo
- // Проверить все функции работы с БД на предмет поведения при ошибке (нет соединения, неверный sql запрос)
+
+// ToDo
+// Проверить все функции работы с БД на предмет поведения при ошибке (нет соединения, неверный sql запрос)
+
+// ToDo
+// Дата окончания аукциона - это 23:59:59 указанной даты 
+// Учесть и исправить.
+
+// ToDo
+// К предыдущему ToDo - обратить внимание что в запросах использую NOW(). now - возвращает текущую дату и время
+// CURRENT_DATE() - только текущую дату.
+
+// ToDo
+// Внимательно проверить все используемые JOIN (почему и зачем использую full, left, right)
 
 // Возвращает подключение к БД.
 function get_connection()
@@ -37,17 +49,28 @@ function get_stuff_categories($con)
 
 // Возвращает список лотов. 
 // $id_list - список лотов. Если ни одного не передано, то возвращаем все лоты.
-function get_lots($con, $id_list = [])
+// $show_active - показывать активные лоты? (активные это у которых не истекла дата окончания и пустой победитель)
+function get_lots($con, $id_list = [], $show_active = true)
 {
-    $sql_where_id_part = ' ';
-    if (isset($id_list)) {
-        if (count($id_list) != 0) {
-            // Этот кусок кода выполняется снова. функция?
-            $query_placeholders = array_fill(0,  count($id_list), '?');
-            $id_placeholders = implode(', ', $query_placeholders);
+    $sql_where_id_part = '';
+    if (!empty($id_list)) {
+        $placeholders = create_placeholders_for_prepared_query(count($id_list));
 
-            $sql_where_id_part = ' AND l.id IN (' . $id_placeholders . ') ';
-        }
+        $sql_where_id_part = 'l.id IN (' . $placeholders . ')';
+    }
+    
+    $sql_active_lots_where_part = '';
+    if ($show_active) {
+        $sql_active_lots_where_part = 'l.end_date > NOW() 
+                                       AND l.winner_id IS NULL';
+    }
+
+    $parts = [ $sql_where_id_part, $sql_active_lots_where_part];
+    $parts = array_filter($parts, function($p) { if(!empty($p)) return $p; });
+    $sql_where_part = implode(' AND ', $parts);
+
+    if (!empty($sql_where_part)) {
+        $sql_where_part = ' WHERE ' . $sql_where_part . ' ';
     }
 
     $sql = 'SELECT  l.*,
@@ -55,12 +78,9 @@ function get_lots($con, $id_list = [])
                     IFNULL(max(b.price), l.start_price) current_price
             FROM lot as l
             LEFT JOIN stuff_category as cat on l.category_id = cat.id
-            LEFT JOIN bet as b on l.id = b.lot_id
-            WHERE l.end_date IS NOT NULL 
-            AND l.end_date > NOW() 
-            AND l.winner_id IS NULL'
-            . $sql_where_id_part .
-            'GROUP BY l.id
+            LEFT JOIN bet as b on l.id = b.lot_id ' .
+            $sql_where_part .
+            ' GROUP BY l.id
             ORDER BY l.creation_date DESC'; 
             // зачем-то групировал по категории... (cat.name)
             // проверить. если не нужно, то убрать
@@ -73,7 +93,8 @@ function get_lots($con, $id_list = [])
 // Возвращает ставки пользователя. 
 function get_bets($con, $user_id) 
 {
-    $sql = 'SELECT b.*, l.*, cat.name as category_name, u.contacts FROM `bet` as b 
+    $sql = 'SELECT b.*, l.*, cat.name as category_name, u.contacts 
+            FROM `bet` as b 
             JOIN `lot` as l on b.lot_id = l.id
             JOIN `stuff_category` as cat on l.category_id = cat.id
             JOIN `user` as u on l.author_id = u.id
@@ -88,7 +109,8 @@ function get_bets($con, $user_id)
 // Возвращает историю ставок по лоту.
 function get_bets_history($con, $lot_id)
 {
-    $sql = 'SELECT b.*, u.name FROM `bet` as b 
+    $sql = 'SELECT b.*, u.name 
+            FROM `bet` as b 
             JOIN `lot` as l on b.lot_id = l.id
             JOIN `user` as u on b.user_id = u.id
             WHERE l.id = ?
@@ -125,15 +147,13 @@ function get_lot_min_bet($con, $lot_id)
 // Возвращает id категории по ее названию.
 function get_category_id($con, $category_name)
 {
-    $sql = 'SELECT id FROM stuff_category WHERE name = ?';
+    $sql = 'SELECT id FROM stuff_category WHERE name = ? LIMIT 1';
     $result_data = db_fetch_data($con, $sql, [ $category_name ]);
 
-    $result = false;
+    $result = null;
 
-    if ($result_data['error'] !== NULL) {
-        $result = false;
-    } else {
-        $result = count($result_data['result']) > 0 ? $result_data['result'][0]['id'] : NULL;
+    if (is_null($result_data['error'])) {
+        $result = count($result_data['result']) > 0 ? $result_data['result'][0]['id'] : null;
     }
 
     return $result;
@@ -155,7 +175,7 @@ function filter($con, $table_name, $field_name, $field_value, $limit = null)
 
     $result = false;
 
-    if ($result_data['error'] !== NULL) {
+    if ($result_data['error'] !== null) {
         $result = false;
     } else {
         $result = !empty($result_data['result']);
@@ -183,7 +203,9 @@ function get_userdata_by_email($con, $email)
 {
     $user_data = get_data_by_field($con, 'user', 'email', $email, 1);
 
-    return ['error' => $user_data['error'], 'result' => $user_data['result'][0]];
+    $result = !empty($user_data['result']) ? $user_data['result'][0] : null;
+
+    return ['error' => $user_data['error'], 'result' => $result];
 }
 
 // Добавляет пользователя в БД.
@@ -200,16 +222,16 @@ function add_user($con, $email, $user_name, $password, $contacts)
     $result_data = db_fetch_data($con, $sql, $params);
 
     $insert_id = mysqli_insert_id($con);
+    $inserted_user_id = $insert_id === 0 ? null : $insert_id;
 
-    return $insert_id ?? null;
+    return $inserted_user_id;
 }
 
 // Добавляет лот.
 // Возвращает id лота в случае успеха, NULL - если нет.
 function add_lot($con, $params) 
 {
-    $query_placeholders = array_fill(0,  count($params), '?');
-    $query_placeholders_str = implode(', ', $query_placeholders);
+    $placeholders = create_placeholders_for_prepared_query(count($params));
 
     $sql = 'INSERT INTO lot (author_id, 
                             name, 
@@ -219,7 +241,7 @@ function add_lot($con, $params)
                             step_bet, 
                             end_date, 
                             image_url) 
-            VALUES (' . $query_placeholders_str . ')';
+            VALUES (' . $placeholders . ')';
 
     // Порядок параметров важен!
     // - можно попробовать привязать параметры
@@ -230,29 +252,36 @@ function add_lot($con, $params)
     $result_data = db_fetch_data($con, $sql, $ordered_params);
 
     $insert_id = mysqli_insert_id($con);
-    $added_lot_id = $insert_id  === 0 ? NULL : $insert_id;
+    $added_lot_id = $insert_id === 0 ? null : $insert_id;
 
     return $added_lot_id;
 }
 
 function add_bet($con, $user_id, $lot_id, $bet_cost) 
 {
-    $params = [ $user_id, $lot_id, $bet_cost];
+    $params = [ $user_id, $lot_id, $bet_cost ];
 
-    $query_placeholders = array_fill(0, count($params), '?');
-    $query_placeholders_str = implode(', ', $query_placeholders);
+    $placeholders = create_placeholders_for_prepared_query(count($params));
 
-    $sql = 'INSERT INTO bet (user_id, 
-                            lot_id, 
-                            price) 
-            VALUES (' . $query_placeholders_str . ')';
+    $sql = 'INSERT INTO bet (user_id, lot_id, price) 
+            VALUES (?, ?, ?)';
 
     $result_data = db_fetch_data($con, $sql, $params);
 
     $insert_id = mysqli_insert_id($con);
-    $added_bet_id = $insert_id  === 0 ? NULL : $insert_id;
+    $added_bet_id = $insert_id === 0 ? null : $insert_id;
 
     return $added_bet_id;
+}
+
+// Вспомогательная функция
+// Формирует подстановочные знаки для параметров в подготовленных запросах.
+function create_placeholders_for_prepared_query($count, $placeholder = '?')
+{
+    $query_placeholders = array_fill(0, $count, '?');
+    $query_placeholders_str = implode(', ', $query_placeholders);
+
+    return $query_placeholders_str;
 }
 
 // Получить последнюю ошибку при работе с БД.
@@ -315,6 +344,10 @@ function db_get_prepare_stmt($link, $sql, $data = []) {
     return $stmt;
 }
 
+// ToDo
+// Разобраться и определится буду ли запоминать ошибки при работе с БД и пробрасывать их наверх
+// или просто буду die()
+
 // Вспомогательная функция получения записей.
 function db_fetch_data($link, $sql, $data = [])
 {
@@ -352,8 +385,7 @@ function get_lots_by_fulltext_search($con, $search_query, $limit, $offset)
             FROM `lot` as l 
             LEFT JOIN `stuff_category` as cat on l.category_id = cat.id
             LEFT JOIN bet as b on l.id = b.lot_id
-            WHERE MATCH(l.name, l.description) AGAINST(?) AND 
-                    l.end_date IS NOT NULL AND 
+            WHERE MATCH(l.name, l.description) AGAINST(?) AND
                     l.end_date > NOW() AND
                     l.winner_id IS NULL
             GROUP BY l.id
@@ -371,20 +403,198 @@ function get_lots_by_fulltext_search($con, $search_query, $limit, $offset)
 // Используется для пагинации.
 function get_lots_count_with_fulltext_search($con, $search_query)
 {
+    // ToDo
+    // Влияют ли join на кол-во записей??? если нет то убрать
     $sql =  'SELECT COUNT(*) as count_lots FROM 
             (SELECT l.id
             FROM `lot` as l 
-            LEFT JOIN `stuff_category` as cat on l.category_id = cat.id
-            LEFT JOIN bet as b on l.id = b.lot_id
-            WHERE MATCH(l.name, l.description) AGAINST(?) AND 
-                    l.end_date IS NOT NULL AND 
-                    l.end_date > NOW() AND
-                    l.winner_id IS NULL
+            WHERE MATCH(l.name, l.description) AGAINST(?) AND
+                l.end_date > NOW() AND
+                l.winner_id IS NULL
             GROUP BY l.id
             ORDER BY l.creation_date) as help';
+            // LEFT JOIN `stuff_category` as cat on l.category_id = cat.id
+            // LEFT JOIN bet as b on l.id = b.lot_id
 
     $result_data = db_fetch_data($con, $sql, [$search_query]); 
 
-    //return $result_data;
     return ['result' => $result_data['result'][0]['count_lots'], 'error' => $result_data['error']];
 }
+
+// Возвращает лоты без победителей на данный момент и пользователя чья ставка была последней.
+function get_lots_without_winners($con)
+{
+    // Не верно возвращает winner_id (b.user_id) - потому что надо брать id пользователя из ставок с максимальной ставкой по данному лоту
+    // $sql = 'SELECT l.id as lot_id, b.user_id as winner_id FROM `lot` l
+    //         LEFT JOIN `bet` b on l.id = b.lot_id
+    //         WHERE l.winner_id IS NULL AND
+    //         l.end_date < CURRENT_DATE() AND
+    //         b.user_id IS NOT NULL
+    //         GROUP BY l.id';
+
+    // Вроде даже как работает верно
+    // тут подошел с другого конца и джойню лоты к ставкам
+    // но есть подзапрос - не есть хорошо
+    $sql = 'SELECT l.id as lot_id, l.name as lot_name, b1.user_id as winner_id, b1.price FROM `bet` b1
+            JOIN `lot` l on l.id = b1.lot_id 
+            WHERE price = (SELECT MAX(price) FROM `bet` b2 WHERE b1.lot_id = b2.lot_id) AND
+            l.winner_id IS NULL AND
+            l.end_date <= CURRENT_DATE() AND
+            b1.user_id IS NOT NULL';
+
+    $result_data = db_fetch_data($con, $sql); 
+
+    return $result_data;
+}
+
+// Устанавливает победителей у лотов.
+// $lot_winner - массив, где каждый элемент пара: id лота - id победителя
+function set_lots_winners($con, $lot_winner_arr)
+{
+    $updated_id_winners = [];
+    $errors = [];
+
+    // Подготавливаем запрос.
+    $stmt = $con->prepare("UPDATE `lot` SET winner_id = ? WHERE id = ?");
+    if (!$stmt) {
+        $errors[] = 'Не удалось подготовить запрос обновления id победителя лота.';
+
+        return ['result' => $updated_id_winners, 'errors' => $errors];
+    }
+
+    // Выполняем все
+    foreach ($lot_winner_arr as $lot_winner) {
+        $lot_id = $lot_winner['lot_id'];
+        $winner_id = $lot_winner['winner_id'];
+
+        $res = $stmt->bind_param('ii', $winner_id, $lot_id );
+
+        if (!$res) {
+            $errors[] = "Не удалось привязать параметры (lot_id = $lot_id, winner_id = $winner_id)";
+            continue;
+        } 
+
+        $res = $stmt->execute();
+
+        if ($res) {
+            $updated_id_winners[] = $winner_id;
+        } else {
+            $errors[] = "Не удалось выполнить обновление (lot_id = $lot_id, winner_id = $winner_id)";
+        }      
+    }
+
+    $stmt->close();
+
+    return ['result' => $updated_id_winners, 'errors' => $errors];
+}
+
+// Возвращает данные победителей (имя и email)
+function get_winners_info($con, $winner_id_arr)
+{
+    $placeholders = create_placeholders_for_prepared_query(count($winner_id_arr));
+
+    // Тут подошла бы filter
+    // точнее ее нужно изменить, чтобы была возможность доставать не только все поля, но и определенные. 
+    $sql = "SELECT u.name as 'user_name', u.email as 'user_email', l.name as 'lot_name', l.id as 'lot_id' 
+            FROM `user` u
+            LEFT JOIN `lot` l on l.winner_id = u.id
+            WHERE u.id in (" . $placeholders . ")";
+
+    $result_data = db_fetch_data($con, $sql, $winner_id_arr); 
+
+    return $result_data;
+}
+
+// Кол-во лотов всего в определенной категории
+function get_lots_count_by_category($con, $category_id)
+{
+    // ToDo
+    // Если join не влияет на кол-в записей, то убрать
+    $sql = 'SELECT COUNT(*) as count_lots FROM 
+            (SELECT l.id
+            FROM `lot` as l 
+            WHERE l.category_id = ? AND
+                  l.end_date > NOW() AND
+                  l.winner_id IS NULL
+            GROUP BY l.id
+            ORDER BY l.creation_date) as help';
+            //  LEFT JOIN `stuff_category` as cat on l.category_id = cat.id
+            //  LEFT JOIN bet as b on l.id = b.lot_id
+
+    $result_data = db_fetch_data($con, $sql, [$category_id]); 
+
+    return ['result' => $result_data['result'][0]['count_lots'], 'error' => $result_data['error']];
+}
+
+// Возвращает лоты определеной категории
+function get_lots_by_category($con, $category_id, $limit, $offset)
+{
+    $params = [$category_id, $limit, $offset];
+
+    // ToDo
+    // практически тот же запрос, что используется для search.php
+    $sql =  'SELECT l.*, 
+                    cat.name category, 
+                    IFNULL(max(b.price), l.start_price) current_price,
+                    COUNT(b.id) as bets_count
+            FROM `lot` as l 
+            LEFT JOIN `stuff_category` as cat on l.category_id = cat.id
+            LEFT JOIN bet as b on l.id = b.lot_id
+            WHERE cat.id = ? AND
+                  l.end_date > NOW() AND
+                  l.winner_id IS NULL
+            GROUP BY l.id
+            ORDER BY l.creation_date
+            LIMIT ?
+            OFFSET ?';
+
+    $result_data = db_fetch_data($con, $sql, $params);
+
+    return $result_data;
+}
+
+// Кол-во лотов всего в определенной категории
+// function get_lots_count_by_category($con, $category_name)
+// {
+//     $sql = 'SELECT COUNT(*) as count_lots FROM 
+//             (SELECT l.id
+//             FROM `lot` as l 
+//             LEFT JOIN `stuff_category` as cat on l.category_id = cat.id
+//             LEFT JOIN bet as b on l.id = b.lot_id
+//             WHERE cat.name = ? AND
+//                 l.end_date > NOW() AND
+//                 l.winner_id IS NULL
+//             GROUP BY l.id
+//             ORDER BY l.creation_date) as help';
+
+//     $result_data = db_fetch_data($con, $sql, [$category_name]); 
+
+//     return ['result' => $result_data['result'][0]['count_lots'], 'error' => $result_data['error']];
+// }
+
+// // Возвращает лоты определеной категории
+// function get_lots_by_category($con, $category_name, $limit, $offset)
+// {
+//     $params = [$category_name, $limit, $offset];
+
+//     // ToDo
+//     // практически тот же запрос, что используется для search.php
+//     $sql =  'SELECT l.*, 
+//                     cat.name category, 
+//                     IFNULL(max(b.price), l.start_price) current_price,
+//                     COUNT(b.id) as bets_count
+//             FROM `lot` as l 
+//             LEFT JOIN `stuff_category` as cat on l.category_id = cat.id
+//             LEFT JOIN bet as b on l.id = b.lot_id
+//             WHERE cat.name = ? AND
+//                   l.end_date > NOW() AND
+//                   l.winner_id IS NULL
+//             GROUP BY l.id
+//             ORDER BY l.creation_date
+//             LIMIT ?
+//             OFFSET ?';
+
+//     $result_data = db_fetch_data($con, $sql, $params);
+
+//     return $result_data;
+// }

@@ -88,12 +88,6 @@ function format_price($number, $currency_symbol = '₽')
 
 function secure_data_for_sql_query($param)
 {
-    // Еще можно такой вариант попробовать.
-    // $functions = ['trim', 'strip_tags', 'addslashes'];
-    // foreach($functions as $func) {
-    //     $param = call_user_func($func, $param);
-    // }
-
     if (is_string($param)) {
         $param = trim($param);
         $param = strip_tags($param);
@@ -137,7 +131,7 @@ function show_form_data($key, $form_data, $errors)
 {
   $result = '';
 
-  if(!isset($errors[$key]) && isset($form_data[$key])) {
+  if(isset($form_data[$key])) { // && !isset($errors[$key])
     $result = $form_data[$key];
   }
     
@@ -274,7 +268,8 @@ function validate_form_field($field_name, $field_value, $error_messages, $filter
         }
     }
 
-    return [ 'is_valid' => empty($error), 
+    return [ 
+             'is_valid' => empty($error), 
              'field_value' => $field_value,
              'error' => $error
            ];
@@ -290,17 +285,16 @@ function validate_form_data($form_data, $form_fields)
     {
         $field_value = $form_data[$field_name];
 
-        // var_dump($field_name);
-        // var_dump($field_value);
-
-        $result_data = validate_form_field( $field_name, 
-                                            $field_value, 
-                                            $field_validate_data['error_messages'],
-                                            $field_validate_data['filter_option'] ?? null);
+        $result_data = validate_form_field($field_name, 
+                                           $field_value, 
+                                           $field_validate_data['error_messages'],
+                                           $field_validate_data['filter_option'] ?? null);
 
         if ($result_data['is_valid']) {
             $validated_data[$field_name] = $result_data['field_value'];
         } else {
+            $validated_data[$field_name] = null;
+            
             $errors[$field_name] = $result_data['error'];
         }
     }
@@ -358,4 +352,14 @@ function show_404($errors, $categories, $is_auth, $user_name)
                                              ]);
     
     print($layout);
+}
+
+// Использую в шаблоне пагинации.
+// $url_params - пары ключ - значение. 
+// ключ - название параметра, значение - его значение
+function get_href($page_name, $url_params)
+{
+  $result = $page_name . '?' . http_build_query($url_params);
+  
+  return $result;
 }

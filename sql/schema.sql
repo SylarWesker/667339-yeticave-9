@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS lot (
     creation_date DATETIME DEFAULT CURRENT_TIMESTAMP,
     image_url VARCHAR(255),
     start_price DOUBLE NOT NULL,
-    end_date DATETIME, -- дата завершения "действия лота"
+    end_date DATETIME NOT NULL, -- дата завершения "действия лота"
     step_bet DOUBLE DEFAULT '0.0000',  -- шаг ставки
    
     author_id INT NOT NULL, -- id пользователя, создавшего лот
@@ -64,6 +64,3 @@ CREATE TABLE IF NOT EXISTS bet (
     lot_id INT, 
     CONSTRAINT bet_lot_fk FOREIGN KEY (lot_id) REFERENCES lot(id) 
 );
-
--- ToDo
--- Добавить уникальный индекс на имя пользователя и его почту

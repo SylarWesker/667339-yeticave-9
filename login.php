@@ -82,16 +82,18 @@ function login_user($con, $email, $password)
     $errors = [ 'validation' => [], 'fatal' => [] ];
     $error_msg = 'Неверный логин и/или пароль.';
 
-    $user_data = db_func\get_userdata_by_email($con, $email);
+    $func_result = db_func\get_userdata_by_email($con, $email);
+    $user_data = $func_result['result'];
+    $func_error = $func_result['error'];
 
-    if (empty($user_data['error'])) {
-        $password_from_db = $user_data['result']['password'];
+    if (!is_null($user_data) && empty($func_error)) {
+        $password_from_db = $user_data['password'];
 
         $password_correct = password_verify($password, $password_from_db);
 
         if ($password_correct) {
-            $user_name = $user_data['result']['name'];
-            $user_id = $user_data['result']['id'];
+            $user_name = $user_data['name'];
+            $user_id = $user_data['id'];
 
             // Сохраняем данные пользователя в сессии.
             save_user_data($user_name, $user_id);

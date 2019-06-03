@@ -26,14 +26,20 @@ $navigation = include_template('navigate.php', [ 'stuff_categories' => $stuff_ca
         </div>
         <div class="lot-item__right">
           <div class="lot-item__state" <?php if(!$is_auth) echo 'hidden'; ?> >
-            <?php if(is_equal_or_less_hour_beetween_dates($lot['end_date'], $date_now)) : ?>
-                <div class="lot__timer timer timer--finishing">
+            <?php if($lot['winner_id'] === $user_id): ?>
+                <div class="lot__timer timer--win">Ставка выиграла</div>
+            <?php elseif ($lot['end_date'] >= $date_now): ?>
+                <div class="lot__timer timer--end">Торги окончены</div>
             <?php else: ?>
-                <div class="lot__timer timer">
-            <?php endif; ?>
+                <?php if(is_equal_or_less_hour_beetween_dates($lot['end_date'], $date_now)) : ?>
+                  <div class="lot__timer timer timer--finishing">
+                <?php else: ?>
+                  <div class="lot__timer timer">
+                <?php endif; ?>
 
-              <?= time_to_lot_end_format($lot['end_date'], $date_now); ?>
-            </div>
+                    <?= time_to_lot_end_format($lot['end_date'], $date_now); ?>
+                  </div>
+            <?php endif; ?>
 
             <div class="lot-item__cost-state">
               <div class="lot-item__rate">

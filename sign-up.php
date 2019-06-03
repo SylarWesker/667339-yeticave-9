@@ -23,9 +23,7 @@ if ($func_result['error'] !== null) {
 
 // Если отправлена форма. 
 if (isset($_POST['submit'])) {
-    // Имена полей, которые будем валидировать. и вспомогательный данные.
-    // ToDo
-    // не слишком ли сложная структура данных? 
+    // Имена полей, которые будем валидировать + вспомогательный данные для валидации
     $form_fields = [ 'email' => [
                                  'filter_option' => FILTER_VALIDATE_EMAIL, 
                                  'error_messages' => [ 
@@ -47,14 +45,14 @@ if (isset($_POST['submit'])) {
     $errors['validation'] = $validation_result['errors'];
     $validated_data = $validation_result['data'];
 
-    // Если нет ошибок валидации, то
+    // Если нет ошибок валидации
     if (count($errors['validation']) === 0) {
-        // Добавляем пользователя в БД.
         $email      = $validated_data['email'];
         $user_name  = $validated_data['name'];
         $password   = $validated_data['password'];
         $contacts   = $validated_data['message'];
 
+        // Добавляем пользователя в БД.
         $added_user = register_user($con, $email, $user_name, $password, $contacts);
 
         $no_errors = empty($added_user['errors']['validation']) &&
@@ -62,7 +60,7 @@ if (isset($_POST['submit'])) {
 
         // Редирект на страницу авторизации.
         if ($no_errors) {
-            $login_page = 'pages/login.php';
+            $login_page = 'login.php';
 
             header('Location: ' . $login_page);
         } else {
