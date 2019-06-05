@@ -553,6 +553,26 @@ function get_lots_by_category($con, $category_id, $limit, $offset)
     return $result_data;
 }
 
+// Возвращает id пользователя сделавшего последнюю ставку.
+function get_last_bet_user_id($con, $lot_id)
+{
+    $sql = 'SELECT b.user_id
+            FROM `bet` as b
+            JOIN `lot` as l on b.lot_id = l.id
+            WHERE l.id = ?
+            ORDER BY b.create_date DESC
+            LIMIT 1';
+    
+    $result_data = db_fetch_data($con, $sql, [ $lot_id ]);
+
+    $user_id = null;
+    if (!empty($result_data['result'])) {
+        $user_id = $result_data['result'][0]['user_id'];
+    }
+
+    return [ 'error' => $result_data['error'], 'result' => $user_id ];
+}
+
 // Кол-во лотов всего в определенной категории
 // function get_lots_count_by_category($con, $category_name)
 // {

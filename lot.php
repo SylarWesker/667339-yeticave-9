@@ -2,12 +2,6 @@
 
 error_reporting(E_ALL);
 
-// ToDo
-// Ошибка
-// В данный момент эта страница показывает лоты у которых дата окончания не больше текущей даты и нет победителя
-// НО !!! по идее ее должен видеть человек создавший лот и 
-// ТОЧНО должен видеть человек выигравший аукцион (ему в письме приходит ссылка)
-
 require_once('auth.php');
 require_once('helpers.php');
 require_once('utils/utils.php');
@@ -116,7 +110,7 @@ if (!empty($errors_lot['validation'])) {
             $errors_lot['fatal'][] = 'Не найден лот с id = ' . $lot_id;
 
             show_404($errors_lot['fatal'], $stuff_categories, $is_auth, $user_name);
-            exit; // ToDo или retrun???
+            return;
         } 
     }
 
@@ -166,7 +160,7 @@ function is_allow_add_bet($is_auth, $user_id, $lot_author_id, $lot_end_date, $la
     return $allow_add_bet;
 }
 
-// 
+// Возвращает контент страницы лота.
 function get_lot_page_content($lot, $con, $user_id, $is_auth, $stuff_categories, $add_bet_errors)
 {
     $lot_id = $lot['id'];
@@ -185,13 +179,10 @@ function get_lot_page_content($lot, $con, $user_id, $is_auth, $stuff_categories,
     }
 
     // Последняя ставка была сделана текущим пользователем?
-    // $bets_history[0] - использую в качестве последней ставки т.к сортирую их по дате (сначала новые).
-    // ToDo
-    // в целом это слабое место. надежнее сделать отдельный запрос с логикой получения последней ставки.
-    $last_bet_user_id = null;
-    if (count($bets_history) !== 0) {
-        $last_bet_user_id = $bets_history[0]['user_id'];
-    } 
+    // $bets_history[0] - мог бы использовать в качестве последней ставки т.к сортирую их по дате (сначала новые).
+    // но решил использовать отдельный запрос (не очень оптимально, но логичнее)
+    $func_result = db_func\get_last_bet_user_id($con, $lot_id);
+    $last_bet_user_id = $func_result['result'];
 
     // Можно ли делать ставку на этот лот текущему пользователю.
     $allow_add_bet = is_allow_add_bet($is_auth, $user_id, $lot['author_id'], $lot['end_date'], $last_bet_user_id);
