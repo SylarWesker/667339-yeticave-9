@@ -60,15 +60,16 @@ if(isset($_GET['category_name'])) {
         $count_lots = $func_result['result']; // кол-во лотов всего по данной категории
     
         $max_page_number = get_max_page_number($lots_limit, $count_lots );
-    
         $page_number = correct_page_number($page_number, $max_page_number);
 
-        // расчитываем смещение для запроса в зависимости от номера текущей страницы
-        $lot_offset = ($page_number - 1) * $lots_limit;
+        if ($count_lots > 0) {
+          // расчитываем смещение для запроса в зависимости от номера текущей страницы
+          $lot_offset = ($page_number - 1) * $lots_limit;
 
-        // Получаем лоты по категории
-        $func_result = db_func\get_lots_by_category($con, $category_id, $lots_limit, $lot_offset);
-        $lots_by_category = $func_result['result'];
+          // Получаем лоты по категории
+          $func_result = db_func\get_lots_by_category($con, $category_id, $lots_limit, $lot_offset);
+          $lots_by_category = $func_result['result'];
+        }
     }
     // ToDo
     // Если есть ошибки валидации, то обработать их!

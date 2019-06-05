@@ -29,8 +29,6 @@ if(isset($_GET['page'])) {
   if (is_numeric($page_param)) {
     $page_number = intval($page_param);
   }
-  // ToDo
-  // если page не число, то выводим ошибку?
 }
 
 if (isset($_GET['find'])) {
@@ -56,21 +54,18 @@ if (isset($_GET['find'])) {
     $func_result = db_func\get_lots_count_with_fulltext_search($con, $search_query);
     $count_lots = $func_result['result'];
 
-    $max_page_number = get_max_page_number($lots_limit, $count_lots );
-    
+    $max_page_number = get_max_page_number($lots_limit, $count_lots);
     $page_number = correct_page_number($page_number, $max_page_number);
 
-    // расчитываем смещение для запроса в зависимости от номера текущей страницы
-    $lot_offset = ($page_number - 1) * $lots_limit;
-
-    // ToDo
     // Нет смысла делать этот запрос если $count_lots = 0
-    // Получаем лоты 
-    $func_result = db_func\get_lots_by_fulltext_search($con, $search_query, $lots_limit, $lot_offset);
-    $lots = $func_result['result'];
+    if ($count_lots > 0) {
+      // расчитываем смещение для запроса в зависимости от номера текущей страницы
+      $lot_offset = ($page_number - 1) * $lots_limit;
 
-    // ToDo подумать над записью ошибок
-    // $errors['fatal'][] = $func_result['error'];
+      // Получаем лоты 
+      $func_result = db_func\get_lots_by_fulltext_search($con, $search_query, $lots_limit, $lot_offset);
+      $lots = $func_result['result'];
+    }
   }
 }
 
@@ -78,21 +73,21 @@ if (isset($_GET['find'])) {
 // Если есть ошибки валидации, то обработать их!
 
 $content = include_template('search.php', [ 
-                                            'search_query' => $search_query,
-                                            'lots' => $lots,
-                                            'stuff_categories' => $stuff_categories,
-                                            'min_page_number' => $min_page_number,
-                                            'current_page' => $page_number,
-                                            'max_page_number' => $max_page_number
+                                            'search_query'      => $search_query,
+                                            'lots'              => $lots,
+                                            'stuff_categories'  => $stuff_categories,
+                                            'min_page_number'   => $min_page_number,
+                                            'current_page'      => $page_number,
+                                            'max_page_number'   => $max_page_number
                                           ]);
 
 $layout = include_template('layout.php', [
-                                            'title' => $title, 
-                                            'content' => $content, 
-                                            'stuff_categories' => $stuff_categories, 
-                                            'is_auth' => is_auth(), 
-                                            'user_name' => $user_name,
-                                            'search_query' => $search_query
+                                            'title'             => $title, 
+                                            'content'           => $content, 
+                                            'stuff_categories'  => $stuff_categories, 
+                                            'is_auth'           => is_auth(), 
+                                            'user_name'         => $user_name,
+                                            'search_query'      => $search_query
                                          ]);
 
 print($layout);
