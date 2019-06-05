@@ -122,6 +122,7 @@ if (isset($_POST['submit'])) {
 
     // Если все ок, то добавляем в БД.
     if (count($errors['validation']) === 0) {
+        // Дата окончания аукциона - это выбранная дата + время равное 23.59.59
         $params = [ 
                     'author_id'     => $user_id, 
                     'name'          => $lot_name, 

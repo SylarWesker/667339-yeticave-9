@@ -2,6 +2,14 @@
 
 namespace yeticave\db\functions;
 
+// ToDo
+// Проверить все функции работы с БД на предмет поведения при ошибке (нет соединения, неверный sql запрос)
+
+// ToDo
+// Просмотреть запросы на SELECT (особенно с *)
+// не тяну ли я лишнего
+
+// ToDo-mini - мини оптимизация. тяну все столбцы хотя symbol_code используется только в tempates/index.php
 // Возвращает список категорий лотов.
 function get_stuff_categories($con)
 {
@@ -41,13 +49,11 @@ function get_lots($con, $id_list = [], $show_active = true)
                     cat.name category, 
                     IFNULL(max(b.price), l.start_price) current_price
             FROM lot as l
-            LEFT JOIN stuff_category as cat on l.category_id = cat.id
-            LEFT JOIN bet as b on l.id = b.lot_id ' .
+            JOIN stuff_category as cat on l.category_id = cat.id
+            JOIN bet as b on l.id = b.lot_id ' .
             $sql_where_part .
             ' GROUP BY l.id
-            ORDER BY l.creation_date DESC'; 
-            // зачем-то групировал по категории... (cat.name)
-            // проверить. если не нужно, то убрать
+            ORDER BY l.creation_date DESC';
 
     $result_data = db_fetch_data($con, $sql, $id_list);
 
@@ -84,7 +90,6 @@ function get_bets_history($con, $lot_id)
 
     return $result_data;
 }
-
 
 // Возвращает минимально возможную ставку для лота по его id.
 function get_lot_min_bet($con, $lot_id) 
@@ -144,7 +149,6 @@ function get_last_bet_user_id($con, $lot_id)
     return [ 'error' => $result_data['error'], 'result' => $user_id ];
 }
 
-
 // Получаю список лотов с помощью полнотекстового поиска по названию и описанию лота.
 function get_lots_by_fulltext_search($con, $search_query, $limit, $offset)
 {
@@ -160,11 +164,11 @@ function get_lots_by_fulltext_search($con, $search_query, $limit, $offset)
                     IFNULL(max(b.price), l.start_price) current_price,
                     COUNT(b.id) as bets_count
             FROM `lot` as l 
-            LEFT JOIN `stuff_category` as cat on l.category_id = cat.id
-            LEFT JOIN bet as b on l.id = b.lot_id
+            JOIN `stuff_category` as cat on l.category_id = cat.id
+            JOIN bet as b on l.id = b.lot_id
             WHERE MATCH(l.name, l.description) AGAINST(?) AND
-                    l.end_date > NOW() AND
-                    l.winner_id IS NULL
+                  l.end_date > NOW() AND
+                  l.winner_id IS NULL
             GROUP BY l.id
             ORDER BY l.creation_date
             LIMIT ?
@@ -180,8 +184,6 @@ function get_lots_by_fulltext_search($con, $search_query, $limit, $offset)
 // Используется для пагинации.
 function get_lots_count_with_fulltext_search($con, $search_query)
 {
-    // ToDo
-    // Влияют ли join на кол-во записей??? если нет то убрать
     $sql =  'SELECT COUNT(*) as count_lots FROM 
             (SELECT l.id
             FROM `lot` as l 
@@ -190,8 +192,6 @@ function get_lots_count_with_fulltext_search($con, $search_query)
                 l.winner_id IS NULL
             GROUP BY l.id
             ORDER BY l.creation_date) as help';
-            // LEFT JOIN `stuff_category` as cat on l.category_id = cat.id
-            // LEFT JOIN bet as b on l.id = b.lot_id
 
     $result_data = db_fetch_data($con, $sql, [$search_query]); 
 
@@ -205,10 +205,11 @@ function get_lots_without_winners($con)
     // $sql = 'SELECT l.id as lot_id, b.user_id as winner_id FROM `lot` l
     //         LEFT JOIN `bet` b on l.id = b.lot_id
     //         WHERE l.winner_id IS NULL AND
-    //         l.end_date < CURRENT_DATE() AND
+    //         l.end_date <= NOW() AND
     //         b.user_id IS NOT NULL
     //         GROUP BY l.id';
 
+    // ToDo
     // Вроде даже как работает верно
     // тут подошел с другого конца и джойню лоты к ставкам
     // но есть подзапрос - не есть хорошо
@@ -216,7 +217,7 @@ function get_lots_without_winners($con)
             JOIN `lot` l on l.id = b1.lot_id 
             WHERE price = (SELECT MAX(price) FROM `bet` b2 WHERE b1.lot_id = b2.lot_id) AND
             l.winner_id IS NULL AND
-            l.end_date <= CURRENT_DATE() AND
+            l.end_date <= NOW() AND
             b1.user_id IS NOT NULL';
 
     $result_data = db_fetch_data($con, $sql); 
@@ -274,7 +275,7 @@ function get_winners_info($con, $winner_id_arr)
     // точнее ее нужно изменить, чтобы была возможность доставать не только все поля, но и определенные. 
     $sql = "SELECT u.name as 'user_name', u.email as 'user_email', l.name as 'lot_name', l.id as 'lot_id' 
             FROM `user` u
-            LEFT JOIN `lot` l on l.winner_id = u.id
+            JOIN `lot` l on l.winner_id = u.id
             WHERE u.id in (" . $placeholders . ")";
 
     $result_data = db_fetch_data($con, $sql, $winner_id_arr); 
@@ -285,8 +286,6 @@ function get_winners_info($con, $winner_id_arr)
 // Кол-во лотов всего в определенной категории
 function get_lots_count_by_category($con, $category_id)
 {
-    // ToDo
-    // Если join не влияет на кол-в записей, то убрать
     $sql = 'SELECT COUNT(*) as count_lots FROM 
             (SELECT l.id
             FROM `lot` as l 
@@ -295,8 +294,6 @@ function get_lots_count_by_category($con, $category_id)
                   l.winner_id IS NULL
             GROUP BY l.id
             ORDER BY l.creation_date) as help';
-            //  LEFT JOIN `stuff_category` as cat on l.category_id = cat.id
-            //  LEFT JOIN bet as b on l.id = b.lot_id
 
     $result_data = db_fetch_data($con, $sql, [$category_id]); 
 
@@ -315,8 +312,8 @@ function get_lots_by_category($con, $category_id, $limit, $offset)
                     IFNULL(max(b.price), l.start_price) current_price,
                     COUNT(b.id) as bets_count
             FROM `lot` as l 
-            LEFT JOIN `stuff_category` as cat on l.category_id = cat.id
-            LEFT JOIN bet as b on l.id = b.lot_id
+            JOIN `stuff_category` as cat on l.category_id = cat.id
+            JOIN bet as b on l.id = b.lot_id
             WHERE cat.id = ? AND
                   l.end_date > NOW() AND
                   l.winner_id IS NULL
@@ -390,8 +387,6 @@ function add_lot($con, $params)
             VALUES (' . $placeholders . ')';
 
     // Порядок параметров важен!
-    // - можно попробовать привязать параметры
-    // - задать в массиве порядок по ключам.
     $keys_order = ['author_id', 'name', 'category_id', 'description', 'start_price', 'step_bet', 'end_date', 'image_url'];
     $ordered_params = array_order_by_key($params,  $keys_order);
 
@@ -403,11 +398,10 @@ function add_lot($con, $params)
     return $added_lot_id;
 }
 
+// Добавляет ставку на лот.
 function add_bet($con, $user_id, $lot_id, $bet_cost) 
 {
     $params = [ $user_id, $lot_id, $bet_cost ];
-
-    $placeholders = create_placeholders_for_prepared_query(count($params));
 
     $sql = 'INSERT INTO bet (user_id, lot_id, price) 
             VALUES (?, ?, ?)';
