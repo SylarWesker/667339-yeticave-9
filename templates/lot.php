@@ -46,7 +46,7 @@ $navigation = include_template('navigate.php', [ 'stuff_categories' => $stuff_ca
                 <span class="lot-item__amount">Текущая цена</span>
                 <span class="lot-item__cost"><?= format_price($lot['current_price']) ?></span>
               </div>
-              <div class="lot-item__min-cost"> <!-- ToDo Минимальная ставка или стартовая цена? -->
+              <div class="lot-item__min-cost">
                 Мин. ставка <span><?= format_price($lot['start_price']) ?></span>
               </div>
             </div>
