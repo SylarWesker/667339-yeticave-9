@@ -17,7 +17,7 @@ $func_result = db_func\get_stuff_categories($con);
 $stuff_categories = $func_result['result'] ?? [];
 
 $search_query = '';
-$lots = [];
+$lots_by_category = [];
 $lots_limit = 9; // ограничение кол-ва лотов на странице.
 
 $min_page_number = 1;

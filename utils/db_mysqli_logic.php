@@ -153,11 +153,6 @@ function get_lots_by_fulltext_search($con, $search_query, $limit, $offset)
 {
     $params = [$search_query, $limit, $offset];
 
-    // ToDo
-    // В некоторых запросах одни и те же куски логики... 
-    // Тут например "активные лоты" - у которых нет победителя и дата завершения не прошла
-    // Эта логика может поменяться и тогда придется искать все места, где она использовалась и менять ее
-    // Как это можно изменить? (чтобы она была в одном месте) и чтобы к основной логике можно было добавлять что-то или менять "параметры"
     $sql =  'SELECT l.id, l.name, l.image_url, l.end_date, l.start_price, 
                     cat.name category, 
                     IFNULL(max(b.price), l.start_price) current_price,
@@ -304,9 +299,7 @@ function get_lots_by_category($con, $category_id, $limit, $offset)
 {
     $params = [$category_id, $limit, $offset];
 
-    // ToDo
-    // практически тот же запрос, что используется для search.php
-    $sql =  'SELECT l.*, 
+    $sql =  'SELECT l.id, l.name, l.image_url, l.end_date, l.start_price, 
                     cat.name category, 
                     IFNULL(max(b.price), l.start_price) current_price,
                     COUNT(b.id) as bets_count
