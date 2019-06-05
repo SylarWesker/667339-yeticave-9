@@ -158,7 +158,7 @@ function get_lots_by_fulltext_search($con, $search_query, $limit, $offset)
     // Тут например "активные лоты" - у которых нет победителя и дата завершения не прошла
     // Эта логика может поменяться и тогда придется искать все места, где она использовалась и менять ее
     // Как это можно изменить? (чтобы она была в одном месте) и чтобы к основной логике можно было добавлять что-то или менять "параметры"
-    $sql =  'SELECT l.*, 
+    $sql =  'SELECT l.id, l.name, l.image_url, l.end_date, l.start_price, 
                     cat.name category, 
                     IFNULL(max(b.price), l.start_price) current_price,
                     COUNT(b.id) as bets_count
