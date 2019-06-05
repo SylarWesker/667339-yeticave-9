@@ -213,6 +213,7 @@ function time_to_lot_end_format($end_date, $now)
     return $result;
 }
 
+// ToDo Удаляю???
 // Возможно эта функция еще понадобится.
 // Альтернативный вариант
 // Форматирует время до окончания торгов лота.
@@ -358,4 +359,21 @@ function get_href($page_name, $url_params)
   $result = $page_name . '?' . http_build_query($url_params);
   
   return $result;
+}
+
+// Возвращает номер максимальной страницы.
+// $total_items - всего элементов, которые нужно показать. 
+// $items_per_page - максимум элементов на одной странице.
+function get_max_page_number($items_per_page, $total_items)
+{
+    return intval(ceil($total_items / $items_per_page));
+}
+
+// Корректирует номер страницы (ограничивает минимальным и максимальным значением)
+function correct_page_number($page_number, $max_page, $min_page = 1)
+{
+    $page_number = max($min_page, $page_number);
+    $page_number = min($max_page, $page_number);
+
+    return $page_number;
 }

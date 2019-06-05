@@ -56,12 +56,9 @@ if (isset($_GET['find'])) {
     $func_result = db_func\get_lots_count_with_fulltext_search($con, $search_query);
     $count_lots = $func_result['result'];
 
-    // ToDo этот код уже повторялся
-    $max_page_number = intval(ceil($count_lots / $lots_limit));
-
-    $page_number = max($min_page_number, $page_number);
-    $page_number = min($max_page_number, $page_number);
-    $page_number = intval($page_number);
+    $max_page_number = get_max_page_number($lots_limit, $count_lots );
+    
+    $page_number = correct_page_number($page_number, $max_page_number);
 
     // расчитываем смещение для запроса в зависимости от номера текущей страницы
     $lot_offset = ($page_number - 1) * $lots_limit;
