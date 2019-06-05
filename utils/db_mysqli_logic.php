@@ -50,7 +50,7 @@ function get_lots($con, $id_list = [], $show_active = true)
                     IFNULL(max(b.price), l.start_price) current_price
             FROM lot as l
             JOIN stuff_category as cat on l.category_id = cat.id
-            JOIN bet as b on l.id = b.lot_id ' .
+            LEFT JOIN bet as b on l.id = b.lot_id ' .
             $sql_where_part .
             ' GROUP BY l.id
             ORDER BY l.creation_date DESC';
@@ -63,7 +63,7 @@ function get_lots($con, $id_list = [], $show_active = true)
 // Возвращает ставки пользователя. 
 function get_bets($con, $user_id) 
 {
-    $sql = 'SELECT b.*, l.*, cat.name as category_name, u.contacts 
+    $sql = 'SELECT b.*, l.name, l.winner_id, l.image_url, l.end_date, cat.name as category_name, u.contacts 
             FROM `bet` as b 
             JOIN `lot` as l on b.lot_id = l.id
             JOIN `stuff_category` as cat on l.category_id = cat.id
@@ -165,7 +165,7 @@ function get_lots_by_fulltext_search($con, $search_query, $limit, $offset)
                     COUNT(b.id) as bets_count
             FROM `lot` as l 
             JOIN `stuff_category` as cat on l.category_id = cat.id
-            JOIN bet as b on l.id = b.lot_id
+            LEFT JOIN bet as b on l.id = b.lot_id
             WHERE MATCH(l.name, l.description) AGAINST(?) AND
                   l.end_date > NOW() AND
                   l.winner_id IS NULL
@@ -313,7 +313,7 @@ function get_lots_by_category($con, $category_id, $limit, $offset)
                     COUNT(b.id) as bets_count
             FROM `lot` as l 
             JOIN `stuff_category` as cat on l.category_id = cat.id
-            JOIN bet as b on l.id = b.lot_id
+            LEFT JOIN bet as b on l.id = b.lot_id
             WHERE cat.id = ? AND
                   l.end_date > NOW() AND
                   l.winner_id IS NULL
