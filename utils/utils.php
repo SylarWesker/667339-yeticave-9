@@ -213,38 +213,6 @@ function time_to_lot_end_format($end_date, $now)
     return $result;
 }
 
-// ToDo Удаляю???
-// Возможно эта функция еще понадобится.
-// Альтернативный вариант
-// Форматирует время до окончания торгов лота.
-function time_to_lot_end_format_NOT_USING($now, $date)
-{
-    $result = null;
-
-    if (is_string($date)) {
-        $date = new DateTime($date);
-    }
-
-    $now_midnight = new DateTime($now->format('Y-m-d'));
-    $date_midnight = new DateTime($date->format('Y-m-d'));
-
-    $date_diff_with_time = $now->diff($date);
-    $date_diff = $now_midnight->diff($date_midnight);
-
-    if ($date_diff->d > 1) {
-        $result = $date->format('d.m.y') . ' в ' . $date->format('H:i');
-    } elseif ($date_diff->d === 1) {
-        $result = 'Завтра, в ' . $date->format('H:i');
-    } else {
-        $hours_ago = get_noun_plural_form_with_number($date_diff_with_time->h, 'час', 'часа', 'часов');
-        $minutes_ago = get_noun_plural_form_with_number($date_diff_with_time->i, 'минута', 'минуты', 'минут');
-
-        $result = 'Осталось ' . $hours_ago . ' ' . $minutes_ago;
-    }
-
-    return $result;
-}
-
 // Простая валидация данных из формы.
 // Проверка на пустоту и отсечение тэгов, лишних пробелов, экранирование.
 function validate_form_field($field_name, $field_value, $error_messages, $filter_option = null)
