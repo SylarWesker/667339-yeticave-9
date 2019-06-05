@@ -81,9 +81,8 @@ function get_bets_history($con, $lot_id)
 {
     $sql = 'SELECT b.*, u.name 
             FROM `bet` as b 
-            JOIN `lot` as l on b.lot_id = l.id
             JOIN `user` as u on b.user_id = u.id
-            WHERE l.id = ?
+            WHERE b.lot_id = ?
             ORDER BY b.create_date DESC';
     
     $result_data = db_fetch_data($con, $sql, [ $lot_id ]);
