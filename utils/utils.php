@@ -377,3 +377,15 @@ function correct_page_number($page_number, $max_page, $min_page = 1)
 
     return $page_number;
 }
+
+// Вспомогательная функция возвращающая css класс для выбранной категории (используется в навигации на странице all-lots.php)
+function current_nav_class($category_name, $current_category)
+{
+    $class_name = '';
+
+    if ($category_name == $current_category) {
+        $class_name = 'nav__item--current';
+    }
+
+    return $class_name;
+}

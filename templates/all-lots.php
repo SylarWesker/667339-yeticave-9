@@ -3,7 +3,10 @@ require_once('utils/utils.php');
 
 $date_now = new DateTime();
 
-$navigation = include_template('navigate.php', [ 'stuff_categories' => $stuff_categories ]);
+$navigation = include_template('navigate.php', [ 
+                                                'stuff_categories' => $stuff_categories,
+                                                'current_category' => $category_name 
+]);
 
 $page_name = 'all-lots.php';
 $url_params = [ 'category_name' => $category_name ];
@@ -18,9 +21,6 @@ $pagination = include_template('pagination.php', [
 ?>
 
 <main>
-    <!-- ToDo
-    nav__item--current - можно установить у выбранной категории -->
-
     <!-- Навигация по категориям -->
     <?=$navigation ?>
 
