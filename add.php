@@ -1,5 +1,7 @@
 <?php
 
+error_reporting(E_ALL);
+
 require_once('auth.php');
 require_once('helpers.php');
 require_once('utils/utils.php');
@@ -32,7 +34,6 @@ if ($func_result['error'] !== null) {
     $errors['fatal']['get_categories'] = 'Ошибка MySql при получении списка категорий: ' . $func_result['error'];  
 }
 
-// ToDo поработать над текстом ошибок.
 // Валидация данных формы.
 if (isset($_POST['submit'])) {
     $form_fields = [
@@ -198,8 +199,6 @@ function save_file_on_server($tmp_file_path, $file_name, $uploads_dir)
 
     $new_file_path = $uploads_path . '/' . $new_file_name;
 
-    // ToDo чисто теоретически файл может не переместиться... 
-    // смогу ли обработать эту ошибку? и как?
     move_uploaded_file($tmp_file_path, $new_file_path);
 
     return ['new_file_name' => $new_file_name, 'new_file_path' => $new_file_path];

@@ -1,8 +1,5 @@
 <?php
 
-// ToDo
-// - добавить в каждый сценарий
-// - добавить в каждый шаблон ???
 error_reporting(E_ALL);
 
 require_once('auth.php');
