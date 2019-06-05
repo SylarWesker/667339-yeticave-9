@@ -13,11 +13,11 @@ $navigation = include_template('navigate.php', [ 'stuff_categories' => $stuff_ca
 <main>
   <?= $navigation; ?>
   
-  <form class="form container <?php if($has_errors) echo $form_invalid_class; ?>" action="login.php" method="post"> <!-- form--invalid -->
+  <form class="form container <?php if($has_errors) echo $form_invalid_class; ?>" action="login.php" method="post">
     <h2>Вход</h2>
-    <div class="form__item <?php if(isset($errors['email'])) echo $form_item_invalid_class; ?>"> <!-- form__item--invalid -->
+    <div class="form__item <?php if(isset($errors['email'])) echo $form_item_invalid_class; ?>">
       <label for="email">E-mail <sup>*</sup></label>
-      <input id="email" type="text" name="email" placeholder="Введите e-mail" value="<?= show_form_data('email', $form_data, $errors); ?>">
+      <input id="email" type="text" name="email" placeholder="Введите e-mail" value="<?= show_form_data('email', $form_data); ?>">
       <span class="form__error"><?= show_error('email', $errors); ?></span>
     </div>
     <div class="form__item form__item--last <?php if(isset($errors['password'])) echo $form_item_invalid_class; ?>">

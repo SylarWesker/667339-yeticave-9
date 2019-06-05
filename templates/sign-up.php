@@ -16,7 +16,7 @@ $navigation = include_template('navigate.php', [ 'stuff_categories' => $stuff_ca
     <h2>Регистрация нового аккаунта</h2>
     <div class="form__item <?php if(isset($errors['email'])) echo $form_item_invalid_class; ?>">
       <label for="email">E-mail <sup>*</sup></label>
-      <input id="email" type="text" name="email" placeholder="Введите e-mail" value="<?= show_form_data('email', $form_data, $errors); ?>">
+      <input id="email" type="text" name="email" placeholder="Введите e-mail" value="<?= show_form_data('email', $form_data); ?>">
       <span class="form__error"><?= show_error('email', $errors); ?></span>
     </div>
     <div class="form__item <?php if(isset($errors['password'])) echo $form_item_invalid_class; ?>">
@@ -26,16 +26,17 @@ $navigation = include_template('navigate.php', [ 'stuff_categories' => $stuff_ca
     </div>
     <div class="form__item <?php if(isset($errors['name'])) echo $form_item_invalid_class; ?>">
       <label for="name">Имя <sup>*</sup></label>
-      <input id="name" type="text" name="name" placeholder="Введите имя" value="<?= show_form_data('name', $form_data, $errors); ?>">
+      <input id="name" type="text" name="name" placeholder="Введите имя" value="<?= show_form_data('name', $form_data); ?>">
       <span class="form__error"><?= show_error('name', $errors); ?></span>
     </div>
     <div class="form__item <?php if(isset($errors['message'])) echo $form_item_invalid_class; ?>">
       <label for="message">Контактные данные <sup>*</sup></label>
-      <textarea id="message" name="message" placeholder="Напишите как с вами связаться"><?= show_form_data('message', $form_data, $errors); ?></textarea>
+      <textarea id="message" name="message" placeholder="Напишите как с вами связаться"><?= show_form_data('message', $form_data); ?></textarea>
       <span class="form__error"><?= show_error('message', $errors); ?></span>
     </div>
 
-    <!-- Код добавлентя аватарки нужен? -->
+    <!-- ToDo Или добавляю аватарку или удаляю этот код -->
+    <!-- Код добавления аватарки нужен? -->
     <!-- <div class="form__item form__item--file <?php if(isset($errors['avatar'])) echo $form_item_invalid_class; ?>">
       <label>Аватар <sup>*</sup></label>
       <div class="form__input-file">

@@ -20,6 +20,7 @@ $errors = [];
 // Дата окончания торгов.
 // Это или сегодня полночь или сегодня 23.59.59
 
+// ToDo время то нужно учитывать
 // Пускай пока без времени.
 $func_result = db_func\get_lots_without_winners($con);
 $lots_without_winner = $func_result['result'];

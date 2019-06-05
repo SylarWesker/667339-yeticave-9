@@ -56,6 +56,7 @@ if (isset($_GET['find'])) {
     $func_result = db_func\get_lots_count_with_fulltext_search($con, $search_query);
     $count_lots = $func_result['result'];
 
+    // ToDo этот код уже повторялся
     $max_page_number = intval(ceil($count_lots / $lots_limit));
 
     $page_number = max($min_page_number, $page_number);

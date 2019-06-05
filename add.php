@@ -91,11 +91,6 @@ if (isset($_POST['submit'])) {
         $errors['validation']['lot-step'] = $func_result['error'];
     }
 
-    // ToDo
-    // В ТЗ говорится, что шаг ставки должен быть целым числом. 
-    // Нужно ли проверять является ли целым?
- 
-
     // Дата окончания торгов
     $lot_end_date = $validated_data['lot-date'];
 

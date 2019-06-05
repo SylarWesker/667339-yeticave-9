@@ -122,24 +122,24 @@ function array_order_by_key($array, $ordered_keys) {
     return $result;
 }
 
-// ToDo
-// Как это можно реализовать по другому?
-// Далеко не элегантное решение.
-// ключи в $form_data и $errors должны совпадать.
-// постоянно нужно передавать $form_data, $errors... По идее нужно класс сделать.
-function show_form_data($key, $form_data, $errors) 
+function show_form_data($key, $form_data, $errors = null) 
 {
   $result = '';
 
-  if(isset($form_data[$key])) { // && !isset($errors[$key])
+  $show = isset($form_data[$key]);
+
+  // НЕ показываем если есть ошибка по этому полю.
+  if (isset($errors)) {
+    $show &= !isset($errors[$key]);
+  }
+
+  if ($show) {
     $result = $form_data[$key];
   }
     
   return $result;
 }
 
-// ToDo
-// Та же история. 
 function show_error($key, $errors) 
 {
   $result = '';
@@ -244,10 +244,6 @@ function time_to_lot_end_format_NOT_USING($now, $date)
     return $result;
 }
 
-// ToDo
-// Должна ли функция знать, какие ключи должны быть в массиве с ошибками
-// По идее лучше передавать аргументы... но вдруг кол-во проверок увеличится => увеличится кол-во параметров - сообщений об ошибках
-//
 // Простая валидация данных из формы.
 // Проверка на пустоту и отсечение тэгов, лишних пробелов, экранирование.
 function validate_form_field($field_name, $field_value, $error_messages, $filter_option = null)
