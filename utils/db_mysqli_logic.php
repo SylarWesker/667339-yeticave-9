@@ -148,7 +148,7 @@ function get_last_bet_user_id($con, $lot_id)
     return [ 'error' => $result_data['error'], 'result' => $user_id ];
 }
 
-// Получаю список лотов с помощью полнотекстового поиска по названию и описанию лота.
+// Получаю список лотов с помощью полнотекстового поиска по названию и описанию лота и их кол-во всего.
 function get_lots_by_fulltext_search($con, $search_query, $limit, $offset)
 {
     $params = [$search_query, $limit, $offset];
@@ -177,6 +177,37 @@ function get_lots_by_fulltext_search($con, $search_query, $limit, $offset)
     $total_lots_count = $result_data['result'][0]['rows_count'];
 
     // плохо наверно, что функция выполняет сразу два действия, но в данном случае думаю это приемлимо
+    return ['lots' => $lots, 'total_count' => $total_lots_count];
+}
+
+// Возвращает лоты определеной категории и их кол-во всего.
+function get_lots_by_category($con, $category_id, $limit, $offset)
+{
+    $params = [$category_id, $limit, $offset];
+
+    $sql =  'SELECT SQL_CALC_FOUND_ROWS l.id, l.name, l.image_url, l.end_date, l.start_price, 
+                    cat.name category, 
+                    IFNULL(max(b.price), l.start_price) current_price,
+                    COUNT(b.id) as bets_count
+            FROM `lot` as l 
+            JOIN `stuff_category` as cat on l.category_id = cat.id
+            LEFT JOIN bet as b on l.id = b.lot_id
+            WHERE cat.id = ? AND
+                  l.end_date > NOW() AND
+                  l.winner_id IS NULL
+            GROUP BY l.id
+            ORDER BY l.creation_date
+            LIMIT ?
+            OFFSET ?';
+
+    $result_data = db_fetch_data($con, $sql, $params);
+    $lots = $result_data['result'];
+
+    $sql = 'SELECT FOUND_ROWS() as rows_count';
+
+    $result_data = db_fetch_data($con, $sql);
+    $total_lots_count = $result_data['result'][0]['rows_count'];
+
     return ['lots' => $lots, 'total_count' => $total_lots_count];
 }
 
@@ -251,48 +282,6 @@ function get_winners_info($con, $winner_id_arr)
             WHERE u.id in (" . $placeholders . ")";
 
     $result_data = db_fetch_data($con, $sql, $winner_id_arr); 
-
-    return $result_data;
-}
-
-// Кол-во лотов всего в определенной категории
-function get_lots_count_by_category($con, $category_id)
-{
-    $sql = 'SELECT COUNT(*) as count_lots FROM 
-            (SELECT l.id
-            FROM `lot` as l 
-            WHERE l.category_id = ? AND
-                  l.end_date > NOW() AND
-                  l.winner_id IS NULL
-            GROUP BY l.id
-            ORDER BY l.creation_date) as help';
-
-    $result_data = db_fetch_data($con, $sql, [$category_id]); 
-
-    return ['result' => $result_data['result'][0]['count_lots'], 'error' => $result_data['error']];
-}
-
-// Возвращает лоты определеной категории
-function get_lots_by_category($con, $category_id, $limit, $offset)
-{
-    $params = [$category_id, $limit, $offset];
-
-    $sql =  'SELECT l.id, l.name, l.image_url, l.end_date, l.start_price, 
-                    cat.name category, 
-                    IFNULL(max(b.price), l.start_price) current_price,
-                    COUNT(b.id) as bets_count
-            FROM `lot` as l 
-            JOIN `stuff_category` as cat on l.category_id = cat.id
-            LEFT JOIN bet as b on l.id = b.lot_id
-            WHERE cat.id = ? AND
-                  l.end_date > NOW() AND
-                  l.winner_id IS NULL
-            GROUP BY l.id
-            ORDER BY l.creation_date
-            LIMIT ?
-            OFFSET ?';
-
-    $result_data = db_fetch_data($con, $sql, $params);
 
     return $result_data;
 }
