@@ -19,8 +19,8 @@ $stuff_categories = $func_result['result'] ?? [];
 $search_query = '';
 $lots = [];
 $lots_limit = 9; // ограничение кол-ва лотов на странице.
-
 $min_page_number = 1;
+
 $page_number = $min_page_number;
 
 if(isset($_GET['page'])) {
@@ -51,21 +51,16 @@ if (isset($_GET['find'])) {
   if (empty($errors['validation'])) {
     $search_query = $validated_data['search'];
 
-    $func_result = db_func\get_lots_count_with_fulltext_search($con, $search_query);
-    $count_lots = $func_result['result'];
+    $page_number = max($min_page_number, $page_number);
+
+    // расчитываем смещение для запроса в зависимости от номера текущей страницы
+    $lot_offset = ($page_number - 1) * $lots_limit;
+
+    $func_result = db_func\get_lots_by_fulltext_search($con, $search_query, $lots_limit, $lot_offset);
+    $lots = $func_result['lots'];
+    $count_lots = $func_result['total_count'];
 
     $max_page_number = get_max_page_number($lots_limit, $count_lots);
-    $page_number = correct_page_number($page_number, $max_page_number);
-
-    // Нет смысла делать этот запрос если $count_lots = 0
-    if ($count_lots > 0) {
-      // расчитываем смещение для запроса в зависимости от номера текущей страницы
-      $lot_offset = ($page_number - 1) * $lots_limit;
-
-      // Получаем лоты 
-      $func_result = db_func\get_lots_by_fulltext_search($con, $search_query, $lots_limit, $lot_offset);
-      $lots = $func_result['result'];
-    }
   }
 }
 

@@ -20,8 +20,6 @@ $errors = [];
 $func_result = db_func\get_lots_without_winners($con);
 $lots_without_winner = $func_result['result'];
 
-// ToDo
-// Проверить места где использовал подобный код. нет смысла добавлять в массив null (ошибки может и не быть).
 if (!empty($func_result['error'])) {
   $errors[] = $func_result['error'];
 }

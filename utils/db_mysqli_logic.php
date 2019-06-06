@@ -4,6 +4,10 @@ namespace yeticave\db\functions;
 
 // ToDo
 // Проверить все функции работы с БД на предмет поведения при ошибке (нет соединения, неверный sql запрос)
+// ToDo
+// Разобраться и определится буду ли запоминать ошибки при работе с БД и пробрасывать их наверх
+// или просто буду die()
+
 
 // ToDo-mini - мини оптимизация. тяну все столбцы хотя symbol_code используется только в tempates/index.php
 // Возвращает список категорий лотов.
@@ -149,7 +153,7 @@ function get_lots_by_fulltext_search($con, $search_query, $limit, $offset)
 {
     $params = [$search_query, $limit, $offset];
 
-    $sql =  'SELECT l.id, l.name, l.image_url, l.end_date, l.start_price, 
+    $sql =  'SELECT SQL_CALC_FOUND_ROWS l.id, l.name, l.image_url, l.end_date, l.start_price, 
                     cat.name category, 
                     IFNULL(max(b.price), l.start_price) current_price,
                     COUNT(b.id) as bets_count
@@ -165,27 +169,15 @@ function get_lots_by_fulltext_search($con, $search_query, $limit, $offset)
             OFFSET ?';
 
     $result_data = db_fetch_data($con, $sql, $params);
+    $lots = $result_data['result'];
 
-    return $result_data;
-}
+    $sql = 'SELECT FOUND_ROWS() as rows_count';
 
-// ToDo
-// Неужели это единственный способ (кроме кэша) узнать кол-во лотов подходящих под поисковый запрос. 
-// Используется для пагинации.
-function get_lots_count_with_fulltext_search($con, $search_query)
-{
-    $sql =  'SELECT COUNT(*) as count_lots FROM 
-            (SELECT l.id
-            FROM `lot` as l 
-            WHERE MATCH(l.name, l.description) AGAINST(?) AND
-                l.end_date > NOW() AND
-                l.winner_id IS NULL
-            GROUP BY l.id
-            ORDER BY l.creation_date) as help';
+    $result_data = db_fetch_data($con, $sql);
+    $total_lots_count = $result_data['result'][0]['rows_count'];
 
-    $result_data = db_fetch_data($con, $sql, [$search_query]); 
-
-    return ['result' => $result_data['result'][0]['count_lots'], 'error' => $result_data['error']];
+    // плохо наверно, что функция выполняет сразу два действия, но в данном случае думаю это приемлимо
+    return ['lots' => $lots, 'total_count' => $total_lots_count];
 }
 
 // Возвращает лоты без победителей на данный момент и пользователя чья ставка была последней.
