@@ -5,10 +5,6 @@ namespace yeticave\db\functions;
 // ToDo
 // Проверить все функции работы с БД на предмет поведения при ошибке (нет соединения, неверный sql запрос)
 
-// ToDo
-// Просмотреть запросы на SELECT (особенно с *)
-// не тяну ли я лишнего
-
 // ToDo-mini - мини оптимизация. тяну все столбцы хотя symbol_code используется только в tempates/index.php
 // Возвращает список категорий лотов.
 function get_stuff_categories($con)
@@ -195,24 +191,14 @@ function get_lots_count_with_fulltext_search($con, $search_query)
 // Возвращает лоты без победителей на данный момент и пользователя чья ставка была последней.
 function get_lots_without_winners($con)
 {
-    // Не верно возвращает winner_id (b.user_id) - потому что надо брать id пользователя из ставок с максимальной ставкой по данному лоту
-    // $sql = 'SELECT l.id as lot_id, b.user_id as winner_id FROM `lot` l
-    //         LEFT JOIN `bet` b on l.id = b.lot_id
-    //         WHERE l.winner_id IS NULL AND
-    //         l.end_date <= NOW() AND
-    //         b.user_id IS NOT NULL
-    //         GROUP BY l.id';
-
-    // ToDo
-    // Вроде даже как работает верно
-    // тут подошел с другого конца и джойню лоты к ставкам
-    // но есть подзапрос - не есть хорошо
-    $sql = 'SELECT l.id as lot_id, l.name as lot_name, b1.user_id as winner_id, b1.price FROM `bet` b1
-            JOIN `lot` l on l.id = b1.lot_id 
-            WHERE price = (SELECT MAX(price) FROM `bet` b2 WHERE b1.lot_id = b2.lot_id) AND
-            l.winner_id IS NULL AND
-            l.end_date <= NOW() AND
-            b1.user_id IS NOT NULL';
+    $sql = 'SELECT l.id as lot_id, 
+                   l.name as lot_name, 
+                   m.user_id as winner_id, 
+                   m.max_price as price
+            FROM `lot` l
+            JOIN max_bet_by_lot as m ON m.lot_id = l.id
+            WHERE l.end_date <= NOW()
+            AND l.winner_id IS NULL';
 
     $result_data = db_fetch_data($con, $sql); 
 

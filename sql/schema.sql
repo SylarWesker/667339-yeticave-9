@@ -64,3 +64,7 @@ CREATE TABLE IF NOT EXISTS bet (
     lot_id INT, 
     CONSTRAINT bet_lot_fk FOREIGN KEY (lot_id) REFERENCES lot(id) 
 );
+
+-- Представление для запроса получения лотов без победителей.
+CREATE VIEW max_bet_by_lot AS
+SELECT id, lot_id, user_id, MAX(price) as max_price FROM `bet` GROUP BY lot_id;
