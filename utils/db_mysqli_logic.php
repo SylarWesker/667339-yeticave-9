@@ -8,7 +8,6 @@ namespace yeticave\db\functions;
 // Разобраться и определится буду ли запоминать ошибки при работе с БД и пробрасывать их наверх
 // или просто буду die()
 
-
 // ToDo-mini - мини оптимизация. тяну все столбцы хотя symbol_code используется только в tempates/index.php
 // Возвращает список категорий лотов.
 function get_stuff_categories($con)

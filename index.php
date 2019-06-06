@@ -23,6 +23,8 @@ if (!is_null($func_result['error'])) {
     $errors[] = 'Ошибка MySql при получении списка категорий: ' . $func_result['error'];  
 }
 
+// ToDo
+// Тяну сейчас все лоты... Наверно лучше тянуть свежие... штук 9 (или больше)
 // список лотов.
 $func_result = db_func\get_lots($con);
 $lots = $func_result['result'] ?? [];
