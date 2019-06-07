@@ -8,7 +8,6 @@ namespace yeticave\db\functions;
 // Разобраться и определится буду ли запоминать ошибки при работе с БД и пробрасывать их наверх
 // или просто буду die()
 
-// ToDo-mini - мини оптимизация. тяну все столбцы хотя symbol_code используется только в tempates/index.php
 // Возвращает список категорий лотов.
 function get_stuff_categories($con)
 {
@@ -21,7 +20,7 @@ function get_stuff_categories($con)
 // Возвращает список лотов. 
 // $id_list - список лотов. Если ни одного не передано, то возвращаем все лоты.
 // $show_active - показывать активные лоты? (активные это у которых не истекла дата окончания и пустой победитель)
-function get_lots($con, $id_list = [], $show_active = true)
+function get_lots($con, $id_list = [], $show_active = true, $limit = null)
 {
     $sql_where_id_part = '';
     if (!empty($id_list)) {
@@ -44,15 +43,21 @@ function get_lots($con, $id_list = [], $show_active = true)
         $sql_where_part = ' WHERE ' . $sql_where_part . ' ';
     }
 
-    $sql = 'SELECT  l.*,
-                    cat.name category, 
-                    IFNULL(max(b.price), l.start_price) current_price
+    $limit_part = '';
+    if (!empty($limit)) {
+        $limit_part = 'LIMIT ' . $limit;
+    }
+
+    $sql = 'SELECT l.*,
+                   cat.name category, 
+                   IFNULL(max(b.price), l.start_price) current_price
             FROM lot as l
             JOIN stuff_category as cat on l.category_id = cat.id
             LEFT JOIN bet as b on l.id = b.lot_id ' .
             $sql_where_part .
             ' GROUP BY l.id
-            ORDER BY l.creation_date DESC';
+            ORDER BY l.creation_date DESC '
+            . $limit_part;
 
     $result_data = db_fetch_data($con, $sql, $id_list);
 

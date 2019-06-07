@@ -15,7 +15,7 @@ $stuff_categories = [];
 $lots = [];
 $errors = [];
 
-// список категорий.
+// список категорий. 
 $func_result = db_func\get_stuff_categories($con);
 $stuff_categories = $func_result['result'] ?? [];
 
@@ -23,10 +23,10 @@ if (!is_null($func_result['error'])) {
     $errors[] = 'Ошибка MySql при получении списка категорий: ' . $func_result['error'];  
 }
 
-// ToDo
-// Тяну сейчас все лоты... Наверно лучше тянуть свежие... штук 9 (или больше)
 // список лотов.
-$func_result = db_func\get_lots($con);
+$count_lots = 9;
+
+$func_result = db_func\get_lots($con, null, true, $count_lots);
 $lots = $func_result['result'] ?? [];
 
 if (!is_null($func_result['error'])) {
