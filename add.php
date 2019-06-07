@@ -147,15 +147,15 @@ if (isset($_POST['submit'])) {
 }
 
 $content = include_template('add-lot.php', [ 'stuff_categories' => $stuff_categories,
-                                             'errors' => $errors['validation'],
-                                             'form_data' => $form_data
+                                             'errors'           => $errors['validation'],
+                                             'form_data'        => $form_data
                                            ]);
 
-$layout = include_template('layout.php', [  'title' => $title,
-                                            'content' => $content, 
-                                            'stuff_categories' => $stuff_categories, 
-                                            'is_auth' => $is_auth, 
-                                            'user_name' => $user_name
+$layout = include_template('layout.php', [  'title'             => $title,
+                                            'content'           => $content, 
+                                            'stuff_categories'  => $stuff_categories, 
+                                            'is_auth'           => $is_auth, 
+                                            'user_name'         => $user_name
                                             ]);
 
 print($layout);
@@ -183,21 +183,6 @@ function validate_lot_end_date($end_date)
     $is_valid = $error_msg === '';
 
     return ['is_valid' => $is_valid, 'error' => $error_msg];
-}
-
-// Перемещение картинки в папку на сервере (постоянную папку)
-function save_file_on_server($tmp_file_path, $file_name, $uploads_dir)
-{
-    $extension = pathinfo($file_name, PATHINFO_EXTENSION);
-
-    $uploads_path = __DIR__ . '/' . $uploads_dir;
-    $new_file_name = uniqid() . '.' . $extension;
-
-    $new_file_path = $uploads_path . '/' . $new_file_name;
-
-    move_uploaded_file($tmp_file_path, $new_file_path);
-
-    return ['new_file_name' => $new_file_name, 'new_file_path' => $new_file_path];
 }
 
 // Валидация цены

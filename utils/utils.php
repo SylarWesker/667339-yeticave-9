@@ -357,3 +357,18 @@ function current_nav_class($category_name, $current_category)
 
     return $class_name;
 }
+
+// Перемещение картинки в папку на сервере (постоянную папку)
+function save_file_on_server($tmp_file_path, $file_name, $uploads_dir)
+{
+    $extension = pathinfo($file_name, PATHINFO_EXTENSION);
+
+    $uploads_path = __DIR__ . '/' . $uploads_dir;
+    $new_file_name = uniqid() . '.' . $extension;
+
+    $new_file_path = $uploads_path . '/' . $new_file_name;
+
+    move_uploaded_file($tmp_file_path, $new_file_path);
+
+    return ['new_file_name' => $new_file_name, 'new_file_path' => $new_file_path];
+}

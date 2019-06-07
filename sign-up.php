@@ -77,17 +77,17 @@ if (isset($_POST['submit'])) {
 $con = null;
 
 $content = include_template('sign-up.php', [ 
-                                             'form_data' => $form_data,
-                                             'errors' => $errors['validation'],
+                                             'form_data'        => $form_data,
+                                             'errors'           => $errors['validation'],
                                              'stuff_categories' => $stuff_categories
                                            ]);
 
 $layout = include_template('layout.php', [
-                                            'title' => $title, 
-                                            'content' => $content, 
-                                            'stuff_categories' => $stuff_categories, 
-                                            'is_auth' => is_auth(), 
-                                            'user_name' => $user_name
+                                            'title'             => $title, 
+                                            'content'           => $content, 
+                                            'stuff_categories'  => $stuff_categories, 
+                                            'is_auth'           => is_auth(), 
+                                            'user_name'         => $user_name
                                           ]);
 
 print($layout);
