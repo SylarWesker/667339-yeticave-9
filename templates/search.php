@@ -29,6 +29,7 @@ $pagination = include_template('pagination.php', [
     <section class="lots">
       <?php if(empty($lots)):?>
         <h2><?= $nothing_not_found_msg ?></h2>
+        <p><?= show_error('search', $errors); ?></p> 
       <?php else:?>
         <h2>Результаты поиска по запросу «<span><?= $search_query; ?></span>»</h2>
       <?php endif;?>

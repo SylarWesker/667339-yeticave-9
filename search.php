@@ -20,6 +20,7 @@ $search_query = '';
 $lots = [];
 $lots_limit = 9; // ограничение кол-ва лотов на странице.
 $min_page_number = 1;
+$max_page_number = 1;
 
 $page_number = $min_page_number;
 
@@ -64,16 +65,14 @@ if (isset($_GET['find'])) {
   }
 }
 
-// ToDo
-// Если есть ошибки валидации, то обработать их!
-
 $content = include_template('search.php', [ 
                                             'search_query'      => $search_query,
                                             'lots'              => $lots,
                                             'stuff_categories'  => $stuff_categories,
                                             'min_page_number'   => $min_page_number,
                                             'current_page'      => $page_number,
-                                            'max_page_number'   => $max_page_number
+                                            'max_page_number'   => $max_page_number,
+                                            'errors'            => $errors['validation']
                                           ]);
 
 $layout = include_template('layout.php', [
