@@ -88,14 +88,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') { // Значит сделали ст�
     }
 }
 
-// ToDo!!!
-// Когда и как показывать 404 (и вообще работать с ошибками... логика обработки какая)
 if (!empty($errors_lot['validation'])) {
-    $title_page = 'Страница не найдена.';
-    $content = include_template('404.php', [
-                                            'error_list' => array_merge($errors_lot['fatal'], $errors_lot['validation']),
-                                            'stuff_categories' => $stuff_categories
-                                           ]);
+    show_404(array_merge($errors_lot['fatal'], $errors_lot['validation']), $stuff_categories, $is_auth, $user_name);
+    return;
 } else {
     // Берем лот по id.
     $func_result = db_func\get_lots($con, [ $lot_id ], false);
