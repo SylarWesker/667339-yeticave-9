@@ -34,7 +34,6 @@ $func_result = db_func\set_lots_winners($con, $lots_without_winner);
 $winners_id = $func_result['result'];
 
 // Получаем инфо победителя
-// $winners_id = array_column($lots_without_winner, 'winner_id');
 $func_result = db_func\get_winners_info($con, $winners_id);
 $winners_info = $func_result['result'];
 
@@ -61,8 +60,8 @@ $mailer = new Swift_Mailer($transport);
 foreach ($winners_info as $info) {
     // Формируем текст письма
     $email_text = include_template('email.php', [ 'user_name' => $info['user_name'], 
-                                                  'lot_name' => $info['lot_name'],
-                                                  'lot_id' => $info['lot_id']
+                                                  'lot_name'  => $info['lot_name'],
+                                                  'lot_id'    => $info['lot_id']
     ]);
 
     $email_receiver = $info['user_email'];

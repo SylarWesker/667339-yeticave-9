@@ -24,11 +24,13 @@ if ($func_result['error'] !== null) {
 }
 
 if (isset($_POST['submit'])) {
-    $form_fields = [ 'email' => [ 'filter_option' => FILTER_VALIDATE_EMAIL, 
-                                'error_messages' => [ 
-                                                    'filter' => 'Не указан email или неверный формат.',
-                                                    'zero_length' => 'Email не может быть пустым'
-                                                    ] 
+    $form_fields = [ 
+                    'email' => [ 
+                                  'filter_option' => FILTER_VALIDATE_EMAIL, 
+                                  'error_messages' => [ 
+                                                        'filter' => 'Не указан email или неверный формат.',
+                                                        'zero_length' => 'Email не может быть пустым'
+                                                      ] 
                                 ], 
                     'password' => ['error_messages' => [ 'zero_length' => 'Пароль не может быть пустым.']] 
                 ];
@@ -43,22 +45,29 @@ if (isset($_POST['submit'])) {
     $validated_data = $validation_result['data'];
 
     // теперь проверяем зарегистрирован ли пользователь.
-    if (count($errors['validation']) === 0) {
-        $email =  $validated_data['email'];
+    if (empty($errors['validation'])) {
+        $email = $validated_data['email'];
         $password = $validated_data['password'];
 
-        $login_result = login_user($con, $email, $password);
+        $func_result = login_user($con, $email, $password);
+        $login_result = $func_result['result'];
+        $login_errors = $func_result['errors'];
 
-        if ($login_result['result']) {
+        if ($login_result) {
             header('Location: index.php');
         } else {
-            $errors['validation'] = $login_result['errors']['validation'];
-            $errors['fatal'] = array_merge($errors['fatal'], $login_result['errors']['fatal']);
+            $errors['validation'] = $login_errors['validation'];
+            $errors['fatal'] = array_merge($errors['fatal'] ?? [], $login_errors['fatal'] ?? []);
         }
     }
 }
 
 $con = null;
+
+if (!empty($errors['fatal'])) {
+    show_500($errors,  $stuff_categories, $is_auth, $user_name);
+    return;
+}
 
 $content = include_template('login.php', [ 
                                             'form_data' => $form_data,
@@ -70,7 +79,7 @@ $layout = include_template('layout.php', [
                                           'title' => $title, 
                                           'content' => $content, 
                                           'stuff_categories' => $stuff_categories, 
-                                          'is_auth' => is_auth(), 
+                                          'is_auth' => $is_auth, 
                                           'user_name' => $user_name
                                          ]);
 
@@ -87,7 +96,7 @@ function login_user($con, $email, $password)
     $func_result = db_func\get_userdata_by_email($con, $email);
     $user_data = $func_result['result'];
     $func_error = $func_result['error'];
-
+ 
     if (!is_null($user_data) && empty($func_error)) {
         $password_from_db = $user_data['password'];
 
@@ -100,12 +109,14 @@ function login_user($con, $email, $password)
             // Сохраняем данные пользователя в сессии.
             save_user_data($user_name, $user_id);
         } else {
-            $errors['validation']['email'] = $error_msg ;
-            $errors['validation']['password'] = $error_msg ;
+            $errors['validation']['email'] = $error_msg;
+            $errors['validation']['password'] = $error_msg;
         }
    } else {
-        $errors['validation']['email'] = $error_msg ;
-        $errors['validation']['password'] = $error_msg ;
+        $errors['validation']['email'] = $error_msg;
+        $errors['validation']['password'] = $error_msg;
+
+        $errors['fatal'] = $func_error;
    }
 
    return ['errors' => $errors, 'result' => empty($errors['validation']) && empty($errors['fatal'])];

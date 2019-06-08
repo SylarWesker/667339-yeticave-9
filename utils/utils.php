@@ -319,6 +319,26 @@ function show_404($errors, $categories, $is_auth, $user_name)
     print($layout);
 }
 
+function show_500($errors, $categories, $is_auth, $user_name)
+{
+    $title_page = 'Ошибка сервера.';
+    $content = include_template('500.php', [
+                                            'error_list' => $errors,
+                                            'stuff_categories' => $categories
+                                           ]); 
+    
+    $layout = include_template('layout.php', [ 
+                                                'title' => $title_page,
+                                                'content' => $content, 
+                                                'stuff_categories' => $categories, 
+                                                'is_auth' => $is_auth, 
+                                                'user_name' => $user_name
+                                             ]);
+    
+    print($layout);
+}
+
+
 // Использую в шаблоне пагинации.
 // $url_params - пары ключ - значение. 
 // ключ - название параметра, значение - его значение
@@ -359,14 +379,12 @@ function current_nav_class($category_name, $current_category)
 }
 
 // Перемещение картинки в папку на сервере (постоянную папку)
-function save_file_on_server($tmp_file_path, $file_name, $uploads_dir)
+function save_file_on_server($tmp_file_path, $file_name, $uploads_path)
 {
     $extension = pathinfo($file_name, PATHINFO_EXTENSION);
-
-    $uploads_path = __DIR__ . '/' . $uploads_dir;
     $new_file_name = uniqid() . '.' . $extension;
 
-    $new_file_path = $uploads_path . '/' . $new_file_name;
+    $new_file_path = $uploads_path . DIRECTORY_SEPARATOR . $new_file_name;
 
     move_uploaded_file($tmp_file_path, $new_file_path);
 

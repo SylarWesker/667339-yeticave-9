@@ -16,17 +16,16 @@ $errors_add_bet = ['validation' => [], 'fatal' => []];
 $func_result = db_func\get_stuff_categories($con);
 $stuff_categories = $func_result['result'] ?? [];
 
-if ($func_result['error'] !== null) {
+if (!is_null($func_result['error'])) {
     $errors_lot['fatal'][] = 'Ошибка MySql при получении списка категорий: ' . $func_result['error'];  
 }
 
 $title_page = 'Страница показа лота.';
-$is_auth = is_auth();
 $lot_id = null;
+$cost = null;
+$lot = null;
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') { // Значит сделали ставку.
-    $cost = null;
-    
     $form_fields = [ 
                     'cost' => ['error_messages' => ['zero_length' => 'Не задана ставка на лот.']], 
                     'lot_id' => ['error_messages' => ['zero_length' => 'Id лота не задан.']]
@@ -40,8 +39,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') { // Значит сделали ст�
     $validated_data = $validation_result['data'];
     $errors_add_bet['validation'] = $validation_result['errors'];
 
-    if (is_numeric($validated_data['cost'])) {
-        $cost = intval($validated_data['cost']);
+    $cost = $validated_data['cost'];
+
+    if (is_numeric($cost)) {
+        $cost = intval($cost);
     } else {
         $errors_add_bet['validation']['cost'] = 'Ставка должна быть числом.';
     }
@@ -64,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') { // Значит сделали ст�
         // Добавляем ставку. 
         $added_bet_id = db_func\add_bet($con, $user_id, $lot_id, $cost);
     
-        if ($added_bet_id !== NULL) {
+        if (!is_null($added_bet_id)) {
             $lot_url = 'lot.php?id=' . $lot_id;
     
             header('Location: ' . $lot_url);  
@@ -74,8 +75,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') { // Значит сделали ст�
     } 
 
 } elseif ($_SERVER['REQUEST_METHOD'] == 'GET') { // просто запросили страничку.
-    $lot = null;
-
     // Валидация
     if (isset($_GET['id'])) {
         $lot_id = $_GET['id'];
@@ -89,29 +88,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') { // Значит сделали ст�
 }
 
 if (!empty($errors_lot['validation'])) {
-    show_404(array_merge($errors_lot['fatal'], $errors_lot['validation']), $stuff_categories, $is_auth, $user_name);
+    show_500(array_merge($errors_lot['fatal'] ?? [], $errors_lot['validation'] ?? []), $stuff_categories, $is_auth, $user_name);
     return;
-} else {
-    // Берем лот по id.
-    $func_result = db_func\get_lots($con, [ $lot_id ], false);
-    if (!empty($func_result['result'])) {
-        $lot = $func_result['result'][0];
-    }
+} 
 
-    if (!empty($func_result['error'])) {
-        $errors_lot['fatal'][] = $func_result['error'];
-    } else {
-        if (is_null($lot)) {
-            $errors_lot['fatal'][] = 'Не найден лот с id = ' . $lot_id;
-
-            show_404($errors_lot['fatal'], $stuff_categories, $is_auth, $user_name);
-            return;
-        } 
-    }
-
-    $title_page = $lot['name'];
-    $content = get_lot_page_content($lot, $con, $user_id, $is_auth, $stuff_categories, $errors_add_bet['validation']);  
+// Берем лот по id.
+$func_result = db_func\get_lots($con, [ $lot_id ], false);
+if (!empty($func_result['result'])) {
+    $lot = $func_result['result'][0];
 }
+
+if (!empty($func_result['error'])) {
+    $errors_lot['fatal'][] = $func_result['error'];
+} else {
+    if (is_null($lot)) {
+        $errors_lot['fatal'][] = 'Не найден лот с id = ' . $lot_id;
+
+        show_404($errors_lot['fatal'], $stuff_categories, $is_auth, $user_name);
+        return;
+    } 
+}
+
+$title_page = $lot['name'];
+$content = get_lot_page_content($lot, $con, $user_id, $is_auth, $stuff_categories, $errors_add_bet['validation']);  
 
 $layout = include_template('layout.php', [ 
                                             'title' => $title_page,
@@ -122,8 +121,6 @@ $layout = include_template('layout.php', [
                                         ]);
     
 print($layout);
-
-$con = null;
 
 // Функции
 
@@ -183,14 +180,14 @@ function get_lot_page_content($lot, $con, $user_id, $is_auth, $stuff_categories,
     $allow_add_bet = is_allow_add_bet($is_auth, $user_id, $lot['author_id'], $lot['end_date'], $last_bet_user_id);
 
     $content = include_template('lot.php', [
-                                            'stuff_categories' => $stuff_categories,
-                                            'lot' => $lot,
-                                            'lot_min_price' => $lot_min_price,
-                                            'is_auth' => $is_auth,
-                                            'user_id' => $user_id,
-                                            'allow_add_bet' => $allow_add_bet,
-                                            'bets_history' => $bets_history,
-                                            'add_bet_errors' => $add_bet_errors
+                                            'stuff_categories'  => $stuff_categories,
+                                            'lot'               => $lot,
+                                            'lot_min_price'     => $lot_min_price,
+                                            'is_auth'           => $is_auth,
+                                            'user_id'           => $user_id,
+                                            'allow_add_bet'     => $allow_add_bet,
+                                            'bets_history'      => $bets_history,
+                                            'add_bet_errors'    => $add_bet_errors
     ]);
 
     return $content;

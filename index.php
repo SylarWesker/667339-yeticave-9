@@ -20,7 +20,7 @@ $func_result = db_func\get_stuff_categories($con);
 $stuff_categories = $func_result['result'] ?? [];
 
 if (!is_null($func_result['error'])) {
-    $errors[] = 'Ошибка MySql при получении списка категорий: ' . $func_result['error'];  
+    $errors[] = 'Ошибка MySql при получении списка категорий ( ' . $func_result['error'] . ' )';  
 }
 
 // список лотов.
@@ -35,23 +35,21 @@ if (!is_null($func_result['error'])) {
 
 $con = null;
 
-$content = null;
-
-if (empty($errors)) {
-    $content = include_template('index.php', [
-                                                'stuff_categories' => $stuff_categories, 
-                                                'lots' => $lots
-                                             ]);
-} else {
-    $title = 'Ошибка сервера';
-    $content = include_template('500.php', ['error_list' => $errors]);
+if (!empty($errors)) {
+    show_500($errors,  $stuff_categories, $is_auth, $user_name);
+    return;
 }
+
+$content = include_template('index.php', [
+                                            'stuff_categories' => $stuff_categories, 
+                                            'lots' => $lots
+                                         ]);
 
 $layout = include_template('layout.php', [
                                           'title' => $title, 
                                           'content' => $content, 
                                           'stuff_categories' => $stuff_categories, 
-                                          'is_auth' => is_auth(), 
+                                          'is_auth' => $is_auth, 
                                           'user_name' => $user_name
                                          ]);
 

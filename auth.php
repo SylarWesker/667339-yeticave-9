@@ -4,6 +4,7 @@ session_start();
 
 $user_name = get_user_name();
 $user_id = get_user_id();
+$is_auth = is_auth();
 
 function is_auth()
 {

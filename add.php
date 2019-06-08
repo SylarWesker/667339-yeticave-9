@@ -9,8 +9,6 @@ require_once('utils/db_helper.php');
 
 use yeticave\db\functions as db_func;
 
-$is_auth = is_auth();
-
 // Если пользователь не авторизован, то показываем 403
 if (!$is_auth) {
     http_response_code(403);
@@ -22,7 +20,9 @@ $title = 'Добавление лота';
 $accepted_mime_types = ['image/png', 'image/jpeg'];
 $errors = ['validation' => [], 'fatal' => []];
 $form_data = [];
+
 $upload_dir = 'uploads'; // папка для загрузки файлов
+$uploads_path = __DIR__ . DIRECTORY_SEPARATOR . $upload_dir;
 
 $stuff_categories = [];
 
@@ -98,6 +98,7 @@ if (isset($_POST['submit'])) {
     if (!$func_result['is_valid']) {
         $errors['validation']['lot-date'] = $func_result['error'];
     }
+    $lot_end_date = new DateTime($lot_end_date);
 
     // Изображение лота
     $relative_img_path = null;
@@ -114,15 +115,17 @@ if (isset($_POST['submit'])) {
 
         // если все ок, то перещаем в папку uploads
         if (!isset($errors['validation']['lot-img'])) {
-            $func_result = save_file_on_server($tmp_file_path, $file_name, $upload_dir);
+            $func_result = save_file_on_server($tmp_file_path, $file_name, $uploads_path);
 
-            $relative_img_path = $uploads_dir . '/' . $func_result['new_file_name'];
+            $relative_img_path = $upload_dir . DIRECTORY_SEPARATOR . $func_result['new_file_name'];
         }
     }
 
     // Если все ок, то добавляем в БД.
-    if (count($errors['validation']) === 0) {
+    if (empty($errors['validation'])) {
         // Дата окончания аукциона - это выбранная дата + время равное 23.59.59
+        $lot_end_time = '23:59:59';
+
         $params = [ 
                     'author_id'     => $user_id, 
                     'name'          => $lot_name, 
@@ -130,7 +133,7 @@ if (isset($_POST['submit'])) {
                     'description'   => $lot_description, 
                     'start_price'   => $start_price, 
                     'step_bet'      => $step_bet, 
-                    'end_date'      => $lot_end_date->format('Y/m/d 23:59:59'), 
+                    'end_date'      => $lot_end_date->format('Y/m/d ' . $lot_end_time), 
                     'image_url'     => $relative_img_path
         ];
 
@@ -146,6 +149,11 @@ if (isset($_POST['submit'])) {
     }
 }
 
+if (!empty($errors['fatal'])) {
+    show_500($errors,  $stuff_categories, $is_auth, $user_name);
+    return;
+}
+
 $content = include_template('add-lot.php', [ 'stuff_categories' => $stuff_categories,
                                              'errors'           => $errors['validation'],
                                              'form_data'        => $form_data
@@ -156,7 +164,7 @@ $layout = include_template('layout.php', [  'title'             => $title,
                                             'stuff_categories'  => $stuff_categories, 
                                             'is_auth'           => $is_auth, 
                                             'user_name'         => $user_name
-                                            ]);
+                                         ]);
 
 print($layout);
 
@@ -174,7 +182,7 @@ function validate_lot_end_date($end_date)
     // Проверка того что дата больше текущей хотя бы на один день.
     $date_now = new DateTime();
     $lot_end_date = new DateTime($end_date);
-    $date_diff = $date_now->diff($end_date);
+    $date_diff = $date_now->diff($lot_end_date);
 
     if (!at_least_one_day_bigger($date_diff)) {
         $error_msg = 'Дата завершения торгов должна быть больше текущей даты хотя на 1 день!';

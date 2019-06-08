@@ -2,12 +2,6 @@
 
 namespace yeticave\db\functions;
 
-// ToDo
-// Проверить все функции работы с БД на предмет поведения при ошибке (нет соединения, неверный sql запрос)
-// ToDo
-// Разобраться и определится буду ли запоминать ошибки при работе с БД и пробрасывать их наверх
-// или просто буду die()
-
 // Возвращает список категорий лотов.
 function get_stuff_categories($con)
 {
@@ -45,7 +39,7 @@ function get_lots($con, $id_list = [], $show_active = true, $limit = null)
 
     $limit_part = '';
     if (!empty($limit)) {
-        $limit_part = 'LIMIT ' . $limit;
+        $limit_part = ' LIMIT ' . $limit;
     }
 
     $sql = 'SELECT l.*,

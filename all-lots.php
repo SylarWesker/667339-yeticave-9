@@ -11,7 +11,6 @@ use yeticave\db\functions as db_func;
 
 $title = 'Лоты по категориям';
 $errors = ['validation' => [], 'fatal' => []];
-$is_auth = is_auth();
 
 // Получение списка категорий.
 $func_result = db_func\get_stuff_categories($con);

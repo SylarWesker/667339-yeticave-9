@@ -48,7 +48,7 @@ if (isset($_POST['submit'])) {
     $validated_data = $validation_result['data'];
 
     // Если нет ошибок валидации
-    if (count($errors['validation']) === 0) {
+    if (empty($errors['validation'])) {
         $email      = $validated_data['email'];
         $user_name  = $validated_data['name'];
         $password   = $validated_data['password'];
@@ -66,15 +66,18 @@ if (isset($_POST['submit'])) {
 
             header('Location: ' . $login_page);
         } else {
-            // Ошибки могут быть как и валидации - уже есть пользователь/email
-            // так и фатальные - работа с БД.
             $errors['validation'] = $added_user['errors']['validation'];
-            $errors['fatal'] = array_merge($errors['fatal'], $added_user['errors']['fatal']);
+            $errors['fatal'] = array_merge($errors['fatal'] ?? [], $added_user['errors']['fatal'] ?? []);
         }
     }
 }
 
 $con = null;
+
+if (!empty($errors['fatal'])) {
+    show_500($errors,  $stuff_categories, $is_auth, $user_name);
+    return;
+}
 
 $content = include_template('sign-up.php', [ 
                                              'form_data'        => $form_data,
@@ -86,7 +89,7 @@ $layout = include_template('layout.php', [
                                             'title'             => $title, 
                                             'content'           => $content, 
                                             'stuff_categories'  => $stuff_categories, 
-                                            'is_auth'           => is_auth(), 
+                                            'is_auth'           => $is_auth, 
                                             'user_name'         => $user_name
                                           ]);
 

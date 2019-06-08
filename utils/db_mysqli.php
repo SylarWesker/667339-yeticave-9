@@ -50,7 +50,7 @@ function filter($con, $table_name, $field_name, $field_value, $limit = null)
 // Формирует подстановочные знаки для параметров в подготовленных запросах.
 function create_placeholders_for_prepared_query($count, $placeholder = '?')
 {
-    $query_placeholders = array_fill(0, $count, '?');
+    $query_placeholders = array_fill(0, $count, $placeholder);
     $query_placeholders_str = implode(', ', $query_placeholders);
 
     return $query_placeholders_str;
@@ -73,11 +73,6 @@ function get_last_db_error($con)
  */
 function db_get_prepare_stmt($link, $sql, $data = []) {
     $stmt = mysqli_prepare($link, $sql);
-
-    if ($stmt === false) {
-        $errorMsg = 'Не удалось инициализировать подготовленное выражение: ' . mysqli_error($link);
-        die($errorMsg);
-    }
 
     if ($data) {
         $types = '';
@@ -106,11 +101,6 @@ function db_get_prepare_stmt($link, $sql, $data = []) {
 
         $func = 'mysqli_stmt_bind_param';
         $func(...$values);
-
-        if (mysqli_errno($link) > 0) {
-            $errorMsg = 'Не удалось связать подготовленное выражение с параметрами: ' . mysqli_error($link);
-            die($errorMsg);
-        }
     }
 
     return $stmt;
@@ -122,17 +112,15 @@ function db_fetch_data($link, $sql, $data = [])
     $result = null;
     $error = null;
 
-    $stmt = db_get_prepare_stmt($link, $sql, $data);
-    mysqli_stmt_execute($stmt);
-    $res = mysqli_stmt_get_result($stmt);
-
-    if ($res) {
+    try {
+        $stmt = db_get_prepare_stmt($link, $sql, $data);
+        mysqli_stmt_execute($stmt);
+        $res = mysqli_stmt_get_result($stmt);
+    
         $result = mysqli_fetch_all($res, MYSQLI_ASSOC);
-    } else {
-        // ToDo
-        // Слабое место. до этого выполнялось несколько функций и при их выполнении тоже могли быть ошибки, а мы записываем только последнюю.
-        $error = get_last_db_error($link);
+    } catch(\mysqli_sql_exception $e) {
+        $error = $e->getMessage();
     }
-
+   
     return ['result' => $result, 'error' => $error];
 }
