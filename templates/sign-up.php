@@ -35,19 +35,6 @@ $navigation = include_template('navigate.php', [ 'stuff_categories' => $stuff_ca
       <span class="form__error"><?= show_error('message', $errors); ?></span>
     </div>
 
-    <!-- ToDo Или добавляю аватарку или удаляю этот код -->
-    <!-- Код добавления аватарки нужен? -->
-    <!-- <div class="form__item form__item--file <?php if(isset($errors['avatar'])) echo $form_item_invalid_class; ?>">
-      <label>Аватар <sup>*</sup></label>
-      <div class="form__input-file">
-        <input class="visually-hidden" type="file" id="avatar" name='avatar' value="">
-        <label for="avatar">
-          + Добавить
-        </label>
-      </div>
-      <span class="form__error"><?= show_error('avatar', $errors); ?></span>
-    </div> -->
-
     <span class="form__error form__error--bottom">Пожалуйста, исправьте ошибки в форме.</span>
     <button type="submit" name="submit" class="button">Зарегистрироваться</button>
     <a class="text-link" href="login.php">Уже есть аккаунт</a>
