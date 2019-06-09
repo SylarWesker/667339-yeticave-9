@@ -273,7 +273,7 @@ function get_form_data($form_field_names)
     $form_data = [];
 
     $raw_form_data = [];
-    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $raw_form_data = $_POST;
     } else {
       $raw_form_data = $_GET;
@@ -360,7 +360,7 @@ function current_nav_class($category_name, $current_category)
 {
     $class_name = '';
 
-    if ($category_name == $current_category) {
+    if ($category_name === $current_category) {
         $class_name = 'nav__item--current';
     }
 

@@ -27,7 +27,7 @@ $lot_id = null;
 $cost = null;
 $lot = null;
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') { // Значит сделали ставку.
+if ($_SERVER['REQUEST_METHOD'] === 'POST') { // Значит сделали ставку.
     $form_fields = [ 
                     'cost' => ['error_messages' => ['zero_length' => 'Не задана ставка на лот.']], 
                     'lot_id' => ['error_messages' => ['zero_length' => 'Id лота не задан.']]
@@ -76,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') { // Значит сделали ст�
         }
     } 
 
-} elseif ($_SERVER['REQUEST_METHOD'] == 'GET') { // просто запросили страничку.
+} elseif ($_SERVER['REQUEST_METHOD'] === 'GET') { // просто запросили страничку.
     // Валидация
     if (isset($_GET['id'])) {
         $lot_id = $_GET['id'];
