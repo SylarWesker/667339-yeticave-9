@@ -116,8 +116,14 @@ function db_fetch_data($link, $sql, $data = [])
         $stmt = db_get_prepare_stmt($link, $sql, $data);
         mysqli_stmt_execute($stmt);
         $res = mysqli_stmt_get_result($stmt);
-    
-        $result = mysqli_fetch_all($res, MYSQLI_ASSOC);
+
+        if (\is_bool($res)) {
+            if ($res === false) {
+                $error = get_last_db_error($link);
+            }
+        } else {
+            $result = mysqli_fetch_all($res, MYSQLI_ASSOC);
+        }
     } catch(\mysqli_sql_exception $e) {
         $error = $e->getMessage();
     }

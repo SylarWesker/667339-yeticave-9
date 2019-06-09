@@ -141,7 +141,7 @@ if (isset($_POST['submit'])) {
 
         $added_lot_id = db_func\add_lot($con, $params);
 
-        if ($added_lot_id !== null) {
+        if (!is_null($added_lot_id)) {
             $new_lot_url = 'lot.php?id=' . $added_lot_id;
 
             header('Location: ' . $new_lot_url);
