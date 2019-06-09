@@ -152,7 +152,7 @@ if (isset($_POST['submit'])) {
 }
 
 if (!empty($errors['fatal'])) {
-    show_500($errors,  $stuff_categories, $is_auth, $user_name);
+    show_500($errors['fatal'],  $stuff_categories, $is_auth, $user_name);
     return;
 }
 
