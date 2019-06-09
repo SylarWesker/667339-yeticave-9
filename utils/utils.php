@@ -288,17 +288,6 @@ function get_form_data($form_field_names)
     return $form_data;
 }
 
-// Расчет минимальной ставки на лот.
-function get_lot_min_price($start_price, $current_price, $bet_step)
-{
-    $lot_min_price = $current_price;
-
-    if ($current_price !== $start_price) {
-        $lot_min_price += $bet_step;
-    }
-
-    return $lot_min_price;
-}
 
 function show_404($errors, $categories, $is_auth, $user_name)
 {
