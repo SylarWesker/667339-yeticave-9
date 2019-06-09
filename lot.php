@@ -96,6 +96,8 @@ if (!empty($errors_lot['validation'])) {
 $func_result = db_func\get_lots($con, [ $lot_id ], false);
 if (!empty($func_result['result'])) {
     $lot = $func_result['result'][0];
+
+    $title_page = $lot['name'];
 }
 
 if (!empty($func_result['error'])) {
@@ -109,7 +111,6 @@ if (!empty($func_result['error'])) {
     } 
 }
 
-$title_page = $lot['name'];
 $content = get_lot_page_content($lot, $con, $user_id, $is_auth, $stuff_categories, $errors_add_bet['validation']);  
 
 $layout = include_template('layout.php', [ 
