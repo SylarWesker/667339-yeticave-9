@@ -1,3 +1,11 @@
+<?php
+require_once('utils/utils.php');
+
+if (empty($current_category)) {
+    $current_category = '';
+}
+?>
+
 <nav class="nav">
     <ul class="nav__list container">
         <?php foreach($stuff_categories as $category): ?>
