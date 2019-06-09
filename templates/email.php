@@ -1,10 +1,6 @@
 <?php
-    // ToDo
-    // Добавить в пути ссылку на адрес сервера (имя сервера)
-    // yeticave.localhost
-
-    // $server_name = $_SERVER['SERVER_NAME']; // в документации сказано, что нельзя доверять... Почему?
-    $server_name = 'yeticave.localhost';
+    // Текущие имя сервера у меня -  $server_name = 'yeticave.localhost';
+    $server_name = $_SERVER['SERVER_NAME'];
 ?>
 
 <h1>Поздравляем с победой</h1>
