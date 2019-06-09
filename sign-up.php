@@ -1,6 +1,6 @@
 <?php
 
-error_reporting(E_ALL);
+require_once('utils/error_report.php');
 
 require_once('auth.php');
 require_once('helpers.php');
