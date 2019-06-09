@@ -7,6 +7,8 @@ require_once('helpers.php');
 require_once('utils/utils.php');
 require_once('utils/db_helper.php');
 
+require_once('utils/sign_up_functions.php');
+
 use yeticave\db\functions as db_func;
 
 $title = 'Регистрация пользователя';
@@ -75,7 +77,7 @@ if (isset($_POST['submit'])) {
 $con = null;
 
 if (!empty($errors['fatal'])) {
-    show_500($errors,  $stuff_categories, $is_auth, $user_name);
+    show_500($errors, $stuff_categories, $is_auth, $user_name);
     return;
 }
 
@@ -94,33 +96,3 @@ $layout = include_template('layout.php', [
                                           ]);
 
 print($layout);
-
-
-// Функции.
-
-// Функция регистрации (добавления) пользователя.
-function register_user($con, $email, $user_name, $password, $contacts)
-{
-    $errors = ['validation' => [], 'fatal' => []];
-
-    $already_has_user = db_func\has_user($con, $user_name);
-    if ($already_has_user) {
-        $errors['validation']['name'] = 'Пользователь с таким именем уже зарегистрирован.';
-    }
-
-    $already_has_email = db_func\has_email($con, $email);
-    if ($already_has_email) {
-        $errors['validation']['email'] = 'Пользователь с таким email уже зарегистрирован.';
-    }
-
-    $added_user_id = null;
-
-    if (empty($errors['validation']) && empty($errors['fatal'])) {
-        $password_hash = password_hash($password, PASSWORD_DEFAULT);
-
-        // Добавляем пользователя в БД.
-        $added_user_id = db_func\add_user($con, $email, $user_name, $password_hash, $contacts);
-    }
- 
-    return ['errors' => $errors, 'user_id' => $added_user_id];
-}
