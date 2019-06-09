@@ -3,9 +3,6 @@ require_once('utils/utils.php');
 
 $date_now = new DateTime();
 
-// $has_errors = count($add_bet_errors) > 0;
-
-// $form_invalid_class = 'form--invalid';
 $form_item_invalid_class = 'form__item--invalid';
 
 $navigation = include_template('navigate.php', [ 'stuff_categories' => $stuff_categories ]);
@@ -19,7 +16,7 @@ $navigation = include_template('navigate.php', [ 'stuff_categories' => $stuff_ca
       <div class="lot-item__content">
         <div class="lot-item__left">
           <div class="lot-item__image">
-            <img src="<?= $lot['image_url'] ?>" width="730" height="548" alt=""> <!-- как тут alt выставить? -->
+            <img src="<?= $lot['image_url'] ?>" width="730" height="548" alt="">
           </div>
           <p class="lot-item__category">Категория: <span><?= $lot['category'] ?></span></p>
           <p class="lot-item__description"><?= $lot['description'] ?></p>
