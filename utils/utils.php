@@ -2,9 +2,15 @@
 
 require_once('helpers.php');
 
-// Удаляет тэги в массиве (если элемент массива сам является массивом, то тоже делает и в нем).
-// Возвращает измененную копию.
-function strip_tags_for_array($arr_data, $recursive = false)
+/**
+ * strip_tags_for_array - Удаляет тэги в массиве. Возвращает измененную копию.
+ *
+ * @param  array $arr_data - массив с данными от пользователя.
+ * @param  bool $recursive - рекурсивно обрабатывать массив (если элемент массива сам является массивом, то тоже делает и в нем).
+ *
+ * @return array
+ */
+function strip_tags_for_array($arr_data, $recursive = false) : array
 {
     foreach($arr_data as $key => $value)
     {
@@ -20,9 +26,15 @@ function strip_tags_for_array($arr_data, $recursive = false)
     return $arr_data;
 }
 
-// Вспомогательная функция. 
-// Из $date2 вычитает $date1 и проверяет меньше ли часа между ними.
-function is_equal_or_less_hour_beetween_dates($date2, $date1)
+/**
+ * is_equal_or_less_hour_beetween_dates - Из $date2 вычитает $date1 и проверяет меньше ли часа между ними.
+ *
+ * @param  mixed $date2 - вторая дата
+ * @param  mixed $date1 - первая дата
+ *
+ * @return bool
+ */
+function is_equal_or_less_hour_beetween_dates($date2, $date1) : bool
 {
     if (is_string($date2)) {
         $date2 = new DateTime($date2);
@@ -37,8 +49,14 @@ function is_equal_or_less_hour_beetween_dates($date2, $date1)
     return is_equal_or_less_hour($date_diff);
 }
 
-// Возвращает истину, если в интервале один час или меньше.
-function is_equal_or_less_hour($date_interval) 
+/**
+ * is_equal_or_less_hour - Возвращает истину, если в интервале один час или меньше.
+ *
+ * @param  DateInterval $date_interval - разница между дата (интервал времени).
+ *
+ * @return bool
+ */
+function is_equal_or_less_hour($date_interval) : bool
 {
     if ($date_interval->invert === 1)
         return false;
@@ -46,7 +64,14 @@ function is_equal_or_less_hour($date_interval)
     return  is_less_hour($date_interval) || is_equal_hour($date_interval);
 }
 
-function is_only_time_part_has($date_interval)
+/**
+ * is_only_time_part_has - Возвращает истину, если в интервале времени есть данные только о времени.
+ *
+ * @param  DateInterval $date_interval - разница между дата (интервал времени).
+ *
+ * @return bool
+ */
+function is_only_time_part_has($date_interval) : bool
 {
     $result = $date_interval->y === 0 && 
               $date_interval->m === 0 && 
@@ -55,7 +80,14 @@ function is_only_time_part_has($date_interval)
     return $result;
 }
 
-function is_less_hour($date_interval)
+/**
+ * is_less_hour - Определяет меньше ли часа интервал времени.
+ *
+ * @param  DateInterval $date_interval - разница между дата (интервал времени).
+ *
+ * @return bool
+ */
+function is_less_hour($date_interval) : bool
 {
     $result = $date_interval->h === 0;
     $result = is_only_time_part_has($date_interval) && $result;
@@ -63,7 +95,14 @@ function is_less_hour($date_interval)
     return $result;
 }
 
-function is_equal_hour($date_interval)
+/**
+ * is_equal_hour - Определяет строго ли равен одному часу интервал времени.
+ *
+ * @param  DateInterval $date_interval - разница между дата (интервал времени).
+ *
+ * @return bool
+ */
+function is_equal_hour($date_interval) : bool
 {
     $result = $date_interval->h === 1 && 
               $date_interval->i === 0 && 
@@ -73,8 +112,30 @@ function is_equal_hour($date_interval)
     return $result;
 }
 
-// Функция форматирования суммы заказа.
-function format_price($number, $currency_symbol = '₽')
+/**
+ * at_least_one_day_bigger - Если разница между датами больше хотя бы на 1 день, то возвращает true.
+ *
+ * @param  DateInterval $date_interval - разница между дата (интервал времени).
+ *
+ * @return bool
+ */
+function at_least_one_day_bigger($date_interval) : bool
+{
+    if ($date_interval->invert === 1)
+        return false;
+    
+    return $date_interval->y >= 1 || $date_interval->m >= 1 || $date_interval->d >= 1;
+}
+
+/**
+ * format_price - Возвращает форматирование представление стоимости вместе с знаком валюты.
+ *
+ * @param  int $number - значение стоимости
+ * @param  string $currency_symbol - символ валюты
+ *
+ * @return string
+ */
+function format_price(int $number, string $currency_symbol = '₽') : string
 {
     $number = ceil($number);
 
@@ -86,6 +147,13 @@ function format_price($number, $currency_symbol = '₽')
     return $result;
 }
 
+/**
+ * secure_data_for_sql_query - Делает входные данные безопасными для использования в sql-запросах.
+ *
+ * @param  mixed $param - значение полученное от пользователя.
+ *
+ * @return mixed
+ */
 function secure_data_for_sql_query($param)
 {
     if (is_string($param)) {
@@ -98,16 +166,16 @@ function secure_data_for_sql_query($param)
     return $param;
 }
 
-// Если разница между датами больше хотя бы на 1 день, то возвращает true.
-function at_least_one_day_bigger($date_interval) {
-    if ($date_interval->invert === 1)
-        return false;
-    
-    return $date_interval->y >= 1 || $date_interval->m >= 1 || $date_interval->d >= 1;
-}
-
-// Меняет порядок элементов в массиве $array согласно порядку ключей в $ordered_keys.
-function array_order_by_key($array, $ordered_keys) {
+/**
+ * array_order_by_key - Меняет порядок элементов в массиве $array согласно порядку ключей в $ordered_keys.
+ *
+ * @param  array $array - массив, который необходимо отсортировать по ключам.
+ * @param  array $ordered_keys - упорядоченный массив с ключами.
+ *
+ * @return void
+ */
+function array_order_by_key($array, $ordered_keys) 
+{
     $result = [];
 
     for ($i = 0; $i < count($array); $i++) 
@@ -122,7 +190,17 @@ function array_order_by_key($array, $ordered_keys) {
     return $result;
 }
 
-function show_form_data($key, $form_data, $errors = null) 
+/**
+ * show_form_data - Отображает данные с формы по ключу (если они есть).
+ *
+ * @param  mixed $key - ключ в массиве $form_data (название поля на форме).
+ * @param  array $form_data - массив с данными взятыми из формы.
+ * @param  array $errors - массив с ошибками валидации для данных из формы. 
+ * Если передан массив и в нем есть ошибки по полю, то данные не выводятся.
+ * 
+ * @return void
+ */
+function show_form_data($key, $form_data, $errors = null) : string
 {
   $result = '';
 
@@ -140,7 +218,15 @@ function show_form_data($key, $form_data, $errors = null)
   return $result;
 }
 
-function show_error($key, $errors) 
+/**
+ * show_error - Отображает ошибки валидации поля (если они есть).
+ *
+ * @param  mixed $key - ключ в массиве $errors (название поля на форме).
+ * @param  mixed $errors - массив с ошибками валидации для данных из формы.
+ *
+ * @return string
+ */
+function show_error($key, $errors) : string
 {
   $result = '';
 
@@ -151,8 +237,17 @@ function show_error($key, $errors)
   return $result;
 }
 
-// Форматирует дату создания ставки в человекоудобном формате.
-function bet_date_create_format($now, $date)
+// ToDo - $now зачем передавать?
+// почему полночь использую?
+/**
+ * bet_date_create_format - Возвращает дату создания ставки в человекоудобном формате.
+ *
+ * @param  mixed $now - сейчас.
+ * @param  mixed $date - дата ставки.
+ *
+ * @return string
+ */
+function bet_date_create_format($now, $date) : string
 {
     $result = null;
 
@@ -184,7 +279,20 @@ function bet_date_create_format($now, $date)
     return $result;
 }
 
-function get_noun_plural_form_with_number($number, $one, $two, $many)
+/**
+ * get_noun_plural_form_with_number - Просто обертка над get_noun_plural_form. 
+ * Возвращает корректную форму во множественном числе, но впереди число.
+ *
+ * см. функцию get_noun_plural_form
+ * 
+ * @param  int $number - число.
+ * @param  string $one - сущность в единственном числе.
+ * @param  string $two - сущность в 2-х экземплярах.
+ * @param  string $many - сущность во множетсвом числе.
+ *
+ * @return string
+ */
+function get_noun_plural_form_with_number($number, $one, $two, $many) : string
 {
     $result = '';
 
@@ -195,7 +303,16 @@ function get_noun_plural_form_with_number($number, $one, $two, $many)
     return $result;
 } 
 
-// Форматирует время до окончания торгов лота.
+// ToDo - $now зачем передавать?
+// 
+/**
+ * time_to_lot_end_format - Возвращает форматированное время до окончания торгов лота. Формат - часы:минуты.
+ *
+ * @param  mixed $end_date - дата окончания аукциона по лоту.
+ * @param  mixed $now - сейчас. (вообще относительно какой даты)
+ *
+ * @return void
+ */
 function time_to_lot_end_format($end_date, $now) 
 {
     $result = null;
@@ -213,8 +330,19 @@ function time_to_lot_end_format($end_date, $now)
     return $result;
 }
 
-// Простая валидация данных из формы.
-// Проверка на пустоту и отсечение тэгов, лишних пробелов, экранирование.
+/**
+ * validate_form_field - Простая валидация поля из формы. Проверка на пустоту и отсечение тэгов, лишних пробелов, экранирование.
+ *
+ * @param  string $field_name - имя поля.
+ * @param  mixed $field_value - значение поля.
+ * @param  array $error_messages - массив с текстами сообщений об ошибках валидации.
+ * @param  mixed $filter_option - параметр для функции filter_var.
+ *
+ * @return array (для примера назовем $arr)
+ * $arr['is_valid'] - true если поле прошло валидацию.
+ * $arr['field_value'] - значение поля, прошедшего валидацию (отсечение тэгов, лишних пробелов, экранирование).
+ * $arr['error'] - текст об ошибке валидации.
+ */
 function validate_form_field($field_name, $field_value, $error_messages, $filter_option = null)
 {
     $error = '';
@@ -240,7 +368,15 @@ function validate_form_field($field_name, $field_value, $error_messages, $filter
            ];
 }
 
-// Функция валидации полей формы
+// ToDo тут неплохо было б предоставить пример массива $form_fields.
+/**
+ * validate_form_data - Функция валидации данных из формы.
+ *
+ * @param  array $form_data - данные с формы.
+ * @param  array $form_fields - массив сложной структуры с параметрами валидации.
+ *
+ * @return void
+ */
 function validate_form_data($form_data, $form_fields) 
 {
     $errors = [];
@@ -267,7 +403,13 @@ function validate_form_data($form_data, $form_fields)
     return ['data' => $validated_data, 'errors' => $errors];
 }
 
-// Функция сбора данных пришедших из формы. 
+/**
+ * get_form_data - Возвращает данные пришедшие с формы от пользователя.
+ *
+ * @param  array $form_field_names - массив имен полей формы из которых нужно собрать данные.
+ *
+ * @return array
+ */
 function get_form_data($form_field_names) 
 {
     $form_data = [];
@@ -288,7 +430,17 @@ function get_form_data($form_field_names)
     return $form_data;
 }
 
-
+// ToDo здесь и в show 500 использовать http_responce_code ???
+/**
+ * show_404 - Шаблон страницы с 404 ошибкой. 
+ *
+ * @param  array $errors - массив с ошибками.
+ * @param  array $categories - массив категорий лотов.
+ * @param  bool $is_auth - авторизирован ли пользователь.
+ * @param  string $user_name - имя пользователя.
+ *
+ * @return void
+ */
 function show_404($errors, $categories, $is_auth, $user_name)
 {
     $title_page = 'Страница не найдена.';
@@ -308,6 +460,16 @@ function show_404($errors, $categories, $is_auth, $user_name)
     print($layout);
 }
 
+/**
+ * show_500 - Шаблон страницы с 500 ошибкой. 
+ *
+ * @param  array $errors - массив с ошибками.
+ * @param  array $categories - массив категорий лотов.
+ * @param  bool $is_auth - авторизирован ли пользователь.
+ * @param  string $user_name - имя пользователя.
+ *
+ * @return void
+ */
 function show_500($errors, $categories, $is_auth, $user_name)
 {
     $title_page = 'Ошибка сервера.';
@@ -327,27 +489,45 @@ function show_500($errors, $categories, $is_auth, $user_name)
     print($layout);
 }
 
-
-// Использую в шаблоне пагинации.
-// $url_params - пары ключ - значение. 
-// ключ - название параметра, значение - его значение
-function get_href($page_name, $url_params)
+/**
+ * get_href - Возвращает ссылку на страницу на сервере
+ *
+ * @param  string $page_name - название страницы/скрипта на сервере.
+ * @param  array $url_params - параметры адреса страницы. 
+ *               пары ключ - значение. ключ - название параметра, значение - его значение
+ *
+ * @return string
+ */
+function get_href(string $page_name, $url_params) : string
 {
   $result = $page_name . '?' . http_build_query($url_params);
   
   return $result;
 }
 
-// Возвращает номер максимальной страницы.
-// $total_items - всего элементов, которые нужно показать. 
-// $items_per_page - максимум элементов на одной странице.
-function get_max_page_number($items_per_page, $total_items)
+/**
+ * get_max_page_number - Возвращает номер максимальной (последней) страницы.
+ *
+ * @param  int $items_per_page - элементов на странице.
+ * @param  int $total_items - всего элементов, которые нужно вывести.
+ *
+ * @return int
+ */
+function get_max_page_number(int $items_per_page, int $total_items) : int
 {
     return intval(ceil($total_items / $items_per_page));
 }
 
-// Корректирует номер страницы (ограничивает минимальным и максимальным значением)
-function correct_page_number($page_number, $max_page, $min_page = 1)
+/**
+ * correct_page_number - Корректирует номер страницы (ограничивает минимальным и максимальным значением).
+ *
+ * @param  int $page_number - номер текущей страницы.
+ * @param  int $max_page - номер последней страницы.
+ * @param  int $min_page - номер первой страницы.
+ *
+ * @return int
+ */
+function correct_page_number(int $page_number, int $max_page, int $min_page = 1) : int
 {
     $page_number = max($min_page, $page_number);
     $page_number = min($max_page, $page_number);
@@ -355,8 +535,15 @@ function correct_page_number($page_number, $max_page, $min_page = 1)
     return $page_number;
 }
 
-// Вспомогательная функция возвращающая css класс для выбранной категории (используется в навигации на странице all-lots.php)
-function current_nav_class($category_name, $current_category)
+/**
+ * current_nav_class - Вспомогательная функция возвращающая css класс для выбранной категории (используется в навигации на странице all-lots.php)
+ *
+ * @param  string $category_name - название категории.
+ * @param  string $current_category - текущая (выбранная категория).
+ *
+ * @return void
+ */
+function current_nav_class(string $category_name, string $current_category)
 {
     $class_name = '';
 
@@ -367,8 +554,16 @@ function current_nav_class($category_name, $current_category)
     return $class_name;
 }
 
-// Перемещение картинки в папку на сервере (постоянную папку)
-function save_file_on_server($tmp_file_path, $file_name, $uploads_path)
+/**
+ * save_file_on_server - Перемещение картинки в папку на сервере (постоянную папку).
+ *
+ * @param  string $tmp_file_path - путь к файл во временной папке на сервере.
+ * @param  string $file_name - оригинальное имя файл.
+ * @param  string $uploads_path - путь к папке куда нужно загрузить файл.
+ *
+ * @return void
+ */
+function save_file_on_server(string $tmp_file_path, string $file_name, string $uploads_path)
 {
     $extension = pathinfo($file_name, PATHINFO_EXTENSION);
     $new_file_name = uniqid() . '.' . $extension;

@@ -7,7 +7,20 @@ use yeticave\db\functions as db_func;
 // Функции для работы сценария sign-up.php
 
 // Функция регистрации (добавления) пользователя.
-function register_user($con, $email, $user_name, $password, $contacts)
+/**
+ * register_user
+ *
+ * @param  mixed $con - подключение к БД.
+ * @param  string $email - электронная почта пользователя.
+ * @param  string $user_name - имя/никнэйм пользователя.
+ * @param  string $password - пароль пользователя.
+ * @param  string $contacts - контактные данные пользователя.
+ *
+ * @return array (для примера назовем $arr)
+ * $arr['user_id'] - возвращает идентификатор зарегистрированого пользователя. null - если пользователя не зарегистрировали.
+ * $arr['errors'] - массив с фатальными ошибками и ошибками валидации. 
+ */
+function register_user($con, string $email, string $user_name, string $password, string $contacts)
 {
     $errors = ['validation' => [], 'fatal' => []];
 

@@ -7,8 +7,19 @@ use yeticave\db\functions as db_func;
 
 // Функции для работы сценария lot.php
 
-// Проверяет можно ли делать ставку на этот лот текущему пользователю.
-function is_allow_add_bet($is_auth, $user_id, $lot_author_id, $lot_end_date, $last_bet_user_id)
+// 
+/**
+ * is_allow_add_bet - проверяет можно ли делать ставку на этот лот текущему пользователю.
+ *
+ * @param  bool $is_auth - авторизован ли пользователь?
+ * @param  int $user_id - id пользователя.
+ * @param  int $lot_author_id - id пользователя разместившего лот.
+ * @param  string $lot_end_date - дата окончания аукциона по лоту.
+ * @param  int|null $last_bet_user_id - id последнего сделавшего на этот лот ставку.
+ *
+ * @return bool
+ */
+function is_allow_add_bet(bool $is_auth, int $user_id, int $lot_author_id, string $lot_end_date, int $last_bet_user_id) : bool
 {
     // Вырезка из ТЗ
     // Ограничения
@@ -35,8 +46,16 @@ function is_allow_add_bet($is_auth, $user_id, $lot_author_id, $lot_end_date, $la
     return $allow_add_bet;
 }
 
-// Расчет минимальной ставки на лот.
-function get_lot_min_price($start_price, $current_price, $bet_step)
+/**
+ * get_lot_min_price - расчитывает размер минимальной ставки на лот.
+ *
+ * @param  int $start_price
+ * @param  int $current_price
+ * @param  int $bet_step
+ *
+ * @return int
+ */
+function get_lot_min_price(int $start_price, int $current_price, int $bet_step) : int
 {
     $lot_min_price = $current_price;
 
@@ -47,8 +66,19 @@ function get_lot_min_price($start_price, $current_price, $bet_step)
     return $lot_min_price;
 }
 
-// Возвращает контент страницы лота.
-function get_lot_page_content($lot, $con, $user_id, $is_auth, $stuff_categories, $add_bet_errors)
+/**
+ * get_lot_page_content - Возвращает контент страницы лота.
+ *
+ * @param  array $lot - ассоциативный массив с данными о лоте.
+ * @param  mixed $con - соединение с БД.
+ * @param  int $user_id - id текущего пользователя.
+ * @param  bool $is_auth - авторизован ли пользователь.
+ * @param  array $stuff_categories - массив категорий лотов на сайте.
+ * @param  array $add_bet_errors - маccив с ошибками произошедших на форме добавления ставки.
+ *
+ * @return mixed
+ */
+function get_lot_page_content($lot, $con, int $user_id, bool $is_auth, $stuff_categories, $add_bet_errors)
 {
     $lot_id = $lot['id'];
  

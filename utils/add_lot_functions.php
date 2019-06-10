@@ -5,8 +5,14 @@ require_once('helpers.php');
 
 // Функции для сценария добавления лота (add.php)
 
-// Валидация даты окончания торгов
-function validate_lot_end_date($end_date)
+/**
+ * validate_lot_end_date - Валидация даты окончания торгов лота.
+ *
+ * @param  string $end_date - дата окончания торгов.
+ *
+ * @return array
+ */
+function validate_lot_end_date(string $end_date)
 {
     $error_msg = '';
 
@@ -28,8 +34,18 @@ function validate_lot_end_date($end_date)
     return ['is_valid' => $is_valid, 'error' => $error_msg];
 }
 
-// Валидация цены
-function validate_price($price_value, $belong_zero_msg, $now_number_msg)
+/**
+ * validate_price - Валидация цены
+ *
+ * @param  string $price_value - валидируемая цена лота
+ * @param  string $belong_zero_msg - сообщение об ошибке, если цена ниже нуля.
+ * @param  string $not_number_msg - сообщение об ошибке, если передали не число
+ *
+ * @return array (для примера назовем $arr)
+ * $arr['is_valid'] - возращает true, если цена валидна.
+ * $arr['error'] - сообщение об ошибке, если цена не валидна.
+ */
+function validate_price(string $price_value, string $belong_zero_msg, string $not_number_msg)
 {
     $error_msg = '';
 
@@ -40,7 +56,7 @@ function validate_price($price_value, $belong_zero_msg, $now_number_msg)
             $error_msg = $belong_zero_msg;
         }
     } else {
-        $error_msg = $now_number_msg;
+        $error_msg = $not_number_msg;
     }
 
     $is_valid = $error_msg === '';

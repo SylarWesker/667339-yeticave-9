@@ -7,7 +7,18 @@ use yeticave\db\functions as db_func;
 // Функции для сценария login.php
 
 // Вход пользователя.
-function login_user($con, $email, $password)
+/**
+ * login_user - позволяет залогинится пользователю по почте и паролю.
+ *
+ * @param  mixed $con - соединение с БД
+ * @param  string $email - электронная почта пользователя.
+ * @param  string $password - пароль пользователя.
+ *
+ * @return array (для примера назовем $arr)
+ * $arr['result'] - возвращает true, если пользователь успешно залогинился.
+ * $arr['errors'] - массив с фатальными ошибками и ошибками валидации.
+ */
+function login_user($con, string $email, string $password)
 {
     $errors = [ 'validation' => [], 'fatal' => [] ];
     $error_msg = 'Неверный логин и/или пароль.';
