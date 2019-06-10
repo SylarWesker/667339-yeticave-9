@@ -42,7 +42,7 @@ function set_charset($con)
  *
  * @return array
  */
-function get_data_by_field($con, string $table_name, string $field_name, $field_value, int $limit = null) 
+function get_data_by_field($con, string $table_name, string $field_name, $field_value, $limit = null) 
 {
     $sql_limit_part = $limit ? " LIMIT $limit" : '';
 
@@ -63,7 +63,7 @@ function get_data_by_field($con, string $table_name, string $field_name, $field_
  *
  * @return bool
  */
-function filter($con, string $table_name, string $field_name, $field_value, int $limit = null) : bool
+function filter($con, string $table_name, string $field_name, $field_value, $limit = null) : bool
 {
     $result_data = get_data_by_field($con, $table_name, $field_name, $field_value, $limit);
 

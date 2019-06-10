@@ -19,7 +19,7 @@ use yeticave\db\functions as db_func;
  *
  * @return bool
  */
-function is_allow_add_bet(bool $is_auth, int $user_id, int $lot_author_id, string $lot_end_date, int $last_bet_user_id) : bool
+function is_allow_add_bet(bool $is_auth, int $user_id, int $lot_author_id, string $lot_end_date, $last_bet_user_id) : bool
 {
     // Вырезка из ТЗ
     // Ограничения
