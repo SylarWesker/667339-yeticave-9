@@ -2,7 +2,15 @@
 
 namespace yeticave\db\functions;
 
-// Возвращает список категорий лотов.
+require_once('utils/db_mysqli.php');
+
+/**
+ * get_stuff_categories - Возвращает список категорий лотов.
+ *
+ * @param  mixed $con - подключение к БД.
+ *
+ * @return array
+ */
 function get_stuff_categories($con)
 {
     $sql = 'SELECT * FROM stuff_category';
@@ -11,10 +19,17 @@ function get_stuff_categories($con)
     return $result_data;
 }
 
-// Возвращает список лотов. 
-// $id_list - список лотов. Если ни одного не передано, то возвращаем все лоты.
-// $show_active - показывать активные лоты? (активные это у которых не истекла дата окончания и пустой победитель)
-function get_lots($con, $id_list = [], $show_active = true, $limit = null)
+/**
+ * get_lots - Возвращает список лотов. 
+ *
+ * @param  mixed $con - подключение к БД.
+ * @param  array $id_list - список id лотов. Если ни одного не передано, то возвращаем все лоты.
+ * @param  bool $show_active - показывать активные лоты? (активные это у которых не истекла дата окончания и пустой победитель).
+ * @param  int|null $limit - лимит кол-ва лотов (если null - без ограничений).
+ *
+ * @return array
+ */
+function get_lots($con, $id_list = [], bool $show_active = true, $limit = null)
 {
     $sql_where_id_part = '';
     if (!empty($id_list)) {
@@ -58,8 +73,15 @@ function get_lots($con, $id_list = [], $show_active = true, $limit = null)
     return $result_data;
 }
 
-// Возвращает ставки пользователя. 
-function get_bets($con, $user_id) 
+/**
+ * get_bets - Возвращает ставки пользователя.
+ *
+ * @param  mixed $con - подключение к БД.
+ * @param  int $user_id - id пользователя.
+ *
+ * @return array
+ */
+function get_bets($con, int $user_id) 
 {
     $sql = 'SELECT b.*, l.name, l.winner_id, l.image_url, l.end_date, cat.name as category_name, u.contacts 
             FROM `bet` as b 
@@ -74,7 +96,14 @@ function get_bets($con, $user_id)
     return $result_data;
 }
 
-// Возвращает историю ставок по лоту.
+/**
+ * get_bets_history - Возвращает историю ставок по лоту.
+ *
+ * @param  mixed $con - подключение к БД.
+ * @param  int $lot_id - id лота.
+ *
+ * @return array
+ */
 function get_bets_history($con, $lot_id)
 {
     $sql = 'SELECT b.*, u.name 
@@ -88,8 +117,15 @@ function get_bets_history($con, $lot_id)
     return $result_data;
 }
 
-// Возвращает минимально возможную ставку для лота по его id.
-function get_lot_min_bet($con, $lot_id) 
+/**
+ * get_lot_min_bet - Возвращает минимально возможную ставку для лота по его id.
+ *
+ * @param  mixed $con - подключение к БД.
+ * @param  int $lot_id - id лота.
+ *
+ * @return int
+ */
+function get_lot_min_bet($con, int $lot_id) : int
 {
     $sql = 'SELECT l.id, b.lot_id, IF(ISNULL(b.price), l.start_price, MAX(b.price) + l.step_bet) as min_bet 
             FROM `bet` as b
@@ -100,18 +136,25 @@ function get_lot_min_bet($con, $lot_id)
 
     $result_data = db_fetch_data($con, $sql, [ $lot_id ]);
 
-    $result = NULL;
+    $result = null;
 
-    if ($result_data['error'] !== NULL) {
-        $result = NULL;
+    if ($result_data['error'] !== null) {
+        $result = null;
     } else {
-        $result = count($result_data['result']) > 0 ? $result_data['result'][0]['min_bet'] : NULL;
+        $result = count($result_data['result']) > 0 ? $result_data['result'][0]['min_bet'] : null;
     }
 
     return $result;
 }
 
-// Возвращает id категории по ее названию.
+/**
+ * get_category_id - Возвращает id категории по ее названию.
+ *
+ * @param  mixed $con - подключение к БД.
+ * @param  mixed $category_name - название категории.
+ *
+ * @return array
+ */
 function get_category_id($con, $category_name)
 {
     $sql = 'SELECT id FROM stuff_category WHERE name = ? LIMIT 1';
@@ -126,8 +169,17 @@ function get_category_id($con, $category_name)
     return $result;
 }
 
-// Возвращает id пользователя сделавшего последнюю ставку.
-function get_last_bet_user_id($con, $lot_id)
+/**
+ * get_last_bet_user_id - Возвращает id пользователя сделавшего последнюю ставку.
+ *
+ * @param  mixed $con
+ * @param  int $lot_id - id лот.
+ *
+ * @return array $arr
+ * $arr['result'] - id пользователя.
+ * $arr['error'] - текст ошибки.
+ */
+function get_last_bet_user_id($con, int $lot_id)
 {
     $sql = 'SELECT b.user_id
             FROM `bet` as b
@@ -146,7 +198,18 @@ function get_last_bet_user_id($con, $lot_id)
     return [ 'error' => $result_data['error'], 'result' => $user_id ];
 }
 
-// Получаю список лотов с помощью полнотекстового поиска по названию и описанию лота и их кол-во всего.
+/**
+ * get_lots_by_fulltext_search - Получаю список лотов с помощью полнотекстового поиска по названию и описанию лота и их кол-во всего.
+ *
+ * @param  mixed $con
+ * @param  string $search_query - поисковый запрос пользователя.
+ * @param  int $limit - лимит записей.
+ * @param  int $offset - на сколько записей нужно сместить в результирующем наборе строк.
+ *
+ * @return array $arr
+ * $arr['total_count'] - всего лотов (число записей, которое вернет запрос без указания лимита).
+ * $arr['lots'] - массив лотов.
+ */
 function get_lots_by_fulltext_search($con, $search_query, $limit, $offset)
 {
     $params = [$search_query, $limit, $offset];
@@ -178,7 +241,18 @@ function get_lots_by_fulltext_search($con, $search_query, $limit, $offset)
     return ['lots' => $lots, 'total_count' => $total_lots_count];
 }
 
-// Возвращает лоты определеной категории и их кол-во всего.
+/**
+ * get_lots_by_category - Возвращает лоты определеной категории и их кол-во всего.
+ *
+ * @param  mixed $con
+ * @param  int $category_id - id категории лота.
+ * @param  int $limit - лимит записей.
+ * @param  int $offset - на сколько записей нужно сместить в результирующем наборе строк.
+ *
+ * @return array $arr 
+ * $arr['total_count'] - всего лотов (число записей, которое вернет запрос без указания лимита).
+ * $arr['lots'] - массив лотов.
+ */
 function get_lots_by_category($con, $category_id, $limit, $offset)
 {
     $params = [$category_id, $limit, $offset];
@@ -209,7 +283,13 @@ function get_lots_by_category($con, $category_id, $limit, $offset)
     return ['lots' => $lots, 'total_count' => $total_lots_count];
 }
 
-// Возвращает лоты без победителей на данный момент и пользователя чья ставка была последней.
+/**
+ * get_lots_without_winners -  Возвращает лоты без победителей на данный момент и пользователя чья ставка была последней.
+ *
+ * @param  mixed $con
+ *
+ * @return array
+ */
 function get_lots_without_winners($con)
 {
     $sql = 'SELECT l.id as lot_id, 
@@ -226,8 +306,16 @@ function get_lots_without_winners($con)
     return $result_data;
 }
 
-// Устанавливает победителей у лотов.
-// $lot_winner - массив, где каждый элемент пара: id лота - id победителя
+/**
+ * set_lots_winners - Устанавливает победителей аукционов у лотов.
+ *
+ * @param  mixed $con
+ * @param  mixed $lot_winner_arr - массив, где каждый элемент пара: id лота - id победителя
+ *
+ * @return array $arr
+ * $arr['result'] - массив id обработанных лотов.
+ * $arr['errors'] - массив с сообщениями об ошибках.
+ */
 function set_lots_winners($con, $lot_winner_arr)
 {
     $updated_id_winners = [];
@@ -267,7 +355,14 @@ function set_lots_winners($con, $lot_winner_arr)
     return ['result' => $updated_id_winners, 'errors' => $errors];
 }
 
-// Возвращает данные победителей (имя и email)
+/**
+ * get_winners_info - Возвращает данные победителей (имя и email)
+ *
+ * @param  mixed $con
+ * @param  array $winner_id_arr - массив id победивших пользователей.
+ *
+ * @return array
+ */
 function get_winners_info($con, $winner_id_arr)
 {
     $placeholders = create_placeholders_for_prepared_query(count($winner_id_arr));
@@ -284,7 +379,15 @@ function get_winners_info($con, $winner_id_arr)
     return $result_data;
 }
 
-function get_userdata_by_email($con, $email) 
+/**
+ * get_userdata_by_email - получение данных пользователя по его электронной почте.
+ *
+ * @param  mixed $con
+ * @param  string $email - электронная почта пользователя.
+ *
+ * @return array
+ */
+function get_userdata_by_email($con, string $email) 
 {
     $user_data = get_data_by_field($con, 'user', 'email', $email, 1);
 
@@ -293,25 +396,59 @@ function get_userdata_by_email($con, $email)
     return ['error' => $user_data['error'], 'result' => $result];
 }
 
-function has_email($con, $email)
+/**
+ * has_email - Возвращает истину, если в БД есть пользователь с указанной почтой.
+ *
+ * @param  mixed $con
+ * @param  string $email - электронная почта пользователя.
+ *
+ * @return bool
+ */
+function has_email($con, string $email) : bool
 {
     return filter($con, 'user', 'email', $email, 1);
 }
 
-function has_user($con, $user_name)
+/**
+ * has_user - Возвращает истину, если в БД есть пользователь с указанным именем.
+ *
+ * @param  mixed $con
+ * @param  string $user_name - имя пользователя.
+ *
+ * @return bool
+ */
+function has_user($con, string $user_name) : bool
 {
     return filter($con, 'user', 'name', $user_name, 1);
 }
 
-function has_lot($con, $lot_id)
+/**
+ * has_lot - Возвращает истину, если в БД есть лот с указанным id.
+ *
+ * @param  mixed $con
+ * @param  int $lot_id - id лота
+ *
+ * @return bool
+ */
+function has_lot($con, int $lot_id) : bool
 {
     return filter($con, 'lot', 'id', $lot_id);
 }
 
-// Добавляет пользователя в БД.
-function add_user($con, $email, $user_name, $password, $contacts) 
+/**
+ * add_user - Добавляет пользователя в БД.
+ *
+ * @param  mixed $con
+ * @param  string $email - электронная почта.
+ * @param  string $user_name - имя пользователя.
+ * @param  string $password - хэш от пароля пользователя.
+ * @param  string $contacts - контактные данные.
+ *
+ * @return int|null $inserted_user_id - id добавленного пользователя (null - если не удалось добавить).
+ */
+function add_user($con, string $email, string $user_name, string $password, string $contacts) : int
 {
-    $params = [ $email, $user_name, $password, $contacts];
+    $params = [$email, $user_name, $password, $contacts];
 
     $sql = 'INSERT INTO `user` (email, 
                                 name, 
@@ -327,9 +464,15 @@ function add_user($con, $email, $user_name, $password, $contacts)
     return $inserted_user_id;
 }
 
-// Добавляет лот.
-// Возвращает id лота в случае успеха, NULL - если нет.
-function add_lot($con, $params) 
+/**
+ * add_lot - Добавляет лот.
+ *
+ * @param  mixed $con
+ * @param  array $params - параметры лота.
+ *
+ * @return int|null $added_lot_id - id лота в случае успеха, NULL - если нет.
+ */
+function add_lot($con, $params) : int
 {
     $placeholders = create_placeholders_for_prepared_query(count($params));
 
@@ -345,7 +488,7 @@ function add_lot($con, $params)
 
     // Порядок параметров важен!
     $keys_order = ['author_id', 'name', 'category_id', 'description', 'start_price', 'step_bet', 'end_date', 'image_url'];
-    $ordered_params = array_order_by_key($params,  $keys_order);
+    $ordered_params = array_order_by_key($params, $keys_order);
 
     $result_data = db_fetch_data($con, $sql, $ordered_params);
 
@@ -355,8 +498,17 @@ function add_lot($con, $params)
     return $added_lot_id;
 }
 
-// Добавляет ставку на лот.
-function add_bet($con, $user_id, $lot_id, $bet_cost) 
+/**
+ * add_bet - Добавляет ставку на лот.
+ *
+ * @param  mixed $con
+ * @param  int $user_id - id пользователя, сделавшего ставку.
+ * @param  int $lot_id - id лота на которого сделали ставку.
+ * @param  int $bet_cost - размер ставки.
+ *
+ * @return int|null $added_bet_id - id добавленной ставки (null - если не удалось сделать ставку). 
+ */
+function add_bet($con, int $user_id, int $lot_id, int $bet_cost) : int
 {
     $params = [ $user_id, $lot_id, $bet_cost ];
 
