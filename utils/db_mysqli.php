@@ -6,7 +6,7 @@ namespace yeticave\db\functions;
 function get_connection()
 {
     $db_params = require_once(dirname(__FILE__) . '/../db_config.php');
-
+    
     $con = mysqli_connect($db_params['host'], 
                           $db_params['user'], 
                           $db_params['password'], 

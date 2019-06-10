@@ -1,6 +1,12 @@
 <?php
+    $db_params = require_once(dirname(__FILE__) . '/../db_config.php');
+
     // Текущие имя сервера у меня -  $server_name = 'yeticave.localhost';
-    $server_name = $_SERVER['SERVER_NAME'];
+    if (empty($db_params['server_name'])) {
+        $server_name = 'localhost';
+    } else {
+        $server_name = $db_params['server_name'];
+    }  
 ?>
 
 <h1>Поздравляем с победой</h1>
