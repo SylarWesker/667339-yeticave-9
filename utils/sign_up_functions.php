@@ -10,15 +10,15 @@ use yeticave\db\functions as db_func;
 /**
  * register_user
  *
- * @param  mixed $con - подключение к БД.
- * @param  string $email - электронная почта пользователя.
- * @param  string $user_name - имя/никнэйм пользователя.
- * @param  string $password - пароль пользователя.
- * @param  string $contacts - контактные данные пользователя.
+ * @param mixed $con - подключение к БД.
+ * @param string $email - электронная почта пользователя.
+ * @param string $user_name - имя/никнэйм пользователя.
+ * @param string $password - пароль пользователя.
+ * @param string $contacts - контактные данные пользователя.
  *
  * @return array (для примера назовем $arr)
  * $arr['user_id'] - возвращает идентификатор зарегистрированого пользователя. null - если пользователя не зарегистрировали.
- * $arr['errors'] - массив с фатальными ошибками и ошибками валидации. 
+ * $arr['errors'] - массив с фатальными ошибками и ошибками валидации.
  */
 function register_user($con, string $email, string $user_name, string $password, string $contacts)
 {
@@ -42,6 +42,6 @@ function register_user($con, string $email, string $user_name, string $password,
         // Добавляем пользователя в БД.
         $added_user_id = db_func\add_user($con, $email, $user_name, $password_hash, $contacts);
     }
- 
+
     return ['errors' => $errors, 'user_id' => $added_user_id];
 }

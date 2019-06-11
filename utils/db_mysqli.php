@@ -10,11 +10,11 @@ namespace yeticave\db\functions;
 function get_connection()
 {
     $db_params = require_once(dirname(__FILE__) . '/../db_config.php');
-    
-    $con = mysqli_connect($db_params['host'], 
-                          $db_params['user'], 
-                          $db_params['password'], 
-                          $db_params['db_name']);
+
+    $con = mysqli_connect($db_params['host'],
+        $db_params['user'],
+        $db_params['password'],
+        $db_params['db_name']);
 
     return $con;
 }
@@ -22,7 +22,7 @@ function get_connection()
 /**
  * set_charset - Установка кодировки соединения с БД.
  *
- * @param  mixed $con - соединение с БД.
+ * @param mixed $con - соединение с БД.
  *
  * @return void
  */
@@ -34,20 +34,20 @@ function set_charset($con)
 /**
  * get_data_by_field - функция получения данных по значению определенного поля.
  *
- * @param  mixed $con - подключение к БД.
- * @param  string $table_name - имя таблицы.
- * @param  string $field_name - название поля (колонки).
- * @param  mixed $field_value - значение поля.
- * @param  int|null $limit - лимит кол-ва возвращаемых записей (null - если без ограничений).
+ * @param mixed $con - подключение к БД.
+ * @param string $table_name - имя таблицы.
+ * @param string $field_name - название поля (колонки).
+ * @param mixed $field_value - значение поля.
+ * @param int|null $limit - лимит кол-ва возвращаемых записей (null - если без ограничений).
  *
  * @return array
  */
-function get_data_by_field($con, string $table_name, string $field_name, $field_value, $limit = null) 
+function get_data_by_field($con, string $table_name, string $field_name, $field_value, $limit = null)
 {
     $sql_limit_part = $limit ? " LIMIT $limit" : '';
 
     $sql = "SELECT * FROM `$table_name` WHERE `$field_name` = ? $sql_limit_part";
-    $result_data = db_fetch_data($con, $sql, [ $field_value ]);
+    $result_data = db_fetch_data($con, $sql, [$field_value]);
 
     return $result_data;
 }
@@ -55,15 +55,15 @@ function get_data_by_field($con, string $table_name, string $field_name, $field_
 /**
  * filter - Вспомогательная функция проверяющая есть ли данные в БД.
  *
- * @param  mixed $con - подключение к БД.
- * @param  string $table_name - имя таблицы.
- * @param  string $field_name - название поля (колонки).
- * @param  mixed $field_value - значение поля.
- * @param  int|null $limit - лимит кол-ва возвращаемых записей (null - если без ограничений).
+ * @param mixed $con - подключение к БД.
+ * @param string $table_name - имя таблицы.
+ * @param string $field_name - название поля (колонки).
+ * @param mixed $field_value - значение поля.
+ * @param int|null $limit - лимит кол-ва возвращаемых записей (null - если без ограничений).
  *
  * @return bool
  */
-function filter($con, string $table_name, string $field_name, $field_value, $limit = null) : bool
+function filter($con, string $table_name, string $field_name, $field_value, $limit = null): bool
 {
     $result_data = get_data_by_field($con, $table_name, $field_name, $field_value, $limit);
 
@@ -81,12 +81,12 @@ function filter($con, string $table_name, string $field_name, $field_value, $lim
 /**
  * create_placeholders_for_prepared_query - Формирует подстановочные знаки для параметров в подготовленных запросах.
  *
- * @param  int $count - кол-во параметров для которых формируем знаки.
- * @param  string $placeholder - символ подстановочного знака.
+ * @param int $count - кол-во параметров для которых формируем знаки.
+ * @param string $placeholder - символ подстановочного знака.
  *
  * @return string
  */
-function create_placeholders_for_prepared_query(int $count, string $placeholder = '?') : string
+function create_placeholders_for_prepared_query(int $count, string $placeholder = '?'): string
 {
     $query_placeholders = array_fill(0, $count, $placeholder);
     $query_placeholders_str = implode(', ', $query_placeholders);
@@ -97,7 +97,7 @@ function create_placeholders_for_prepared_query(int $count, string $placeholder 
 /**
  * get_last_db_error - Возвращает последнюю ошибку при работе с БД.
  *
- * @param  mixed $con - подключение к БД.
+ * @param mixed $con - подключение к БД.
  *
  * @return void
  */
@@ -115,7 +115,8 @@ function get_last_db_error($con)
  *
  * @return mysqli_stmt Подготовленное выражение
  */
-function db_get_prepare_stmt($link, $sql, $data = []) {
+function db_get_prepare_stmt($link, $sql, $data = [])
+{
     $stmt = mysqli_prepare($link, $sql);
 
     if ($data) {
@@ -127,12 +128,14 @@ function db_get_prepare_stmt($link, $sql, $data = []) {
 
             if (is_int($value)) {
                 $type = 'i';
-            }
-            else if (is_string($value)) {
-                $type = 's';
-            }
-            else if (is_double($value)) {
-                $type = 'd';
+            } else {
+                if (is_string($value)) {
+                    $type = 's';
+                } else {
+                    if (is_double($value)) {
+                        $type = 'd';
+                    }
+                }
             }
 
             if ($type) {
@@ -153,9 +156,9 @@ function db_get_prepare_stmt($link, $sql, $data = []) {
 /**
  * db_fetch_data - функция получения записей.
  *
- * @param  mixed $link - подключение к БД.
- * @param  string $sql - текст sql запроса.
- * @param  array $data - данные для подставновки в запрос (пустой массив если данные для выполнения запроса не требуются).
+ * @param mixed $link - подключение к БД.
+ * @param string $sql - текст sql запроса.
+ * @param array $data - данные для подставновки в запрос (пустой массив если данные для выполнения запроса не требуются).
  *
  * @return array (для примера назовем $arr)
  * $arr['result'] - массив с данными, полученными при выполнении запроса.
@@ -178,9 +181,9 @@ function db_fetch_data($link, $sql, $data = [])
         } else {
             $result = mysqli_fetch_all($res, MYSQLI_ASSOC);
         }
-    } catch(\mysqli_sql_exception $e) {
+    } catch (\mysqli_sql_exception $e) {
         $error = $e->getMessage();
     }
-   
+
     return ['result' => $result, 'error' => $error];
 }

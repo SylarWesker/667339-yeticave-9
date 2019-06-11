@@ -8,7 +8,7 @@ require_once('helpers.php');
 /**
  * validate_lot_end_date - Валидация даты окончания торгов лота.
  *
- * @param  string $end_date - дата окончания торгов.
+ * @param string $end_date - дата окончания торгов.
  *
  * @return array
  */
@@ -37,9 +37,9 @@ function validate_lot_end_date(string $end_date)
 /**
  * validate_price - Валидация цены
  *
- * @param  string $price_value - валидируемая цена лота
- * @param  string $belong_zero_msg - сообщение об ошибке, если цена ниже нуля.
- * @param  string $not_number_msg - сообщение об ошибке, если передали не число
+ * @param string $price_value - валидируемая цена лота
+ * @param string $belong_zero_msg - сообщение об ошибке, если цена ниже нуля.
+ * @param string $not_number_msg - сообщение об ошибке, если передали не число
  *
  * @return array (для примера назовем $arr)
  * $arr['is_valid'] - возращает true, если цена валидна.

@@ -10,9 +10,9 @@ use yeticave\db\functions as db_func;
 /**
  * login_user - позволяет залогинится пользователю по почте и паролю.
  *
- * @param  mixed $con - соединение с БД
- * @param  string $email - электронная почта пользователя.
- * @param  string $password - пароль пользователя.
+ * @param mixed $con - соединение с БД
+ * @param string $email - электронная почта пользователя.
+ * @param string $password - пароль пользователя.
  *
  * @return array (для примера назовем $arr)
  * $arr['result'] - возвращает true, если пользователь успешно залогинился.
@@ -20,13 +20,13 @@ use yeticave\db\functions as db_func;
  */
 function login_user($con, string $email, string $password)
 {
-    $errors = [ 'validation' => [], 'fatal' => [] ];
+    $errors = ['validation' => [], 'fatal' => []];
     $error_msg = 'Неверный логин и/или пароль.';
 
     $func_result = db_func\get_userdata_by_email($con, $email);
     $user_data = $func_result['result'];
     $func_error = $func_result['error'];
- 
+
     if (!is_null($user_data) && empty($func_error)) {
         $password_from_db = $user_data['password'];
 
@@ -42,12 +42,12 @@ function login_user($con, string $email, string $password)
             $errors['validation']['email'] = $error_msg;
             $errors['validation']['password'] = $error_msg;
         }
-   } else {
+    } else {
         $errors['validation']['email'] = $error_msg;
         $errors['validation']['password'] = $error_msg;
 
         $errors['fatal'] = $func_error;
-   }
+    }
 
-   return ['errors' => $errors, 'result' => empty($errors['validation']) && empty($errors['fatal'])];
+    return ['errors' => $errors, 'result' => empty($errors['validation']) && empty($errors['fatal'])];
 }   

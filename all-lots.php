@@ -23,22 +23,22 @@ $lots_limit = 9; // ограничение кол-ва лотов на стра�
 $min_page_number = 1;
 $page_number = $min_page_number;
 
-if(isset($_GET['page'])) {
-  $page_param = $_GET['page'];
+if (isset($_GET['page'])) {
+    $page_param = $_GET['page'];
 
-  if (is_numeric($page_param)) {
-    $page_number = intval($page_param);
-  }
+    if (is_numeric($page_param)) {
+        $page_number = intval($page_param);
+    }
 }
 
 $category_name = '';
 
-if(empty($_GET['category_name'])) {
-  show_404(['Не указана категория лотов'], $stuff_categories, $is_auth, $user_name);
-  return;
+if (empty($_GET['category_name'])) {
+    show_404(['Не указана категория лотов'], $stuff_categories, $is_auth, $user_name);
+    return;
 }
 
-$form_fields = ['category_name' => ['error_messages' => [ 'zero_length' => 'Не указано название категории']]];
+$form_fields = ['category_name' => ['error_messages' => ['zero_length' => 'Не указано название категории']]];
 
 // Сбор данных с формы.
 $form_data = get_form_data(array_keys($form_fields));
@@ -60,8 +60,8 @@ if (is_null($category_id)) {
 }
 
 if (!empty($errors['validation'])) {
-  show_404($errors['validation'], $stuff_categories, $is_auth, $user_name);
-  return;
+    show_404($errors['validation'], $stuff_categories, $is_auth, $user_name);
+    return;
 }
 
 // Если нет ошибок, то расчитываем параметры пагинации и получаем лоты.
@@ -75,25 +75,25 @@ $lots_by_category = $func_result['lots'];
 $count_lots = $func_result['total_count'];
 
 $max_page_number = get_max_page_number($lots_limit, $count_lots);
-  
+
 $con = null;
 
 
-$content = include_template('all-lots.php', [ 
-                                                'category_name' => $category_name,
-                                                'lots' => $lots_by_category,
-                                                'stuff_categories' => $stuff_categories,
-                                                'min_page_number' => $min_page_number,
-                                                'current_page' => $page_number,
-                                                'max_page_number' => $max_page_number
-                                            ]);
+$content = include_template('all-lots.php', [
+    'category_name' => $category_name,
+    'lots' => $lots_by_category,
+    'stuff_categories' => $stuff_categories,
+    'min_page_number' => $min_page_number,
+    'current_page' => $page_number,
+    'max_page_number' => $max_page_number
+]);
 
 $layout = include_template('layout.php', [
-                                            'title' => $title, 
-                                            'content' => $content, 
-                                            'stuff_categories' => $stuff_categories, 
-                                            'is_auth' => $is_auth, 
-                                            'user_name' => $user_name
+    'title' => $title,
+    'content' => $content,
+    'stuff_categories' => $stuff_categories,
+    'is_auth' => $is_auth,
+    'user_name' => $user_name
 ]);
 
 print($layout);

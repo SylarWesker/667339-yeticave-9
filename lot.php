@@ -19,7 +19,7 @@ $func_result = db_func\get_stuff_categories($con);
 $stuff_categories = $func_result['result'] ?? [];
 
 if (!is_null($func_result['error'])) {
-    $errors_lot['fatal'][] = 'Ошибка MySql при получении списка категорий: ' . $func_result['error'];  
+    $errors_lot['fatal'][] = 'Ошибка MySql при получении списка категорий: ' . $func_result['error'];
 }
 
 $title_page = 'Страница показа лота.';
@@ -28,10 +28,10 @@ $cost = null;
 $lot = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') { // Значит сделали ставку.
-    $form_fields = [ 
-                    'cost' => ['error_messages' => ['zero_length' => 'Не задана ставка на лот.']], 
-                    'lot_id' => ['error_messages' => ['zero_length' => 'Id лота не задан.']]
-                   ];
+    $form_fields = [
+        'cost' => ['error_messages' => ['zero_length' => 'Не задана ставка на лот.']],
+        'lot_id' => ['error_messages' => ['zero_length' => 'Id лота не задан.']]
+    ];
 
     // Сбор данных с формы.
     $form_data = get_form_data(array_keys($form_fields));
@@ -66,15 +66,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { // Значит сделали ст
     if (empty($errors_add_bet['validation'])) {
         // Добавляем ставку. 
         $added_bet_id = db_func\add_bet($con, $user_id, $lot_id, $cost);
-    
+
         if (!is_null($added_bet_id)) {
             $lot_url = 'lot.php?id=' . $lot_id;
-    
-            header('Location: ' . $lot_url);  
+
+            header('Location: ' . $lot_url);
         } else {
             $errors_add_bet['fatal'][] = 'Ставка не сделана.';
         }
-    } 
+    }
 
 } elseif ($_SERVER['REQUEST_METHOD'] === 'GET') { // просто запросили страничку.
     // Валидация
@@ -91,13 +91,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { // Значит сделали ст
 
 if (!empty($errors_lot['validation'])) {
     $errors_list = array_merge($errors_lot['fatal'] ?? [], $errors_lot['validation'] ?? []);
-    
+
     show_500($errors_list, $stuff_categories, $is_auth, $user_name);
     return;
-} 
+}
 
 // Берем лот по id.
-$func_result = db_func\get_lots($con, [ $lot_id ], false);
+$func_result = db_func\get_lots($con, [$lot_id], false);
 if (!empty($func_result['result'])) {
     $lot = $func_result['result'][0];
 
@@ -112,17 +112,17 @@ if (!empty($func_result['error'])) {
 
         show_404($errors_lot['fatal'], $stuff_categories, $is_auth, $user_name);
         return;
-    } 
+    }
 }
 
-$content = get_lot_page_content($lot, $con, $user_id, $is_auth, $stuff_categories, $errors_add_bet['validation']);  
+$content = get_lot_page_content($lot, $con, $user_id, $is_auth, $stuff_categories, $errors_add_bet['validation']);
 
-$layout = include_template('layout.php', [ 
-                                            'title' => $title_page,
-                                            'content' => $content, 
-                                            'stuff_categories' => $stuff_categories, 
-                                            'is_auth' => $is_auth, 
-                                            'user_name' => $user_name
-                                        ]);
-    
+$layout = include_template('layout.php', [
+    'title' => $title_page,
+    'content' => $content,
+    'stuff_categories' => $stuff_categories,
+    'is_auth' => $is_auth,
+    'user_name' => $user_name
+]);
+
 print($layout);

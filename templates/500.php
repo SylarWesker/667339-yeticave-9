@@ -1,5 +1,5 @@
 <?php
-    http_response_code(500);
+http_response_code(500);
 ?>
 
 <main>
@@ -9,9 +9,9 @@
 
         <p>Список ошибок:</p>
         <ul>
-            <?php foreach($error_list as $error): ?>
+            <?php foreach ($error_list as $error): ?>
                 <li><?= $error ?></li>
             <?php endforeach; ?>
-        <ul>
+            <ul>
     </section>
 </main>

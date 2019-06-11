@@ -11,10 +11,10 @@ $is_auth = is_auth();
  *
  * @return bool
  */
-function is_auth() : bool
+function is_auth(): bool
 {
-    return !(empty($_SESSION['user']['name']) && 
-             empty($_SESSION['user']['id']));
+    return !(empty($_SESSION['user']['name']) &&
+        empty($_SESSION['user']['id']));
 }
 
 /**
@@ -22,11 +22,11 @@ function is_auth() : bool
  *
  * @return string
  */
-function get_user_name() : string
+function get_user_name(): string
 {
     $user_name = '';
 
-    if(is_auth()) {
+    if (is_auth()) {
         $user_name = $_SESSION['user']['name'];
     }
 
@@ -42,27 +42,27 @@ function get_user_id()
 {
     $user_id = null;
 
-    if(is_auth()) {
+    if (is_auth()) {
         $user_id = $_SESSION['user']['id'];
     }
 
     return $user_id;
 }
- 
+
 /**
  * save_user_data - сохраняет данные пользователя в сессии.
  *
- * @param  string $user_name - имя пользователя.
- * @param  int $user_id - идентификатор пользователя.
+ * @param string $user_name - имя пользователя.
+ * @param int $user_id - идентификатор пользователя.
  *
  * @return void
  */
 function save_user_data(string $user_name, int $user_id)
 {
     $_SESSION['user'] = [
-                            'name' => $user_name,
-                            'id' =>  $user_id
-                        ];
+        'name' => $user_name,
+        'id' => $user_id
+    ];
 }
 
 /**

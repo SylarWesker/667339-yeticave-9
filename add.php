@@ -33,18 +33,18 @@ $func_result = db_func\get_stuff_categories($con);
 $stuff_categories = $func_result['result'] ?? [];
 
 if ($func_result['error'] !== null) {
-    $errors['fatal']['get_categories'] = 'Ошибка MySql при получении списка категорий: ' . $func_result['error'];  
+    $errors['fatal']['get_categories'] = 'Ошибка MySql при получении списка категорий: ' . $func_result['error'];
 }
 
 // Валидация данных формы.
 if (isset($_POST['submit'])) {
     $form_fields = [
-        'lot-name' => [ 'error_messages' => ['zero_length' => 'Введите название лота']],
-        'category' => [ 'error_messages' => ['zero_length' => 'Не указана категория лота']],
-        'message'  => [ 'error_messages' => ['zero_length' => 'Введите описание лота']],
-        'lot-rate' => [ 'error_messages' => ['zero_length' => 'Введите начальную стоимость лота']],
-        'lot-step' => [ 'error_messages' => ['zero_length' => 'Введите шаг ставки']],
-        'lot-date' => [ 'error_messages' => ['zero_length' => 'Введите дату окончания торгов']],
+        'lot-name' => ['error_messages' => ['zero_length' => 'Введите название лота']],
+        'category' => ['error_messages' => ['zero_length' => 'Не указана категория лота']],
+        'message' => ['error_messages' => ['zero_length' => 'Введите описание лота']],
+        'lot-rate' => ['error_messages' => ['zero_length' => 'Введите начальную стоимость лота']],
+        'lot-step' => ['error_messages' => ['zero_length' => 'Введите шаг ставки']],
+        'lot-date' => ['error_messages' => ['zero_length' => 'Введите дату окончания торгов']],
     ];
 
     // Сбор данных с формы.
@@ -56,10 +56,10 @@ if (isset($_POST['submit'])) {
     $errors['validation'] = $validation_result['errors'];
     $validated_data = $validation_result['data'];
 
-    
+
     $lot_name = $validated_data['lot-name']; // Наименование
     $lot_description = $validated_data['message']; // Описание
-   
+
     // Уникальные проверки.
     // ------------------------------------------------------------------------------
     $lot_category = $validated_data['category'];  // Категория.
@@ -72,7 +72,7 @@ if (isset($_POST['submit'])) {
     }
 
     // Начальная цена
-    $start_price = $validated_data['lot-rate']; 
+    $start_price = $validated_data['lot-rate'];
 
     $belong_zero_msg = 'Начальная цена должна быть больше нуля';
     $not_number_msg = 'Начальная цена должна быть числом';
@@ -128,15 +128,15 @@ if (isset($_POST['submit'])) {
         // Дата окончания аукциона - это выбранная дата + время равное 23.59.59
         $lot_end_time = '23:59:59';
 
-        $params = [ 
-                    'author_id'     => $user_id, 
-                    'name'          => $lot_name, 
-                    'category_id'   => $lot_category_id, 
-                    'description'   => $lot_description, 
-                    'start_price'   => $start_price, 
-                    'step_bet'      => $step_bet, 
-                    'end_date'      => $lot_end_date->format('Y/m/d ' . $lot_end_time), 
-                    'image_url'     => $relative_img_path
+        $params = [
+            'author_id' => $user_id,
+            'name' => $lot_name,
+            'category_id' => $lot_category_id,
+            'description' => $lot_description,
+            'start_price' => $start_price,
+            'step_bet' => $step_bet,
+            'end_date' => $lot_end_date->format('Y/m/d ' . $lot_end_time),
+            'image_url' => $relative_img_path
         ];
 
         $added_lot_id = db_func\add_lot($con, $params);
@@ -152,20 +152,22 @@ if (isset($_POST['submit'])) {
 }
 
 if (!empty($errors['fatal'])) {
-    show_500($errors['fatal'],  $stuff_categories, $is_auth, $user_name);
+    show_500($errors['fatal'], $stuff_categories, $is_auth, $user_name);
     return;
 }
 
-$content = include_template('add-lot.php', [ 'stuff_categories' => $stuff_categories,
-                                             'errors'           => $errors['validation'],
-                                             'form_data'        => $form_data
-                                           ]);
+$content = include_template('add-lot.php', [
+    'stuff_categories' => $stuff_categories,
+    'errors' => $errors['validation'],
+    'form_data' => $form_data
+]);
 
-$layout = include_template('layout.php', [  'title'             => $title,
-                                            'content'           => $content, 
-                                            'stuff_categories'  => $stuff_categories, 
-                                            'is_auth'           => $is_auth, 
-                                            'user_name'         => $user_name
-                                         ]);
+$layout = include_template('layout.php', [
+    'title' => $title,
+    'content' => $content,
+    'stuff_categories' => $stuff_categories,
+    'is_auth' => $is_auth,
+    'user_name' => $user_name
+]);
 
 print($layout);

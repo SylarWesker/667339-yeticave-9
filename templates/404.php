@@ -1,7 +1,7 @@
 <?php
-    http_response_code(404);
+http_response_code(404);
 
-    $navigation = include_template('navigate.php', [ 'stuff_categories' => $stuff_categories ]);
+$navigation = include_template('navigate.php', ['stuff_categories' => $stuff_categories]);
 ?>
 
 <main>
@@ -13,9 +13,9 @@
 
         <p>Список ошибок:</p>
         <ul>
-            <?php foreach($error_list as $error): ?>
+            <?php foreach ($error_list as $error): ?>
                 <li><?= $error ?></li>
             <?php endforeach; ?>
-        <ul>
+            <ul>
     </section>
 </main>
